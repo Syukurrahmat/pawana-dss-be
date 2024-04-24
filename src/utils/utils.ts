@@ -3,8 +3,6 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import moment from 'moment';
 
-console.log(process.env.DATABASE_NAME);
-
 export const __dirname = dirname(fileURLToPath(import.meta.url));
 export function printJSON(data: any) {
     const jsonData = JSON.stringify(data, null, 2);

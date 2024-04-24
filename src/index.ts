@@ -45,25 +45,29 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/api', isAuthenticated, apiRouter);
+app.use('/api', apiRouter);
 
-app.get('/login', (req, res) => res.sendFile(path.resolve('public/login.html')));
-
-app.post(
-    '/login',
-    passport.authenticate('local', {
-        successRedirect: '/',
-        failureRedirect: '/login?failed=true',
-    })
-);
+app.route('/login')
+    .get((req, res) => res.sendFile(path.resolve('public/login.html')))
+    .post(
+        passport.authenticate('local', {
+            successRedirect: '/',
+            failureRedirect: '/login?failed=true',
+        })
+    );
 
 app.use(
-    '/',
+    '/*',
     createProxyMiddleware({
         target: 'http://localhost:5173/',
         changeOrigin: true,
     })
 );
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ success: false, message: 'Something broke!' });
+});
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
