@@ -1,0 +1,16 @@
+{
+    "include": ["src/**/*"],
+
+    "compilerOptions": {
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "ES6",
+        "sourceMap": true,
+        "outDir": "public",
+        "lib": ["ES2015"],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "noErrorTruncation": true,
+        "typeRoots": ["src/types"]
+    }
+}

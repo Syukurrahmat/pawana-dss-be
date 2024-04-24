@@ -1,0 +1,1757 @@
+{
+  "groupInfo": {
+    "name": "Tahu Sehat Berkah",
+    "groupId": 4,
+    "address": "Desa Nusa Jaya, Kelurahan Sejahtera Baru, Kecamatan Maju Mundur, Kabupaten Tahu Berseri",
+    "manager": {
+      "name": "Pertiwi Sherly",
+      "userId": 131
+    },
+    "nodeCount": 3,
+    "nodes": [
+      {
+        "nodeId": 9,
+        "name": "gc0",
+        "longitude": 86.337,
+        "latitude": -48.7928,
+        "status": "normal",
+        "environment": "indoor",
+        "data": {
+          "dataLogId": 36000,
+          "nodeId": 9,
+          "datetime": "2024-03-16T17:30:00.000Z",
+          "pm25": 1.71,
+          "pm100": 1.08,
+          "ch4": 8901,
+          "co2": 644,
+          "temperature": 35,
+          "humidity": 66
+        }
+      },
+      {
+        "nodeId": 14,
+        "name": "Ih1",
+        "longitude": 44.3555,
+        "latitude": -146.224,
+        "status": "normal",
+        "environment": "outdoor",
+        "data": {
+          "dataLogId": 56000,
+          "nodeId": 14,
+          "datetime": "2024-03-16T17:30:00.000Z",
+          "pm25": 0.59,
+          "pm100": 2.04,
+          "ch4": 9141,
+          "co2": 537,
+          "temperature": 28,
+          "humidity": 78
+        }
+      },
+      {
+        "nodeId": 19,
+        "name": "Kgc",
+        "longitude": 27.799,
+        "latitude": 93.5281,
+        "status": "normal",
+        "environment": "outdoor",
+        "data": {
+          "dataLogId": 76000,
+          "nodeId": 19,
+          "datetime": "2024-03-16T17:30:00.000Z",
+          "pm25": 0.99,
+          "pm100": 0.65,
+          "ch4": 9019,
+          "co2": 643,
+          "temperature": 30,
+          "humidity": 46
+        }
+      }
+    ]
+  },
+  "dashboardData": {
+    "indoor": {
+      "ispu": {
+        "datetime": "2024-03-16T17:00:00.000Z",
+        "currentISPU": {
+          "mainPollutant": "PM2.5",
+          "ispu": 3,
+          "ispuFloat": 3.363575268817204,
+          "value": 1.0427083333333333,
+          "category": "Baik",
+          "color": "Hijau"
+        },
+        "allCurrentISPU": {
+          "pm25": {
+            "ispu": 3,
+            "ispuFloat": 3.363575268817204,
+            "value": 1.0427083333333333,
+            "category": "Baik",
+            "color": "Hijau"
+          },
+          "pm100": {
+            "ispu": 2,
+            "ispuFloat": 2.2187499999999996,
+            "value": 2.2187499999999996,
+            "category": "Baik",
+            "color": "Hijau"
+          }
+        },
+        "ISPUTren": [
+          {
+            "datetime": "2024-03-16T17:00:00.000Z",
+            "pm25": {
+              "ispu": 3,
+              "ispuFloat": 3.363575268817204,
+              "value": 1.0427083333333333,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 2.2187499999999996,
+              "value": 2.2187499999999996,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T16:00:00.000Z",
+            "pm25": {
+              "ispu": 3,
+              "ispuFloat": 3.1754032258064524,
+              "value": 0.9843750000000003,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 2.2456249999999995,
+              "value": 2.2456249999999995,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T15:00:00.000Z",
+            "pm25": {
+              "ispu": 3,
+              "ispuFloat": 3.126344086021506,
+              "value": 0.9691666666666668,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 2.2185416666666664,
+              "value": 2.2185416666666664,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T14:00:00.000Z",
+            "pm25": {
+              "ispu": 3,
+              "ispuFloat": 3.0833333333333344,
+              "value": 0.9558333333333336,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 2.187708333333333,
+              "value": 2.187708333333333,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T13:00:00.000Z",
+            "pm25": {
+              "ispu": 3,
+              "ispuFloat": 2.907930107526883,
+              "value": 0.9014583333333337,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 2.157083333333333,
+              "value": 2.157083333333333,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T12:00:00.000Z",
+            "pm25": {
+              "ispu": 3,
+              "ispuFloat": 2.5853494623655924,
+              "value": 0.8014583333333337,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 2.0729166666666665,
+              "value": 2.0729166666666665,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T11:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 2.4879032258064524,
+              "value": 0.7712500000000003,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 1.9737499999999997,
+              "value": 1.9737499999999997,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T10:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 2.3393817204301075,
+              "value": 0.7252083333333333,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 1.9060416666666662,
+              "value": 1.9060416666666662,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T09:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 2.2567204301075265,
+              "value": 0.6995833333333333,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 1.858125,
+              "value": 1.858125,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T08:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 2.2043010752688166,
+              "value": 0.6833333333333332,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 1.8329166666666667,
+              "value": 1.8329166666666667,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T07:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 2.178763440860215,
+              "value": 0.6754166666666667,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 1.753125,
+              "value": 1.753125,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T06:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 2.0557795698924726,
+              "value": 0.6372916666666665,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 1.6641666666666668,
+              "value": 1.6641666666666668,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T05:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 1.956989247311827,
+              "value": 0.6066666666666665,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 2,
+              "ispuFloat": 1.5641666666666671,
+              "value": 1.5641666666666671,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T04:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 1.8797043010752679,
+              "value": 0.582708333333333,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 1,
+              "ispuFloat": 1.478958333333334,
+              "value": 1.478958333333334,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T03:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 1.8313172043010746,
+              "value": 0.5677083333333331,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 1,
+              "ispuFloat": 1.4052083333333343,
+              "value": 1.4052083333333343,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T02:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 1.849462365591397,
+              "value": 0.5733333333333331,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 1,
+              "ispuFloat": 1.3435416666666677,
+              "value": 1.3435416666666677,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T01:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 1.8111559139784936,
+              "value": 0.5614583333333331,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 1,
+              "ispuFloat": 1.3114583333333345,
+              "value": 1.3114583333333345,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-16T00:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 1.7862903225806446,
+              "value": 0.5537499999999999,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 1,
+              "ispuFloat": 1.2531250000000014,
+              "value": 1.2531250000000014,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-15T23:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 1.8124999999999991,
+              "value": 0.5618749999999998,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 1,
+              "ispuFloat": 1.155416666666668,
+              "value": 1.155416666666668,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-15T22:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 1.745967741935483,
+              "value": 0.5412499999999998,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 1,
+              "ispuFloat": 1.0818750000000013,
+              "value": 1.0818750000000013,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-15T21:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 1.6821236559139774,
+              "value": 0.521458333333333,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 1,
+              "ispuFloat": 1.0158333333333345,
+              "value": 1.0158333333333345,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-15T20:00:00.000Z",
+            "pm25": {
+              "ispu": 2,
+              "ispuFloat": 1.6391129032258054,
+              "value": 0.5081249999999997,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 1,
+              "ispuFloat": 0.9333333333333341,
+              "value": 0.9333333333333341,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-15T19:00:00.000Z",
+            "pm25": {
+              "ispu": 1,
+              "ispuFloat": 1.4623655913978488,
+              "value": 0.45333333333333314,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 1,
+              "ispuFloat": 0.8681250000000009,
+              "value": 0.8681250000000009,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          },
+          {
+            "datetime": "2024-03-15T18:00:00.000Z",
+            "pm25": {
+              "ispu": 1,
+              "ispuFloat": 1.4072580645161286,
+              "value": 0.43624999999999986,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "pm100": {
+              "ispu": 1,
+              "ispuFloat": 0.8060416666666668,
+              "value": 0.8060416666666668,
+              "category": "Baik",
+              "color": "Hijau"
+            }
+          }
+        ]
+      },
+      "grk": {
+        "datetime": "2024-03-16T17:30:00.000Z",
+        "currentGRK": {
+          "ch4": {
+            "value": 8901,
+            "category": "Bahaya"
+          },
+          "co2": {
+            "value": 644,
+            "category": "Bersih"
+          }
+        }
+      },
+      "tempHum": {
+        "datetime": "2024-03-16T17:30:00.000Z",
+        "currentTempHum": {
+          "temp": {
+            "value": 35,
+            "category": "Aman"
+          },
+          "hum": {
+            "value": 66,
+            "category": "Bahaya"
+          }
+        }
+      },
+      "tren": [
+        {
+          "datetime": "2024-03-16T17:30:00.000Z",
+          "pm25": 1.71,
+          "pm100": 1.08,
+          "ch4": 8901,
+          "co2": 644,
+          "temperature": 35,
+          "humidity": 66
+        },
+        {
+          "datetime": "2024-03-16T17:00:00.000Z",
+          "pm25": 2.2,
+          "pm100": 1.84,
+          "ch4": 8965,
+          "co2": 633,
+          "temperature": 34,
+          "humidity": 69
+        },
+        {
+          "datetime": "2024-03-16T16:30:00.000Z",
+          "pm25": 1.58,
+          "pm100": 1.86,
+          "ch4": 8965,
+          "co2": 608,
+          "temperature": 33,
+          "humidity": 66
+        },
+        {
+          "datetime": "2024-03-16T16:00:00.000Z",
+          "pm25": 0.93,
+          "pm100": 2.6,
+          "ch4": 8900,
+          "co2": 598,
+          "temperature": 31,
+          "humidity": 68
+        },
+        {
+          "datetime": "2024-03-16T15:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 2.6,
+          "ch4": 8919,
+          "co2": 622,
+          "temperature": 30,
+          "humidity": 69
+        },
+        {
+          "datetime": "2024-03-16T15:00:00.000Z",
+          "pm25": 0.38,
+          "pm100": 2.6,
+          "ch4": 8968,
+          "co2": 617,
+          "temperature": 30,
+          "humidity": 69
+        },
+        {
+          "datetime": "2024-03-16T14:30:00.000Z",
+          "pm25": 0.97,
+          "pm100": 1.98,
+          "ch4": 8914,
+          "co2": 611,
+          "temperature": 29,
+          "humidity": 64
+        },
+        {
+          "datetime": "2024-03-16T14:00:00.000Z",
+          "pm25": 1.49,
+          "pm100": 2.29,
+          "ch4": 8922,
+          "co2": 589,
+          "temperature": 29,
+          "humidity": 67
+        },
+        {
+          "datetime": "2024-03-16T13:30:00.000Z",
+          "pm25": 1.9,
+          "pm100": 2.6,
+          "ch4": 8930,
+          "co2": 601,
+          "temperature": 28,
+          "humidity": 63
+        },
+        {
+          "datetime": "2024-03-16T13:00:00.000Z",
+          "pm25": 2.6,
+          "pm100": 2.32,
+          "ch4": 8900,
+          "co2": 585,
+          "temperature": 28,
+          "humidity": 62
+        },
+        {
+          "datetime": "2024-03-16T12:30:00.000Z",
+          "pm25": 2.6,
+          "pm100": 2.6,
+          "ch4": 8900,
+          "co2": 582,
+          "temperature": 26,
+          "humidity": 58
+        },
+        {
+          "datetime": "2024-03-16T12:00:00.000Z",
+          "pm25": 1.97,
+          "pm100": 2.6,
+          "ch4": 8900,
+          "co2": 571,
+          "temperature": 24,
+          "humidity": 54
+        },
+        {
+          "datetime": "2024-03-16T11:30:00.000Z",
+          "pm25": 1.27,
+          "pm100": 2.6,
+          "ch4": 8900,
+          "co2": 567,
+          "temperature": 25,
+          "humidity": 55
+        },
+        {
+          "datetime": "2024-03-16T11:00:00.000Z",
+          "pm25": 1.94,
+          "pm100": 2.41,
+          "ch4": 8900,
+          "co2": 540,
+          "temperature": 26,
+          "humidity": 56
+        },
+        {
+          "datetime": "2024-03-16T10:30:00.000Z",
+          "pm25": 1.14,
+          "pm100": 2.25,
+          "ch4": 8926,
+          "co2": 511,
+          "temperature": 28,
+          "humidity": 58
+        },
+        {
+          "datetime": "2024-03-16T10:00:00.000Z",
+          "pm25": 1.38,
+          "pm100": 1.97,
+          "ch4": 8902,
+          "co2": 526,
+          "temperature": 26,
+          "humidity": 53
+        },
+        {
+          "datetime": "2024-03-16T09:30:00.000Z",
+          "pm25": 0.71,
+          "pm100": 2.37,
+          "ch4": 8900,
+          "co2": 543,
+          "temperature": 26,
+          "humidity": 57
+        },
+        {
+          "datetime": "2024-03-16T09:00:00.000Z",
+          "pm25": 0.98,
+          "pm100": 1.69,
+          "ch4": 8900,
+          "co2": 531,
+          "temperature": 25,
+          "humidity": 53
+        },
+        {
+          "datetime": "2024-03-16T08:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 1.8,
+          "ch4": 8900,
+          "co2": 526,
+          "temperature": 26,
+          "humidity": 50
+        },
+        {
+          "datetime": "2024-03-16T08:00:00.000Z",
+          "pm25": 0.58,
+          "pm100": 2.01,
+          "ch4": 8900,
+          "co2": 544,
+          "temperature": 27,
+          "humidity": 51
+        },
+        {
+          "datetime": "2024-03-16T07:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 2.22,
+          "ch4": 8900,
+          "co2": 531,
+          "temperature": 26,
+          "humidity": 48
+        },
+        {
+          "datetime": "2024-03-16T07:00:00.000Z",
+          "pm25": 0.79,
+          "pm100": 2.6,
+          "ch4": 8900,
+          "co2": 548,
+          "temperature": 27,
+          "humidity": 51
+        },
+        {
+          "datetime": "2024-03-16T06:30:00.000Z",
+          "pm25": 1.44,
+          "pm100": 2.56,
+          "ch4": 8900,
+          "co2": 562,
+          "temperature": 27,
+          "humidity": 51
+        },
+        {
+          "datetime": "2024-03-16T06:00:00.000Z",
+          "pm25": 1.34,
+          "pm100": 2.6,
+          "ch4": 8900,
+          "co2": 572,
+          "temperature": 26,
+          "humidity": 51
+        },
+        {
+          "datetime": "2024-03-16T05:30:00.000Z",
+          "pm25": 0.55,
+          "pm100": 2.6,
+          "ch4": 8900,
+          "co2": 601,
+          "temperature": 24,
+          "humidity": 46
+        },
+        {
+          "datetime": "2024-03-16T05:00:00.000Z",
+          "pm25": 0.75,
+          "pm100": 2.6,
+          "ch4": 8900,
+          "co2": 620,
+          "temperature": 25,
+          "humidity": 46
+        },
+        {
+          "datetime": "2024-03-16T04:30:00.000Z",
+          "pm25": 0.81,
+          "pm100": 2.56,
+          "ch4": 8920,
+          "co2": 621,
+          "temperature": 25,
+          "humidity": 48
+        },
+        {
+          "datetime": "2024-03-16T04:00:00.000Z",
+          "pm25": 1.26,
+          "pm100": 1.8,
+          "ch4": 8900,
+          "co2": 627,
+          "temperature": 24,
+          "humidity": 48
+        },
+        {
+          "datetime": "2024-03-16T03:30:00.000Z",
+          "pm25": 1,
+          "pm100": 2.14,
+          "ch4": 8907,
+          "co2": 652,
+          "temperature": 23,
+          "humidity": 51
+        },
+        {
+          "datetime": "2024-03-16T03:00:00.000Z",
+          "pm25": 0.62,
+          "pm100": 1.46,
+          "ch4": 8931,
+          "co2": 669,
+          "temperature": 24,
+          "humidity": 50
+        },
+        {
+          "datetime": "2024-03-16T02:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 1.9,
+          "ch4": 8992,
+          "co2": 650,
+          "temperature": 24,
+          "humidity": 55
+        },
+        {
+          "datetime": "2024-03-16T02:00:00.000Z",
+          "pm25": 0.75,
+          "pm100": 1.48,
+          "ch4": 8953,
+          "co2": 641,
+          "temperature": 24,
+          "humidity": 52
+        },
+        {
+          "datetime": "2024-03-16T01:30:00.000Z",
+          "pm25": 0.78,
+          "pm100": 1.11,
+          "ch4": 8900,
+          "co2": 647,
+          "temperature": 24,
+          "humidity": 50
+        },
+        {
+          "datetime": "2024-03-16T01:00:00.000Z",
+          "pm25": 0.54,
+          "pm100": 1.59,
+          "ch4": 8900,
+          "co2": 661,
+          "temperature": 26,
+          "humidity": 46
+        },
+        {
+          "datetime": "2024-03-16T00:30:00.000Z",
+          "pm25": 1.02,
+          "pm100": 1.98,
+          "ch4": 8969,
+          "co2": 668,
+          "temperature": 26,
+          "humidity": 46
+        },
+        {
+          "datetime": "2024-03-16T00:00:00.000Z",
+          "pm25": 0.41,
+          "pm100": 2.6,
+          "ch4": 8997,
+          "co2": 675,
+          "temperature": 27,
+          "humidity": 49
+        },
+        {
+          "datetime": "2024-03-15T23:30:00.000Z",
+          "pm25": 0.71,
+          "pm100": 2.49,
+          "ch4": 8953,
+          "co2": 704,
+          "temperature": 28,
+          "humidity": 54
+        },
+        {
+          "datetime": "2024-03-15T23:00:00.000Z",
+          "pm25": 0.37,
+          "pm100": 2,
+          "ch4": 8999,
+          "co2": 695,
+          "temperature": 28,
+          "humidity": 54
+        },
+        {
+          "datetime": "2024-03-15T22:30:00.000Z",
+          "pm25": 1.02,
+          "pm100": 2.4,
+          "ch4": 9072,
+          "co2": 701,
+          "temperature": 29,
+          "humidity": 53
+        },
+        {
+          "datetime": "2024-03-15T22:00:00.000Z",
+          "pm25": 0.82,
+          "pm100": 2.17,
+          "ch4": 9128,
+          "co2": 723,
+          "temperature": 30,
+          "humidity": 51
+        },
+        {
+          "datetime": "2024-03-15T21:30:00.000Z",
+          "pm25": 0.53,
+          "pm100": 1.55,
+          "ch4": 9050,
+          "co2": 710,
+          "temperature": 29,
+          "humidity": 46
+        },
+        {
+          "datetime": "2024-03-15T21:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 2.14,
+          "ch4": 9120,
+          "co2": 720,
+          "temperature": 27,
+          "humidity": 50
+        },
+        {
+          "datetime": "2024-03-15T20:30:00.000Z",
+          "pm25": 0.91,
+          "pm100": 2.6,
+          "ch4": 9118,
+          "co2": 692,
+          "temperature": 28,
+          "humidity": 52
+        },
+        {
+          "datetime": "2024-03-15T20:00:00.000Z",
+          "pm25": 1.56,
+          "pm100": 2.03,
+          "ch4": 9122,
+          "co2": 696,
+          "temperature": 29,
+          "humidity": 57
+        },
+        {
+          "datetime": "2024-03-15T19:30:00.000Z",
+          "pm25": 1.59,
+          "pm100": 2.48,
+          "ch4": 9070,
+          "co2": 678,
+          "temperature": 29,
+          "humidity": 52
+        },
+        {
+          "datetime": "2024-03-15T19:00:00.000Z",
+          "pm25": 1.19,
+          "pm100": 2.07,
+          "ch4": 9133,
+          "co2": 691,
+          "temperature": 29,
+          "humidity": 56
+        },
+        {
+          "datetime": "2024-03-15T18:30:00.000Z",
+          "pm25": 0.92,
+          "pm100": 2.6,
+          "ch4": 9163,
+          "co2": 711,
+          "temperature": 29,
+          "humidity": 60
+        },
+        {
+          "datetime": "2024-03-15T18:00:00.000Z",
+          "pm25": 1.6,
+          "pm100": 2.6,
+          "ch4": 9116,
+          "co2": 725,
+          "temperature": 30,
+          "humidity": 62
+        },
+        {
+          "datetime": "2024-03-15T17:30:00.000Z",
+          "pm25": 1.15,
+          "pm100": 2.58,
+          "ch4": 9037,
+          "co2": 750,
+          "temperature": 28,
+          "humidity": 57
+        },
+        {
+          "datetime": "2024-03-15T17:00:00.000Z",
+          "pm25": 0.78,
+          "pm100": 2.39,
+          "ch4": 8994,
+          "co2": 744,
+          "temperature": 29,
+          "humidity": 59
+        },
+        {
+          "datetime": "2024-03-15T16:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 2.6,
+          "ch4": 9013,
+          "co2": 716,
+          "temperature": 28,
+          "humidity": 56
+        },
+        {
+          "datetime": "2024-03-15T16:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 2.34,
+          "ch4": 9076,
+          "co2": 733,
+          "temperature": 26,
+          "humidity": 55
+        },
+        {
+          "datetime": "2024-03-15T15:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 1.56,
+          "ch4": 9152,
+          "co2": 720,
+          "temperature": 24,
+          "humidity": 54
+        },
+        {
+          "datetime": "2024-03-15T15:00:00.000Z",
+          "pm25": 0.22,
+          "pm100": 1.61,
+          "ch4": 9156,
+          "co2": 726,
+          "temperature": 24,
+          "humidity": 50
+        },
+        {
+          "datetime": "2024-03-15T14:30:00.000Z",
+          "pm25": 0.49,
+          "pm100": 1.49,
+          "ch4": 9134,
+          "co2": 709,
+          "temperature": 25,
+          "humidity": 51
+        },
+        {
+          "datetime": "2024-03-15T14:00:00.000Z",
+          "pm25": 0.58,
+          "pm100": 1.99,
+          "ch4": 9200,
+          "co2": 729,
+          "temperature": 27,
+          "humidity": 54
+        },
+        {
+          "datetime": "2024-03-15T13:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 1.43,
+          "ch4": 9181,
+          "co2": 752,
+          "temperature": 26,
+          "humidity": 53
+        },
+        {
+          "datetime": "2024-03-15T13:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.68,
+          "ch4": 9116,
+          "co2": 774,
+          "temperature": 25,
+          "humidity": 56
+        },
+        {
+          "datetime": "2024-03-15T12:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.2,
+          "ch4": 9188,
+          "co2": 758,
+          "temperature": 26,
+          "humidity": 59
+        },
+        {
+          "datetime": "2024-03-15T12:00:00.000Z",
+          "pm25": 0.87,
+          "pm100": 0.2,
+          "ch4": 9200,
+          "co2": 735,
+          "temperature": 28,
+          "humidity": 59
+        },
+        {
+          "datetime": "2024-03-15T11:30:00.000Z",
+          "pm25": 0.92,
+          "pm100": 0.24,
+          "ch4": 9129,
+          "co2": 725,
+          "temperature": 29,
+          "humidity": 57
+        },
+        {
+          "datetime": "2024-03-15T11:00:00.000Z",
+          "pm25": 0.67,
+          "pm100": 0.99,
+          "ch4": 9200,
+          "co2": 712,
+          "temperature": 27,
+          "humidity": 57
+        },
+        {
+          "datetime": "2024-03-15T10:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.42,
+          "ch4": 9179,
+          "co2": 716,
+          "temperature": 27,
+          "humidity": 58
+        },
+        {
+          "datetime": "2024-03-15T10:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.71,
+          "ch4": 9141,
+          "co2": 725,
+          "temperature": 27,
+          "humidity": 58
+        },
+        {
+          "datetime": "2024-03-15T09:30:00.000Z",
+          "pm25": 0.66,
+          "pm100": 1.33,
+          "ch4": 9200,
+          "co2": 708,
+          "temperature": 28,
+          "humidity": 54
+        },
+        {
+          "datetime": "2024-03-15T09:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 1.33,
+          "ch4": 9191,
+          "co2": 736,
+          "temperature": 28,
+          "humidity": 58
+        },
+        {
+          "datetime": "2024-03-15T08:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.95,
+          "ch4": 9200,
+          "co2": 750,
+          "temperature": 27,
+          "humidity": 59
+        },
+        {
+          "datetime": "2024-03-15T08:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.2,
+          "ch4": 9166,
+          "co2": 767,
+          "temperature": 26,
+          "humidity": 64
+        },
+        {
+          "datetime": "2024-03-15T07:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.2,
+          "ch4": 9200,
+          "co2": 754,
+          "temperature": 27,
+          "humidity": 65
+        },
+        {
+          "datetime": "2024-03-15T07:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.2,
+          "ch4": 9194,
+          "co2": 742,
+          "temperature": 27,
+          "humidity": 67
+        },
+        {
+          "datetime": "2024-03-15T06:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.69,
+          "ch4": 9200,
+          "co2": 749,
+          "temperature": 26,
+          "humidity": 64
+        },
+        {
+          "datetime": "2024-03-15T06:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.2,
+          "ch4": 9200,
+          "co2": 728,
+          "temperature": 25,
+          "humidity": 59
+        },
+        {
+          "datetime": "2024-03-15T05:30:00.000Z",
+          "pm25": 0.22,
+          "pm100": 0.2,
+          "ch4": 9200,
+          "co2": 719,
+          "temperature": 27,
+          "humidity": 64
+        },
+        {
+          "datetime": "2024-03-15T05:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.87,
+          "ch4": 9200,
+          "co2": 693,
+          "temperature": 29,
+          "humidity": 61
+        },
+        {
+          "datetime": "2024-03-15T04:30:00.000Z",
+          "pm25": 0.21,
+          "pm100": 0.2,
+          "ch4": 9200,
+          "co2": 704,
+          "temperature": 27,
+          "humidity": 63
+        },
+        {
+          "datetime": "2024-03-15T04:00:00.000Z",
+          "pm25": 0.7,
+          "pm100": 0.2,
+          "ch4": 9140,
+          "co2": 691,
+          "temperature": 25,
+          "humidity": 59
+        },
+        {
+          "datetime": "2024-03-15T03:30:00.000Z",
+          "pm25": 0.84,
+          "pm100": 0.2,
+          "ch4": 9086,
+          "co2": 678,
+          "temperature": 23,
+          "humidity": 54
+        },
+        {
+          "datetime": "2024-03-15T03:00:00.000Z",
+          "pm25": 0.89,
+          "pm100": 0.2,
+          "ch4": 9109,
+          "co2": 659,
+          "temperature": 24,
+          "humidity": 59
+        },
+        {
+          "datetime": "2024-03-15T02:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.2,
+          "ch4": 9147,
+          "co2": 635,
+          "temperature": 25,
+          "humidity": 61
+        },
+        {
+          "datetime": "2024-03-15T02:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.85,
+          "ch4": 9141,
+          "co2": 628,
+          "temperature": 26,
+          "humidity": 57
+        },
+        {
+          "datetime": "2024-03-15T01:30:00.000Z",
+          "pm25": 0.76,
+          "pm100": 0.2,
+          "ch4": 9119,
+          "co2": 607,
+          "temperature": 27,
+          "humidity": 57
+        },
+        {
+          "datetime": "2024-03-15T01:00:00.000Z",
+          "pm25": 0.55,
+          "pm100": 0.57,
+          "ch4": 9151,
+          "co2": 605,
+          "temperature": 28,
+          "humidity": 61
+        },
+        {
+          "datetime": "2024-03-15T00:30:00.000Z",
+          "pm25": 0.64,
+          "pm100": 0.2,
+          "ch4": 9112,
+          "co2": 614,
+          "temperature": 27,
+          "humidity": 57
+        },
+        {
+          "datetime": "2024-03-15T00:00:00.000Z",
+          "pm25": 1,
+          "pm100": 0.2,
+          "ch4": 9062,
+          "co2": 606,
+          "temperature": 26,
+          "humidity": 57
+        },
+        {
+          "datetime": "2024-03-14T23:30:00.000Z",
+          "pm25": 0.51,
+          "pm100": 0.2,
+          "ch4": 9004,
+          "co2": 631,
+          "temperature": 24,
+          "humidity": 56
+        },
+        {
+          "datetime": "2024-03-14T23:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.67,
+          "ch4": 9037,
+          "co2": 609,
+          "temperature": 23,
+          "humidity": 56
+        },
+        {
+          "datetime": "2024-03-14T22:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.2,
+          "ch4": 9009,
+          "co2": 587,
+          "temperature": 23,
+          "humidity": 51
+        },
+        {
+          "datetime": "2024-03-14T22:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.35,
+          "ch4": 8963,
+          "co2": 614,
+          "temperature": 23,
+          "humidity": 54
+        },
+        {
+          "datetime": "2024-03-14T21:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.2,
+          "ch4": 8911,
+          "co2": 600,
+          "temperature": 24,
+          "humidity": 51
+        },
+        {
+          "datetime": "2024-03-14T21:00:00.000Z",
+          "pm25": 0.27,
+          "pm100": 0.2,
+          "ch4": 8900,
+          "co2": 618,
+          "temperature": 26,
+          "humidity": 53
+        },
+        {
+          "datetime": "2024-03-14T20:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.58,
+          "ch4": 8954,
+          "co2": 647,
+          "temperature": 24,
+          "humidity": 50
+        },
+        {
+          "datetime": "2024-03-14T20:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.99,
+          "ch4": 9019,
+          "co2": 667,
+          "temperature": 23,
+          "humidity": 55
+        },
+        {
+          "datetime": "2024-03-14T19:30:00.000Z",
+          "pm25": 0.32,
+          "pm100": 0.39,
+          "ch4": 8956,
+          "co2": 645,
+          "temperature": 23,
+          "humidity": 53
+        },
+        {
+          "datetime": "2024-03-14T19:00:00.000Z",
+          "pm25": 0.44,
+          "pm100": 0.71,
+          "ch4": 8909,
+          "co2": 639,
+          "temperature": 23,
+          "humidity": 56
+        },
+        {
+          "datetime": "2024-03-14T18:30:00.000Z",
+          "pm25": 0.85,
+          "pm100": 0.98,
+          "ch4": 8975,
+          "co2": 665,
+          "temperature": 23,
+          "humidity": 57
+        },
+        {
+          "datetime": "2024-03-14T18:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 1.41,
+          "ch4": 8997,
+          "co2": 693,
+          "temperature": 23,
+          "humidity": 61
+        },
+        {
+          "datetime": "2024-03-14T17:30:00.000Z",
+          "pm25": 0.32,
+          "pm100": 1.78,
+          "ch4": 8935,
+          "co2": 697,
+          "temperature": 24,
+          "humidity": 56
+        },
+        {
+          "datetime": "2024-03-14T17:00:00.000Z",
+          "pm25": 0.42,
+          "pm100": 1.23,
+          "ch4": 8984,
+          "co2": 719,
+          "temperature": 23,
+          "humidity": 51
+        },
+        {
+          "datetime": "2024-03-14T16:30:00.000Z",
+          "pm25": 1.01,
+          "pm100": 1.24,
+          "ch4": 9045,
+          "co2": 724,
+          "temperature": 23,
+          "humidity": 53
+        },
+        {
+          "datetime": "2024-03-14T16:00:00.000Z",
+          "pm25": 0.81,
+          "pm100": 0.54,
+          "ch4": 8973,
+          "co2": 701,
+          "temperature": 23,
+          "humidity": 57
+        },
+        {
+          "datetime": "2024-03-14T15:30:00.000Z",
+          "pm25": 1.59,
+          "pm100": 0.2,
+          "ch4": 9030,
+          "co2": 727,
+          "temperature": 23,
+          "humidity": 53
+        },
+        {
+          "datetime": "2024-03-14T15:00:00.000Z",
+          "pm25": 1.63,
+          "pm100": 0.2,
+          "ch4": 8986,
+          "co2": 704,
+          "temperature": 23,
+          "humidity": 55
+        },
+        {
+          "datetime": "2024-03-14T14:30:00.000Z",
+          "pm25": 1.07,
+          "pm100": 0.2,
+          "ch4": 9036,
+          "co2": 697,
+          "temperature": 23,
+          "humidity": 53
+        },
+        {
+          "datetime": "2024-03-14T14:00:00.000Z",
+          "pm25": 0.87,
+          "pm100": 0.2,
+          "ch4": 8967,
+          "co2": 711,
+          "temperature": 23,
+          "humidity": 52
+        },
+        {
+          "datetime": "2024-03-14T13:30:00.000Z",
+          "pm25": 0.81,
+          "pm100": 0.83,
+          "ch4": 8975,
+          "co2": 688,
+          "temperature": 23,
+          "humidity": 52
+        },
+        {
+          "datetime": "2024-03-14T13:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.2,
+          "ch4": 8900,
+          "co2": 682,
+          "temperature": 24,
+          "humidity": 55
+        },
+        {
+          "datetime": "2024-03-14T12:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.2,
+          "ch4": 8900,
+          "co2": 682,
+          "temperature": 23,
+          "humidity": 59
+        },
+        {
+          "datetime": "2024-03-14T12:00:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.2,
+          "ch4": 8900,
+          "co2": 668,
+          "temperature": 24,
+          "humidity": 61
+        },
+        {
+          "datetime": "2024-03-14T11:30:00.000Z",
+          "pm25": 0.2,
+          "pm100": 0.53,
+          "ch4": 8900,
+          "co2": 681,
+          "temperature": 23,
+          "humidity": 59
+        },
+        {
+          "datetime": "2024-03-14T11:00:00.000Z",
+          "pm25": 0.67,
+          "pm100": 0.2,
+          "ch4": 8900,
+          "co2": 674,
+          "temperature": 23,
+          "humidity": 64
+        }
+      ]
+    },
+    "outdoor": {
+      "ispu": {
+        "ispuPerNode": [
+          {
+            "nodeId": 14,
+            "name": "Ih1",
+            "ispu": {
+              "datetime": "2024-03-16T17:00:00.000Z",
+              "currentISPU": {
+                "mainPollutant": "PM2.5",
+                "ispu": 4,
+                "ispuFloat": 3.649965682910089,
+                "value": 1.1314893617021275,
+                "category": "Baik",
+                "color": "Hijau"
+              },
+              "allCurrentISPU": {
+                "pm25": {
+                  "ispu": 4,
+                  "ispuFloat": 3.649965682910089,
+                  "value": 1.1314893617021275,
+                  "category": "Baik",
+                  "color": "Hijau"
+                },
+                "pm100": {
+                  "ispu": 1,
+                  "ispuFloat": 1.260212765957447,
+                  "value": 1.260212765957447,
+                  "category": "Baik",
+                  "color": "Hijau"
+                }
+              }
+            }
+          },
+          {
+            "nodeId": 19,
+            "name": "Kgc",
+            "ispu": {
+              "datetime": "2024-03-16T17:00:00.000Z",
+              "currentISPU": {
+                "mainPollutant": "PM2.5",
+                "ispu": 2,
+                "ispuFloat": 2.203157172271791,
+                "value": 0.6829787234042553,
+                "category": "Baik",
+                "color": "Hijau"
+              },
+              "allCurrentISPU": {
+                "pm25": {
+                  "ispu": 2,
+                  "ispuFloat": 2.203157172271791,
+                  "value": 0.6829787234042553,
+                  "category": "Baik",
+                  "color": "Hijau"
+                },
+                "pm100": {
+                  "ispu": 1,
+                  "ispuFloat": 1.068936170212766,
+                  "value": 1.068936170212766,
+                  "category": "Baik",
+                  "color": "Hijau"
+                }
+              }
+            }
+          }
+        ],
+        "average": {
+          "datetime": "2024-03-16T17:00:00.000Z",
+          "pm25": {
+            "ispu": 3,
+            "ispuFloat": 2.9265614275909413,
+            "value": 0.9072340425531918,
+            "category": "Baik",
+            "color": "Hijau"
+          },
+          "pm100": {
+            "ispu": 1,
+            "ispuFloat": 1.164574468085107,
+            "value": 1.164574468085107,
+            "category": "Baik",
+            "color": "Hijau"
+          }
+        },
+        "highest": {
+          "nodeId": 14,
+          "name": "Ih1",
+          "ispu": {
+            "datetime": "2024-03-16T17:00:00.000Z",
+            "currentISPU": {
+              "mainPollutant": "PM2.5",
+              "ispu": 4,
+              "ispuFloat": 3.649965682910089,
+              "value": 1.1314893617021275,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "allCurrentISPU": {
+              "pm25": {
+                "ispu": 4,
+                "ispuFloat": 3.649965682910089,
+                "value": 1.1314893617021275,
+                "category": "Baik",
+                "color": "Hijau"
+              },
+              "pm100": {
+                "ispu": 1,
+                "ispuFloat": 1.260212765957447,
+                "value": 1.260212765957447,
+                "category": "Baik",
+                "color": "Hijau"
+              }
+            }
+          }
+        },
+        "loweresr": {
+          "nodeId": 19,
+          "name": "Kgc",
+          "ispu": {
+            "datetime": "2024-03-16T17:00:00.000Z",
+            "currentISPU": {
+              "mainPollutant": "PM2.5",
+              "ispu": 2,
+              "ispuFloat": 2.203157172271791,
+              "value": 0.6829787234042553,
+              "category": "Baik",
+              "color": "Hijau"
+            },
+            "allCurrentISPU": {
+              "pm25": {
+                "ispu": 2,
+                "ispuFloat": 2.203157172271791,
+                "value": 0.6829787234042553,
+                "category": "Baik",
+                "color": "Hijau"
+              },
+              "pm100": {
+                "ispu": 1,
+                "ispuFloat": 1.068936170212766,
+                "value": 1.068936170212766,
+                "category": "Baik",
+                "color": "Hijau"
+              }
+            }
+          }
+        }
+      },
+      "grk": {
+        "nodes": [
+          {
+            "name": "Ih1",
+            "nodeId": 14,
+            "data": {
+              "datetime": "2024-03-16T17:30:00.000Z",
+              "pm25": 0.59,
+              "pm100": 2.04,
+              "ch4": 9141,
+              "co2": 537,
+              "temperature": 28,
+              "humidity": 78
+            }
+          },
+          {
+            "name": "Kgc",
+            "nodeId": 19,
+            "data": {
+              "datetime": "2024-03-16T17:30:00.000Z",
+              "pm25": 0.99,
+              "pm100": 0.65,
+              "ch4": 9019,
+              "co2": 643,
+              "temperature": 30,
+              "humidity": 46
+            }
+          }
+        ],
+        "ch4": {
+          "average": {
+            "value": 9080,
+            "category": "Bahaya"
+          },
+          "highest": {
+            "nodeId": 14,
+            "name": "Ih1",
+            "value": 9141,
+            "category": "Bahaya"
+          },
+          "lowerest": {
+            "nodeId": 19,
+            "name": "Kgc",
+            "value": 9019,
+            "category": "Bahaya"
+          }
+        },
+        "co2": {
+          "average": {
+            "value": 590,
+            "category": "Tercemar"
+          },
+          "highest": {
+            "nodeId": 14,
+            "name": "Ih1",
+            "value": 537,
+            "category": "Tercemar"
+          },
+          "lowerest": {
+            "nodeId": 19,
+            "name": "Kgc",
+            "value": 643,
+            "category": "Tercemar"
+          }
+        }
+      },
+      "temHum": {
+        "temp": {
+          "average": {
+            "value": 29,
+            "category": "Aman"
+          }
+        },
+        "hum": {
+          "average": {
+            "value": 62,
+            "category": "Bahaya"
+          }
+        }
+      }
+    }
+  }
+}
