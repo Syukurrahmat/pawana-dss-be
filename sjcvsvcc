@@ -1,7 +1,0 @@
-DB_HOSTNAME = "bkw0gw5vhfrnie6mgnug-mysql.services.clever-cloud.com"
-DB_DATABASE = "bkw0gw5vhfrnie6mgnug"
-DB_USERNAME = "ugc1lwncvb9zjp7p"
-DB_PASSWORD = "fyowI1fMBmJbyMgsyBKw"
-
-
-SESSION_SECRETKEY = "g>q6VgynbvgW9xd@aT+_6ZRu2uPi.#}#"

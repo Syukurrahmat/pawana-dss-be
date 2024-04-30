@@ -9,7 +9,8 @@ sinon.useFakeTimers({
 import 'dotenv/config';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import express from 'express';
-import passport from 'passport';
+import passport, { use } from 'passport';
+import cors from 'cors';
 import session from 'express-session';
 import bodyParser from 'body-parser';
 import apiRouter from './routers/api.js';
@@ -20,15 +21,13 @@ import db from './models/index.js';
 
 db.sequelize
     .authenticate()
-    .then(() => {
-        console.log('Connection has been established successfully.');
-    })
-    .catch((error) => {
-        console.error('Unable to connect to the database:', error);
-    });
+    .then(() => console.log('Connection has been established successfully.'))
+    .catch(() => console.error('Unable to connect to the database'));
 
 const port = process.env.PORT || 3000;
 const app = express();
+
+app.use(cors());
 
 app.use(express.static(path.resolve('public')));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -72,5 +71,3 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
-
-// // Ubah email menjadi lowercase dan simpan perubahan
