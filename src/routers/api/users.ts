@@ -1,68 +1,46 @@
 import { Router } from 'express';
-import { Op, OrderItem } from 'sequelize';
 import db from '../../models/index.js';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { buildQuery, salt } from '../../utils/utils.js';
+
+// ================== /api/users/* ==================
 
 const usersRouter = Router();
-
 usersRouter
-    .route('/users')
+    .route('')
+    // ==================== GET ====================
     .get(async (req, res, next) => {
-        // Pagination
-        let page = parseInt(req.query.page as string) || 1;
-        let limit = parseInt(req.query.limit as string) || 10;
+        const { page, limit, search, order } = buildQuery(req, {
+            searchField: 'name',
+            sortOpt: ['name', 'role', 'createdAt'],
+        });
 
-        if (page < 1) page = 1;
-        if (limit < 1 || limit > 100) limit = 10;
-
-        // Search
-        const searchQuery = req.query.search as string;
-        const searchObj = searchQuery ? { name: { [Op.like]: `%${searchQuery}%` } } : {};
-
-        const role = req.query.role as string;
-        const roleObj = role == 'admin' ? { role: 'admin' } : {};
-
-        const whereObj = { isVerified: true, ...searchObj, ...roleObj };
-
-        // Ordering
-        const sort = req.query.sort as string;
-        const order = req.query.order as string;
-
-        const sortOpt = ['name', 'role', 'createdAt'];
-        const orderItem: OrderItem = [
-            sort && sortOpt.includes(sort) ? sort : sortOpt[0],
-            order && order.toUpperCase() == 'DESC' ? 'DESC' : 'ASC',
-        ];
+        const whereObj = { isVerified: true, ...search };
 
         // Fetch data from DB
 
         try {
-            const users = await db.Users.findAll({
-                attributes: { exclude: ['updatedAt', 'password'] },
+            const { count, rows: users } = await db.Users.findAndCountAll({
+                attributes: ['userId', 'name', 'phone', 'profilePicture', 'email', 'createdAt'],
                 where: whereObj,
-                order: [orderItem],
                 offset: (page - 1) * limit,
-                limit: limit,
+                order,
+                limit,
             });
-
-            const usersCount = await db.Users.count({ where: whereObj });
 
             res.json({
                 success: true,
-                totalItems: usersCount,
+                totalItems: count,
                 currentPage: page,
                 pageSize: limit,
-                result: users
-                    .map((e) => e.toJSON())
-                    .map(({ role, groups, ...rest }) => ({
-                        ...rest,
-                        role: groups?.length ? 'manager' : role,
-                    })),
+                result: users.map((e) => e.toJSON()),
             });
         } catch (e) {
             next(e);
         }
     })
+    // ==================== POST ====================
     .post(async (req, res, next) => {
         const { name, email, phone, address, description, profilePicture } = req.body;
 
@@ -106,32 +84,71 @@ usersRouter
             message: 'Akun Berhasil dibuat. Email Verifikasi dikirimkan ke email pengguna ',
         });
     })
-    .put((req, res, next) => {
+    // ==================== PUT ====================
+    .put(async (req, res, next) => {
         const { name, phone, description, address, profilePicture, userId } = req.body;
+        const { password, newPassword } = req.body;
 
-        console.log({ name, phone, description, address, profilePicture, userId });
+        console.log({
+            name,
+            phone,
+            description,
+            address,
+            profilePicture,
+            password,
+            newPassword,
+            userId,
+        });
+
+        const isUpdatePassword = password && newPassword;
+
+        if (isUpdatePassword) {
+            try {
+                const user = await db.Users.findOne({
+                    where: { userId },
+                    attributes: ['password'],
+                });
+
+                if (!bcrypt.compareSync(password, user.password)) {
+                    res.json({
+                        success: false,
+                        message: 'Kata sandi tidak tepat',
+                    });
+                    return;
+                }
+            } catch (error) {
+                next(error);
+            }
+        }
 
         db.Users.update(
-            { name, phone, description, address, profilePicture },
+            {
+                name,
+                phone,
+                description,
+                address,
+                profilePicture,
+                password: isUpdatePassword ? bcrypt.hashSync(newPassword, salt) : undefined,
+            },
             { where: { userId } }
         )
             .then(([n]) => {
                 if (n) {
                     res.json({
                         success: true,
-                        message: 'Berhasil disunting',
+                        message: 'Berhasil diperbarui',
                     });
                 } else {
                     res.json({
                         success: false,
-                        message: 'Gagal disunting',
+                        message: 'Gagal diperbarui',
                     });
                 }
             })
             .catch(next);
     });
 
-usersRouter.route('/users/:id').get((req, res, next) => {
+usersRouter.route('/:id').get((req, res, next) => {
     db.Users.findOne({
         where: { userId: req.params.id, isVerified: true },
         attributes: { exclude: ['createdAt', 'updatedAt', 'password'] },
@@ -148,6 +165,13 @@ usersRouter.route('/users/:id').get((req, res, next) => {
         ],
     })
         .then((e) => {
+            if (!e) {
+                res.json({
+                    success: false,
+                    message: 'user tidak ditemukan',
+                });
+                return;
+            }
             const { groups, ...rest } = e.toJSON();
 
             const result = {

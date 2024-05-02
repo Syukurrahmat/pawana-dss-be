@@ -1,18 +1,24 @@
-import { Model, Table, Column, DataType, ForeignKey, BelongsToMany, HasMany } from "sequelize-typescript";
-import { InferAttributes, InferCreationAttributes } from "sequelize";
-import Groups from "./groups.js";
-import ActivityNodesJuncs from "./activitynodesjuncs.js";
-import Activities from "./activities.js";
-import DataLogs from "./datalogs.js";
+import {
+    Model,
+    Table,
+    Column,
+    DataType,
+    ForeignKey,
+    BelongsToMany,
+    HasMany,
+} from 'sequelize-typescript';
+import { InferAttributes, InferCreationAttributes } from 'sequelize';
+import Groups from './groups.js';
+import ActivityNodesJuncs from './activitynodesjuncs.js';
+import Activities from './activities.js';
+import DataLogs from './datalogs.js';
 
-
-@Table({ tableName: "nodes" })
-
+@Table({ tableName: 'nodes' })
 export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAttributes<Nodes>> {
     @Column({
         primaryKey: true,
         autoIncrement: true,
-        type: DataType.INTEGER
+        type: DataType.INTEGER,
     })
     nodeId?: number;
 
@@ -26,7 +32,7 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     @Column({
         type: DataType.STRING(30),
         allowNull: false,
-        validate: { notEmpty: true }
+        validate: { notEmpty: true },
     })
     name!: string;
 
@@ -37,43 +43,43 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     description?: string;
 
     @Column({
-        type: DataType.FLOAT(12),
+        type: DataType.DECIMAL(11, 8),
         allowNull: false,
         validate: { notEmpty: true },
     })
     longitude!: number;
 
     @Column({
-        type: DataType.FLOAT(12),
+        type: DataType.DECIMAL(10, 8),
         allowNull: false,
-        validate: { notEmpty: true }
+        validate: { notEmpty: true },
     })
     latitude!: number;
 
     @Column({
         allowNull: false,
         type: DataType.ENUM('normal', 'maintenance'),
-        defaultValue: 'normal'
+        defaultValue: 'normal',
     })
     status!: string;
 
     @Column({
         type: DataType.ENUM('indoor', 'outdoor'),
         allowNull: false,
-        validate: { notEmpty: true }
+        validate: { notEmpty: true },
     })
     environment!: string;
 
     @Column({
         type: DataType.STRING(36),
         allowNull: false,
-        validate: { notEmpty: true }
+        validate: { notEmpty: true },
     })
     apiKey!: string;
 
     @BelongsToMany(() => Activities, () => ActivityNodesJuncs)
     activities: Array<Activities & { ActivityNodesJuncs: ActivityNodesJuncs }>;
 
-    @HasMany(()=>DataLogs)
-    data : DataLogs[] 
+    @HasMany(() => DataLogs)
+    data: DataLogs[];
 }

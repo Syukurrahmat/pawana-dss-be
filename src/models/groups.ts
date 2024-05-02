@@ -2,7 +2,30 @@ import { Model, Table, Column, DataType, HasMany, BelongsToMany } from 'sequeliz
 import Nodes from './nodes.js';
 import Users from './users.js';
 import GroupPermissions from './grouppermissions.js';
-import { InferAttributes, InferCreationAttributes, NonAttribute } from 'sequelize';
+import {
+    BelongsToManyAddAssociationMixin,
+    BelongsToManyAddAssociationsMixin,
+    BelongsToManyCountAssociationsMixin,
+    BelongsToManyCreateAssociationMixin,
+    BelongsToManyGetAssociationsMixin,
+    BelongsToManyHasAssociationMixin,
+    BelongsToManyHasAssociationsMixin,
+    BelongsToManyRemoveAssociationMixin,
+    BelongsToManyRemoveAssociationsMixin,
+    BelongsToManySetAssociationsMixin,
+    HasManyAddAssociationMixin,
+    HasManyAddAssociationsMixin,
+    HasManyCountAssociationsMixin,
+    HasManyCreateAssociationMixin,
+    HasManyGetAssociationsMixin,
+    HasManyHasAssociationMixin,
+    HasManyHasAssociationsMixin,
+    HasManyRemoveAssociationMixin,
+    HasManyRemoveAssociationsMixin,
+    HasManySetAssociationsMixin,
+    InferAttributes,
+    InferCreationAttributes,
+} from 'sequelize';
 
 @Table({ tableName: 'groups' })
 export default class Groups extends Model<
@@ -43,4 +66,29 @@ export default class Groups extends Model<
 
     @BelongsToMany(() => Users, () => GroupPermissions)
     users: Array<Users & { GroupPermissions: GroupPermissions }>;
+
+    declare memberCount: number;
+    declare nodesCount: number;
+
+    declare getUsers: BelongsToManyGetAssociationsMixin<Users>;
+    declare addUser: BelongsToManyAddAssociationMixin<Users, number>;
+    declare addUsers: BelongsToManyAddAssociationsMixin<Users, number>;
+    declare setUsers: BelongsToManySetAssociationsMixin<Users, number>;
+    declare removeUser: BelongsToManyRemoveAssociationMixin<Users, number>;
+    declare removeUsers: BelongsToManyRemoveAssociationsMixin<Users, number>;
+    declare hasUser: BelongsToManyHasAssociationMixin<Users, number>;
+    declare hasUsers: BelongsToManyHasAssociationsMixin<Users, number>;
+    declare countUsers: BelongsToManyCountAssociationsMixin;
+    declare createUser: BelongsToManyCreateAssociationMixin<Users>;
+
+    declare getNodes: HasManyGetAssociationsMixin<Nodes>;
+    declare addNode: HasManyAddAssociationMixin<Nodes, number>;
+    declare addNodes: HasManyAddAssociationsMixin<Nodes, number>;
+    declare setNodes: HasManySetAssociationsMixin<Nodes, number>;
+    declare removeNode: HasManyRemoveAssociationMixin<Nodes, number>;
+    declare removeNodes: HasManyRemoveAssociationsMixin<Nodes, number>;
+    declare hasNode: HasManyHasAssociationMixin<Nodes, number>;
+    declare hasNodes: HasManyHasAssociationsMixin<Nodes, number>;
+    declare countNodes: HasManyCountAssociationsMixin;
+    declare createNode: HasManyCreateAssociationMixin<Nodes>;
 }
