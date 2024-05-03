@@ -6,6 +6,8 @@ import {
     ForeignKey,
     BelongsToMany,
     HasMany,
+    HasOne,
+    BelongsTo,
 } from 'sequelize-typescript';
 import { InferAttributes, InferCreationAttributes } from 'sequelize';
 import Groups from './groups.js';
@@ -82,4 +84,7 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
 
     @HasMany(() => DataLogs)
     data: DataLogs[];
+
+    @BelongsTo(() => Groups)
+    group?: Groups;
 }

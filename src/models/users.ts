@@ -1,5 +1,6 @@
+import { InferAttributes, InferCreationAttributes, BelongsToManyAddAssociationMixin, BelongsToManyAddAssociationsMixin, BelongsToManyCountAssociationsMixin, BelongsToManyCreateAssociationMixin, BelongsToManyGetAssociationsMixin, BelongsToManyHasAssociationMixin, BelongsToManyHasAssociationsMixin, BelongsToManyRemoveAssociationMixin, BelongsToManyRemoveAssociationsMixin, BelongsToManySetAssociationsMixin} from 'sequelize'; //prettier-ignore
+import {} from 'sequelize';
 import { Model, Table, Column, DataType, HasMany, BelongsToMany } from 'sequelize-typescript';
-import { InferAttributes, InferCreationAttributes } from 'sequelize';
 import Activities from './activities.js';
 import GroupPermissions from './grouppermissions.js';
 import Groups from './groups.js';
@@ -83,4 +84,15 @@ export default class Users extends Model<InferAttributes<Users>, InferCreationAt
 
     @HasMany(() => GroupPermissions, 'userId')
     groupPermissions?: GroupPermissions;
+
+    declare getGroups: BelongsToManyGetAssociationsMixin<Groups>;
+    declare addGroup: BelongsToManyAddAssociationMixin<Groups, number>;
+    declare addGroups: BelongsToManyAddAssociationsMixin<Groups, number>;
+    declare setGroups: BelongsToManySetAssociationsMixin<Groups, number>;
+    declare removeGroup: BelongsToManyRemoveAssociationMixin<Groups, number>;
+    declare removeGroups: BelongsToManyRemoveAssociationsMixin<Groups, number>;
+    declare hasGroup: BelongsToManyHasAssociationMixin<Groups, number>;
+    declare hasGroups: BelongsToManyHasAssociationsMixin<Groups, number>;
+    declare countGroups: BelongsToManyCountAssociationsMixin;
+    declare createGroup: BelongsToManyCreateAssociationMixin<Groups>;
 }

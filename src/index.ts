@@ -20,15 +20,15 @@ import { isAuthenticated } from './middleware/userAccess.js';
 import db from './models/index.js';
 import authRouter from './routers/auth/index.js';
 
-// db.sequelize
-//     .authenticate()
-//     .then(() => console.log('Connection has been established successfully.'))
-//     .catch(() => console.error('Unable to connect to the database'));
+db.sequelize
+    .sync()
+    .then(() => console.log('Database tersingkorinisasi '))
+    .catch((e) => console.error('Unable to connect to the database ' + e));
 
 const port = process.env.PORT || 3000;
 const app = express();
 
-app.use(cors({ origin: '*', optionsSuccessStatus: 200 }));
+app.use(cors({ origin: 'http://localhost:5173', optionsSuccessStatus: 200 }));
 
 app.use(express.static(path.resolve('public')));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -64,31 +64,4 @@ app.use((err: any, req: any, res: any, next: any) => {
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
-});
-
-let g = [
-    { latitude: -7.467989227358993, longitude: 110.1899649461168 },
-    { latitude: -7.460312605943859, longitude: 110.19390088783496 },
-    { latitude: -7.466107827263401, longitude: 110.19614619609142 },
-    { latitude: -7.468348302146198, longitude: 110.19325337607653 },
-];
-
-// db.Groups.findOne({ where: { groupId: 5 } }).then(async (group) => {
-//     console.log('===========', group.name, '===========');
-
-//     let nodes = await group.getNodes();
-
-//     console.log(await group.countNodes());
-
-//     nodes.forEach(async (e, i) => {
-//         e.latitude = g[i].latitude;
-//         e.longitude = g[i].longitude;
-//         await e.save();
-//     });
-
-//     nodes.forEach((e) => console.log([e.longitude, e.latitude]));
-// });
-
-db.Nodes.findAll({ attributes: ['longitude', 'latitude'] }).then((e) => {
-    e.forEach((e) => console.log([e.longitude, e.latitude]));
 });

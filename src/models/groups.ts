@@ -67,7 +67,8 @@ export default class Groups extends Model<
     @BelongsToMany(() => Users, () => GroupPermissions)
     users: Array<Users & { GroupPermissions: GroupPermissions }>;
 
-    declare memberCount: number;
+    declare membersCount: number;
+    declare memberRequestsCount: number;
     declare nodesCount: number;
 
     declare getUsers: BelongsToManyGetAssociationsMixin<Users>;

@@ -7,6 +7,7 @@ import { buildQuery, salt } from '../../utils/utils.js';
 // ================== /api/users/* ==================
 
 const usersRouter = Router();
+
 usersRouter
     .route('')
     // ==================== GET ====================
@@ -148,48 +149,65 @@ usersRouter
             .catch(next);
     });
 
-usersRouter.route('/:id').get((req, res, next) => {
-    db.Users.findOne({
-        where: { userId: req.params.id, isVerified: true },
-        attributes: { exclude: ['createdAt', 'updatedAt', 'password'] },
-        include: [
-            {
-                model: db.Groups,
-                attributes: ['groupId', 'name'],
-                through: {
-                    attributes: {
-                        exclude: ['updatedAt', 'groupId', 'userId'],
-                    },
-                },
-            },
-        ],
-    })
-        .then((e) => {
-            if (!e) {
-                res.json({
-                    success: false,
-                    message: 'user tidak ditemukan',
-                });
-                return;
-            }
-            const { groups, ...rest } = e.toJSON();
+usersRouter.route('/:id').get(async (req, res, next) => {
+    try {
+        const user = await db.Users.findOne({
+            where: { userId: req.params.id, isVerified: true },
+            attributes: { exclude: ['createdAt', 'updatedAt', 'password'] },
+        });
 
-            const result = {
-                ...rest,
-                groups: groups
-                    .map(({ GroupPermissions, ...rest }) => ({
-                        ...rest,
-                        ...GroupPermissions,
-                    }))
-                    .sort((a, b) => {
-                        const statusOrder = { approved: 0, pending: 1, rejected: 2 };
-                        return statusOrder[a.requestStatus] - statusOrder[b.requestStatus];
-                    }),
-            };
-
-            res.json({ success: true, result });
-        })
-        .catch(next);
+        if (!user) {
+            res.json({
+                success: false,
+                message: 'user tidak ditemukan',
+            });
+            return;
+        }
+        res.json({ success: true, result: user.toJSON() });
+    } catch (error) {
+        next(error);
+    }
 });
 
+usersRouter.get('/:id/groups', async (req, res, next) => {
+    const { page, limit, search, order } = buildQuery(req, {
+        searchField: 'name',
+        sortOpt: ['name', 'createdAt'],
+    });
+
+    const userId = req.params.id;
+
+    try {
+        const user = await db.Users.findOne({ where: { userId } });
+
+        if (!user) {
+            res.json({
+                success: false,
+                message: 'User tidak ditemukan',
+            });
+            return;
+        }
+
+        const groups = await user.getGroups({
+            where: { ...search },
+            attributes: ['groupId', 'name'],
+            joinTableAttributes: ['permission', 'joinedAt', 'requestStatus'],
+            order,
+            offset: (page - 1) * limit,
+            limit,
+        });
+
+        const count = await user.countGroups({ ...(search as any) });
+
+        res.json({
+            success: true,
+            totalItems: count,
+            currentPage: page,
+            pageSize: limit,
+            result: groups.map((f) => f.toJSON()),
+        });
+    } catch (error) {
+        next(error);
+    }
+});
 export default usersRouter;

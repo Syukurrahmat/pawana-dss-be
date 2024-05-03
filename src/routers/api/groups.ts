@@ -1,16 +1,19 @@
 import { Router } from 'express';
 import db from '../../models/index.js';
-import { BelongsToManyGetAssociationsMixinOptions, Op, OrderItem, Sequelize } from 'sequelize';
 import { buildQuery } from '../../utils/utils.js';
 
-const groupRouter = Router();
+const groupsRouter = Router();
 
-const usersCountHasGroupQuery =
+const membersCountHasGroupQuery =
     "(SELECT COUNT(*) FROM `users` INNER JOIN `grouppermissions` ON `users`.`userId` = `grouppermissions`.`userId` WHERE `grouppermissions`.`groupId` = `Groups`.`groupId` AND `grouppermissions`.`requestStatus` = 'approved')";
+
+const memberRequestCountHasGroupQuery =
+    "(SELECT COUNT(*) FROM `users` INNER JOIN `grouppermissions` ON `users`.`userId` = `grouppermissions`.`userId` WHERE `grouppermissions`.`groupId` = `Groups`.`groupId` AND `grouppermissions`.`requestStatus` = 'pending')";
+
 const nodesCountHasGroupQuery =
     '(SELECT COUNT(*) FROM `nodes` WHERE `nodes`.`groupId` = `Groups`.`groupId`)';
 
-groupRouter
+groupsRouter
     .route('')
     .get(async (req, res, next) => {
         const { page, limit, search, order } = buildQuery(req, {
@@ -24,8 +27,12 @@ groupRouter
                 attributes: {
                     exclude: ['updatedAt', 'description'],
                     include: [
-                        [db.sequelize.literal(usersCountHasGroupQuery), 'memberCount'],
+                        [db.sequelize.literal(membersCountHasGroupQuery), 'membersCount'],
                         [db.sequelize.literal(nodesCountHasGroupQuery), 'nodeCount'],
+                        [
+                            db.sequelize.literal(memberRequestCountHasGroupQuery),
+                            'memberRequestsCount',
+                        ],
                     ],
                 },
                 include: {
@@ -107,39 +114,53 @@ groupRouter
             .catch(next);
     });
 
-groupRouter.get('/:id', (req, res, next) => {
-    db.Groups.findOne({
-        where: { groupId: req.params.id },
-        attributes: {
-            include: [
-                [db.sequelize.literal(usersCountHasGroupQuery), 'memberCount'],
-                [db.sequelize.literal(nodesCountHasGroupQuery), 'nodeCount'],
-            ],
-        },
-        include: [
-            {
+groupsRouter.get('/:id', async (req, res, next) => {
+    try {
+        const group = await db.Groups.findOne({
+            where: { groupId: req.params.id },
+            attributes: {
+                include: [
+                    [db.sequelize.literal(membersCountHasGroupQuery), 'membersCount'],
+                    [db.sequelize.literal(nodesCountHasGroupQuery), 'nodeCount'],
+                    [db.sequelize.literal(memberRequestCountHasGroupQuery), 'memberRequestsCount'],
+                ],
+            },
+            include: {
                 model: db.Users,
-                attributes: ['name', 'userId', 'phone', 'email'],
+                attributes: ['name', 'userId', 'phone', 'profilePicture', 'email'],
                 through: {
-                    attributes: { include: ['permission', 'joinedAt', 'requestStatus'] },
+                    attributes: [],
+                    where: {
+                        permission: 'manager',
+                        requestStatus: 'approved',
+                    },
                 },
             },
-        ],
-    })
-        .then((e) => {
-            if (!e) {
-                res.json({
-                    success: false,
-                    message: 'Grup tidak ditemukan',
-                });
-                return;
-            }
-            res.json({ success: true, result: e.toJSON() });
-        })
-        .catch(next);
+        });
+
+        if (!group) {
+            res.json({
+                success: false,
+                message: 'Grup tidak ditemukan',
+            });
+            return;
+        }
+
+        const { users, ...rest } = group.toJSON();
+
+        res.json({
+            success: true,
+            result: {
+                ...rest,
+                manager: users.length ? users[0] : null,
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
 });
 
-groupRouter.get('/:id/users', async (req, res, next) => {
+groupsRouter.get('/:id/users', async (req, res, next) => {
     const { page, limit, search, order } = buildQuery(req, {
         searchField: 'name',
         sortOpt: ['name', 'createdAt'],
@@ -191,7 +212,7 @@ groupRouter.get('/:id/users', async (req, res, next) => {
     }
 });
 
-groupRouter.get('/:id/nodes', async (req, res, next) => {
+groupsRouter.get('/:id/nodes', async (req, res, next) => {
     const { page, limit, search, order } = buildQuery(req, {
         searchField: 'name',
         sortOpt: ['name', 'timestamp'],
@@ -231,4 +252,4 @@ groupRouter.get('/:id/nodes', async (req, res, next) => {
     }
 });
 
-export default groupRouter;
+export default groupsRouter;
