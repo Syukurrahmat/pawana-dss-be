@@ -1,15 +1,5 @@
-import {
-    Model,
-    Table,
-    Column,
-    DataType,
-    ForeignKey,
-    BelongsToMany,
-    HasMany,
-    HasOne,
-    BelongsTo,
-} from 'sequelize-typescript';
-import { InferAttributes, InferCreationAttributes } from 'sequelize';
+import { HasManyAddAssociationMixin, HasManyAddAssociationsMixin, HasManyCountAssociationsMixin, HasManyCreateAssociationMixin, HasManyGetAssociationsMixin, HasManyHasAssociationMixin, HasManyHasAssociationsMixin, HasManyRemoveAssociationMixin, HasManyRemoveAssociationsMixin, HasManySetAssociationsMixin, InferAttributes, InferCreationAttributes } from 'sequelize'; //prettier-ignore
+import { Model, Table, Column, DataType, ForeignKey, BelongsToMany, HasMany, BelongsTo} from 'sequelize-typescript'; //prettier-ignore
 import Groups from './groups.js';
 import ActivityNodesJuncs from './activitynodesjuncs.js';
 import Activities from './activities.js';
@@ -74,10 +64,13 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
 
     @Column({
         type: DataType.STRING(36),
-        allowNull: false,
-        validate: { notEmpty: true },
     })
     apiKey!: string;
+
+    @Column({
+        type: DataType.DATE,
+    })
+    lastDataSent!: string;
 
     @BelongsToMany(() => Activities, () => ActivityNodesJuncs)
     activities: Array<Activities & { ActivityNodesJuncs: ActivityNodesJuncs }>;
@@ -87,4 +80,15 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
 
     @BelongsTo(() => Groups)
     group?: Groups;
+
+    declare getDataLogs: HasManyGetAssociationsMixin<DataLogs>;
+    declare addDataLog: HasManyAddAssociationMixin<DataLogs, number>;
+    declare addDataLogs: HasManyAddAssociationsMixin<DataLogs, number>;
+    declare setDataLogs: HasManySetAssociationsMixin<DataLogs, number>;
+    declare removeDataLog: HasManyRemoveAssociationMixin<DataLogs, number>;
+    declare removeDataLogs: HasManyRemoveAssociationsMixin<DataLogs, number>;
+    declare hasDataLog: HasManyHasAssociationMixin<DataLogs, number>;
+    declare hasDataLogs: HasManyHasAssociationsMixin<DataLogs, number>;
+    declare countDataLogs: HasManyCountAssociationsMixin;
+    declare createDataLog: HasManyCreateAssociationMixin<DataLogs>;
 }

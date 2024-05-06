@@ -1,9 +1,9 @@
-import sinon from 'sinon';
+// import sinon from 'sinon';
 
-sinon.useFakeTimers({
-    now: new Date('2024-03-16T17:30:00.000Z').getTime(),
-    shouldAdvanceTime: false,
-});
+// sinon.useFakeTimers({
+//     now: new Date('2024-03-16T17:30:00.000Z').getTime(),
+//     shouldAdvanceTime: false,
+// });
 
 // =======================
 import 'dotenv/config';
@@ -19,6 +19,7 @@ import path from 'path';
 import { isAuthenticated } from './middleware/userAccess.js';
 import db from './models/index.js';
 import authRouter from './routers/auth/index.js';
+import { Op, where } from 'sequelize';
 
 db.sequelize
     .sync()
@@ -49,6 +50,7 @@ app.use('/api', apiRouter);
 app.use('/auth', authRouter);
 
 app.get('/login', (req, res, next) => res.sendFile(path.resolve('public/login.html')));
+
 app.use(
     '/*',
     createProxyMiddleware({

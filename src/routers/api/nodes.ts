@@ -1,37 +1,31 @@
 import { Router } from 'express';
 import db from '../../models/index.js';
 import { buildQuery } from '../../utils/utils.js';
+import { v4 as uuidV4 } from 'uuid';
 
 const nodesRouter = Router();
 
 nodesRouter
     .route('')
     .get(async (req, res, next) => {
-        const { page, limit, search, order } = buildQuery(req, {
+        const { page, limit, search, order, offset } = buildQuery(req, {
             searchField: 'name',
             sortOpt: ['name', 'createdAt'],
         });
 
         // Fetch data from DB
+
         try {
             const { count, rows: nodes } = await db.Nodes.findAndCountAll({
-                attributes: ['nodeId', 'name', 'longitude', 'latitude', 'status', 'environment'],
+                attributes: { exclude: ['description', 'apiKey', 'updatedAt'] },
                 where: { ...search },
                 order,
-                offset: (page - 1) * limit,
+                offset,
                 limit,
-                include: [
-                    {
-                        model: db.DataLogs,
-                        order: [['datetime', 'desc']],
-                        limit: 1,
-                        attributes: ['datetime'],
-                    },
-                    {
-                        model: db.Groups,
-                        attributes: ['groupId', 'name'],
-                    },
-                ],
+                include: {
+                    model: db.Groups,
+                    attributes: ['groupId', 'name'],
+                },
             });
 
             res.json({
@@ -39,12 +33,7 @@ nodesRouter
                 totalItems: count,
                 currentPage: page,
                 pageSize: limit,
-                result: nodes
-                    .map((e) => e.toJSON())
-                    .map(({ data, ...rest }) => ({
-                        ...rest,
-                        lastUpdateAt: data[0] ? data[0].datetime : null,
-                    })),
+                result: nodes.map((e) => e.toJSON()),
             });
         } catch (e) {
             next(e);
@@ -52,39 +41,43 @@ nodesRouter
     })
 
     .post((req, res, next) => {
-        const { name, description, address } = req.body;
-        db.Groups.create({
+        const { name, description, status, environment, latitude, longitude, groupId } = req.body;
+
+        db.Nodes.create({
             name,
             description,
-            address,
+            status,
+            environment,
+            latitude,
+            longitude,
+            groupId,
+            apiKey: uuidV4(),
         })
-            .then((e) => {
+            .then(() => {
                 res.json({
                     success: true,
-                    message: 'Grup berhasil dibuat',
-                    result: {
-                        groupId: e.groupId,
-                    },
+                    message: 'Node Berhasil dibuat',
                 });
             })
-
             .catch(next);
     })
+
     .put(async (req, res, next) => {
-        const { name, address, description, groupId } = req.body;
+        const { name, description, nodeId, longitude, latitude } = req.body;
 
         console.log({
             name,
             description,
         });
 
-        db.Groups.update(
+        db.Nodes.update(
             {
                 name,
                 description,
-                address,
+                longitude,
+                latitude,
             },
-            { where: { groupId } }
+            { where: { nodeId } }
         )
             .then(([n]) => {
                 if (n) {
@@ -103,8 +96,8 @@ nodesRouter
     });
 
 nodesRouter.get('/:id', (req, res, next) => {
-    db.Groups.findOne({
-        where: { groupId: req.params.id },
+    db.Nodes.findOne({
+        where: { nodeId: req.params.id },
     })
         .then((e) => {
             if (!e) {
