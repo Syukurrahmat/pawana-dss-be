@@ -1,15 +1,17 @@
-import { Model, Table, Column, DataType, ForeignKey, CreatedAt } from "sequelize-typescript";
-import { InferAttributes, InferCreationAttributes } from "sequelize";
-import Users from "./users.js";
-import Groups from "./groups.js";
+import { Model, Table, Column, DataType, ForeignKey, CreatedAt } from 'sequelize-typescript';
+import { InferAttributes, InferCreationAttributes } from 'sequelize';
+import Users from './users.js';
+import Groups from './groups.js';
 
-@Table({ tableName: "grouppermissions" })
-
-export default class GroupPermissions extends Model<InferAttributes<GroupPermissions>, InferCreationAttributes<GroupPermissions>> {
+@Table({ tableName: 'grouppermissions' })
+export default class GroupPermissions extends Model<
+    InferAttributes<GroupPermissions>,
+    InferCreationAttributes<GroupPermissions>
+> {
     @Column({
         primaryKey: true,
         autoIncrement: true,
-        type: DataType.INTEGER
+        type: DataType.INTEGER,
     })
     groupPermissionId?: number;
 
@@ -31,9 +33,9 @@ export default class GroupPermissions extends Model<InferAttributes<GroupPermiss
         type: DataType.ENUM('manager', 'member', 'guest'),
         allowNull: false,
         defaultValue: 'member',
-        validate: { notEmpty: true }
+        validate: { notEmpty: true },
     })
-    permission!: string;
+    permission!: 'manager' | 'member' | 'guest';
 
     @Column({
         allowNull: true,
@@ -42,12 +44,12 @@ export default class GroupPermissions extends Model<InferAttributes<GroupPermiss
     joinedAt?: Date;
 
     @Column({
-        type: DataType.ENUM('pending', 'approved', 'rejected'),
+        type: DataType.ENUM('pending', 'approved', 'rejected', 'dismissed'),
         allowNull: false,
         validate: { notEmpty: true },
-        defaultValue: 'pending'
+        defaultValue: 'pending',
     })
-    requestStatus!: string;
+    requestStatus!: 'pending' | 'approved' | 'rejected' | 'dismissed';
 
     @CreatedAt
     requestJoinAt!: Date;

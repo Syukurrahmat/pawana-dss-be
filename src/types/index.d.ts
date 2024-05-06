@@ -1,7 +1,7 @@
 import { InferAttributes } from 'sequelize';
 import Users from '../models/users.ts';
 
-import { Request } from 'express';
+import { Request, Response, NextFunction } from 'express';
 
 declare global {
     namespace Express {
@@ -14,3 +14,5 @@ declare global {
             > {}
     }
 }
+
+declare type controllerType = (req: Request, res: Response, next: NextFunction) => void | any;

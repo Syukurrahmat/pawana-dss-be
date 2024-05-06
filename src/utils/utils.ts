@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { Op, OrderItem } from 'sequelize';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -36,7 +36,42 @@ interface IbuildQueryOptions {
     sortOpt: string[];
 }
 
-export const buildQuery = (req: Request, { searchField, sortOpt }: IbuildQueryOptions) => {
+const PSSMiddleware = (availableSortOpt: string[]) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        let page = parseInt(req.query.page as string) || 1;
+        let limit = parseInt(req.query.limit as string) || 10;
+
+        if (page < 1) page = 1;
+        if (limit < 1 || limit > 100) limit = 10;
+
+        // Search
+        const searchQuery = req.query.q as string;
+        const searchObj = searchQuery ? { name: { [Op.like]: `%${searchQuery}%` } } : {};
+
+        // Ordering
+        const sort = req.query.sort as string;
+        const order = req.query.order as string;
+
+        const orderItem: OrderItem = [
+            sort && availableSortOpt.includes(sort) ? sort : availableSortOpt[0],
+            order && order.toUpperCase() == 'DESC' ? 'DESC' : 'ASC',
+        ];
+
+        return {
+            page,
+            limit,
+            search: searchObj,
+            order: orderItem,
+        };
+    };
+};
+
+export const paginationMiddleware = (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    { sortOpt }: IbuildQueryOptions
+) => {
     // Pagination
     let page = parseInt(req.query.page as string) || 1;
     let limit = parseInt(req.query.limit as string) || 10;
@@ -46,6 +81,35 @@ export const buildQuery = (req: Request, { searchField, sortOpt }: IbuildQueryOp
 
     // Search
     const searchQuery = req.query.search as string;
+    const searchObj = searchQuery ? { name: { [Op.like]: `%${searchQuery}%` } } : {};
+
+    // Ordering
+    const sort = req.query.sort as string;
+    const order = req.query.order as string;
+
+    const orderItem: OrderItem = [
+        sort && sortOpt.includes(sort) ? sort : sortOpt[0],
+        order && order.toUpperCase() == 'DESC' ? 'DESC' : 'ASC',
+    ];
+
+    return {
+        page,
+        limit,
+        search: searchObj,
+        order: orderItem,
+    };
+};
+
+export const buildQuery = (req: Request, { searchField, sortOpt }: IbuildQueryOptions) => {
+    // Pagination
+    let page = parseInt(req.query.page as string) || 1;
+    let limit = parseInt(req.query.limit as string) || 10;
+
+    if (page < 1) page = 1;
+    if (limit < 1 || limit > 100) limit = 10;
+
+    // Search
+    const searchQuery = req.query.q as string;
     const searchObj = searchQuery ? { [searchField]: { [Op.like]: `%${searchQuery}%` } } : {};
 
     // Ordering
@@ -60,6 +124,7 @@ export const buildQuery = (req: Request, { searchField, sortOpt }: IbuildQueryOp
     return {
         page,
         limit,
+        offset: (page - 1) * limit,
         search: searchObj,
         order: [orderItem],
     };
