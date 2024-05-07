@@ -1,1 +1,10 @@
 http://localhost:3000/xixixi
+
+
+
+###
+
+
+http://localhost:3000/api/nodes/2/data?params=CO2,PM2.5,CH4
+
+

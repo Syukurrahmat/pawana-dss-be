@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
     addGroupSubscription,
+    deleteGroupSubscription,
     editUserProfile,
     getAllMemberSubscription,
     getAllUsers,
@@ -23,6 +24,7 @@ usersRouter.route('/:id')
 // prettier-ignore
 usersRouter.route('/:id/groups')
     .get(getAllMemberSubscription)
-    .post(addGroupSubscription);
+    .post(addGroupSubscription)
+    .delete(deleteGroupSubscription)
 
 export default usersRouter;

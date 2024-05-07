@@ -2,12 +2,11 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import db from '../models/index.js';
 import { controllerType } from '../types/index.js';
-import { buildQuery, salt } from '../utils/utils.js';
-import { off } from 'process';
+import { parseQueries, salt } from '../utils/utils.js';
 import { Op } from 'sequelize';
 
 export const getAllUsers: controllerType = async (req, res, next) => {
-    const { page, limit, search, order, offset } = buildQuery(req, {
+    const { page, limit, search, order, offset } = parseQueries(req, {
         searchField: 'name',
         sortOpt: ['name', 'role', 'createdAt'],
     });
@@ -98,22 +97,6 @@ export const editUserProfile: controllerType = async (req, res, next) => {
         .catch(next);
 };
 
-const groupCount = `(
-    SELECT COUNT(*)
-    FROM users INNER JOIN grouppermissions
-    ON users.userId = grouppermissions.userId
-    WHERE grouppermissions.groupId = Groups.groupId
-    AND grouppermissions.requestStatus = 'approved'
-)`;
-
-const groupRequestCount = `(
-    SELECT COUNT(*) FROM
-    users INNER JOIN grouppermissions
-    ON users.userId = grouppermissions.userId
-    WHERE grouppermissions.groupId = Groups.groupId
-    AND grouppermissions.requestStatus IN ('pending', 'rejected')
-)`;
-
 export const getUserProfileById: controllerType = async (req, res, next) => {
     try {
         const user = await db.Users.findOne({
@@ -147,7 +130,7 @@ export const getUserProfileById: controllerType = async (req, res, next) => {
 };
 
 export const getAllMemberSubscription: controllerType = async (req, res, next) => {
-    const { page, limit, search, order, offset } = buildQuery(req, {
+    const { page, limit, search, order, offset } = parseQueries(req, {
         searchField: 'name',
         sortOpt: ['name', 'createdAt'],
     });
@@ -182,7 +165,17 @@ export const getAllMemberSubscription: controllerType = async (req, res, next) =
             limit,
         });
 
-        const count = await user.countGroups({ ...(search as any) });
+        const count = await user.countGroups({
+            where: {
+                ...search,
+            },
+            //@ts-ignore
+            through: {
+                where: {
+                    requestStatus: onlyApproved ? 'approved' : { [Op.not]: 'approved' },
+                },
+            },
+        });
 
         res.json({
             success: true,
@@ -226,7 +219,7 @@ export const addGroupSubscription: controllerType = async (req, res, next) => {
 };
 
 export const getUsersWithSubsStatusInGroup: controllerType = async (req, res, next) => {
-    const { page, limit, search, order, offset } = buildQuery(req, {
+    const { page, limit, search, order, offset } = parseQueries(req, {
         searchField: 'name',
         sortOpt: ['name', 'createdAt'],
     });
@@ -267,4 +260,35 @@ export const getUsersWithSubsStatusInGroup: controllerType = async (req, res, ne
     } catch (e) {
         next(e);
     }
+};
+
+export const deleteGroupSubscription: controllerType = async (req, res, next) => {
+    const groupId = req.body.groupId;
+    const userId = req.params.id;
+
+    const user = await db.Users.findOne({ where: { userId }, attributes: ['userId'] });
+
+    if (!user) {
+        res.json({
+            success: false,
+            message: 'Pengguna tidak ditemukan',
+        });
+        return;
+    }
+
+    const group = await user.getGroups({ where: { groupId } });
+
+    if (!group) {
+        res.json({
+            success: false,
+            message: 'Grup tidak ditemukan',
+        });
+        return;
+    }
+
+    let g = await user.removeGroup(group[0]);
+
+    console.log(g);
+
+    res.end();
 };
