@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import db from '../models/index.js';
 import { controllerType } from '../types/index.js';
-import { buildQuery, salt } from '../utils/utils.js';
+import { parseQueries, salt } from '../utils/utils.js';
 import { group } from 'console';
 import { Op } from 'sequelize';
 
@@ -26,7 +26,7 @@ const nodesCount = `(
 )`;
 
 export const getAllGroups: controllerType = async (req, res, next) => {
-    const { page, limit, search, order, offset } = buildQuery(req, {
+    const { page, limit, search, order, offset } = parseQueries(req, {
         searchField: 'name',
         sortOpt: ['name', 'createdAt'],
     });
@@ -149,7 +149,7 @@ export const getGroupProfileById: controllerType = async (req, res, next) => {
 };
 
 export const getAllGroupMembers: controllerType = async (req, res, next) => {
-    const { page, limit, search, order, offset } = buildQuery(req, {
+    const { page, limit, search, order, offset } = parseQueries(req, {
         searchField: 'name',
         sortOpt: ['name', 'createdAt'],
     });
@@ -229,7 +229,7 @@ export const addGroupMembers: controllerType = async (req, res, next) => {
 };
 
 export const getAllGroupNodes: controllerType = async (req, res, next) => {
-    const { page, limit, search, order, offset } = buildQuery(req, {
+    const { page, limit, search, order, offset } = parseQueries(req, {
         searchField: 'name',
         sortOpt: ['name', 'timestamp'],
     });

@@ -100,7 +100,7 @@ export const paginationMiddleware = (
     };
 };
 
-export const buildQuery = (req: Request, { searchField, sortOpt }: IbuildQueryOptions) => {
+export const parseQueries = (req: Request, { searchField, sortOpt }: IbuildQueryOptions) => {
     // Pagination
     let page = parseInt(req.query.page as string) || 1;
     let limit = parseInt(req.query.limit as string) || 10;

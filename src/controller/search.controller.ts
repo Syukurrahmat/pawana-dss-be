@@ -1,9 +1,9 @@
 import db from '../models/index.js';
 import { controllerType } from '../types/index.js';
-import { buildQuery } from '../utils/utils.js';
+import { parseQueries } from '../utils/utils.js';
 
 export const searchUsersWithSubsStatus: controllerType = async (req, res, next) => {
-    const { page, limit, search, order, offset } = buildQuery(req, {
+    const { page, limit, search, order, offset } = parseQueries(req, {
         searchField: 'name',
         sortOpt: ['name', 'createdAt'],
     });
@@ -46,7 +46,7 @@ export const searchUsersWithSubsStatus: controllerType = async (req, res, next) 
 };
 
 export const searchGoupWithSubsStatus: controllerType = async (req, res, next) => {
-    const { page, limit, search, order, offset } = buildQuery(req, {
+    const { page, limit, search, order, offset } = parseQueries(req, {
         searchField: 'name',
         sortOpt: ['name', 'createdAt'],
     });
