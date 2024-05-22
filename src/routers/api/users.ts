@@ -1,30 +1,25 @@
 import { Router } from 'express';
-import {
-    addGroupSubscription,
-    deleteGroupSubscription,
-    editUserProfile,
-    getAllMemberSubscription,
-    getAllUsers,
-    getUserProfileById,
-} from '../../controller/users.controler.js';
-
-// ================== /api/users/* ==================
+import { addNodeSubscription, createNewUser, deleteNodeSubscription, editUserProfile, getManagedCompanies, getSubscribedNodes, getAllUsers, getUser, getUsersSummary } from '../../controller/users.controler.js'; //prettier-ignore
 
 const usersRouter = Router();
 
-// prettier-ignore
-usersRouter.route('')
+usersRouter.route('')                           //  /api/users
     .get(getAllUsers)
+    .post(createNewUser)
 
-// prettier-ignore
-usersRouter.route('/:id')
-    .get(getUserProfileById)
+usersRouter.get('/summary', getUsersSummary);   //  /api/summary
+
+usersRouter.route('/:id')                       //  /api/users/id
+    .get(getUser)
     .put(editUserProfile);
 
-// prettier-ignore
-usersRouter.route('/:id/groups')
-    .get(getAllMemberSubscription)
-    .post(addGroupSubscription)
-    .delete(deleteGroupSubscription)
+
+usersRouter.route('/:id/nodes')                 //  /api/users/id/nodes
+    .get(getSubscribedNodes)
+    .post(addNodeSubscription)
+    .delete(deleteNodeSubscription)      
+
+usersRouter.route('/:id/companies')             // api/companies/:id
+    .get(getManagedCompanies)
 
 export default usersRouter;

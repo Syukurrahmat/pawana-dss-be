@@ -4,6 +4,7 @@ import db from '../models/index.js';
 type mdwareType = (req: Request, res: Response, next: NextFunction) => void;
 
 export const isAuthenticated: mdwareType = (req, res, next) => {
+    console.log(req.isAuthenticated())
     if (req.isAuthenticated()) return next();
     res.redirect('/login');
 };

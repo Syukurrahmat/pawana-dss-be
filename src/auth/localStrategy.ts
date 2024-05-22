@@ -1,5 +1,4 @@
 import passport from 'passport';
-import { Request, Response, NextFunction } from 'express';
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcryptjs';
 import db from '../models/index.js';
@@ -14,6 +13,7 @@ passport.use(
                         return done(null, false);
                     }
 
+                    console.log('okekk')
                     return done(null, user.toJSON());
                 })
                 .catch((err) => done(null, false));

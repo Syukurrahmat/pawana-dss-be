@@ -5,6 +5,17 @@ http://localhost:3000/xixixi
 ###
 
 
-http://localhost:3000/api/nodes/2/data?params=CO2,PM2.5,CH4
+
+
+
+http://localhost:3000/api/search/nodes?info-sub-company=12&limit=100
+
+###
+http://localhost:3000/api/nodes
+
+
+###
+http://localhost:3000/api/reports
+
 
 

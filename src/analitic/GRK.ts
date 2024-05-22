@@ -1,4 +1,5 @@
 import DataLogs from '../models/datalogs.js';
+import { GRKCategorize } from '../types/dashboardData.js';
 
 const CO2ConversionTable = [
     {
@@ -30,14 +31,12 @@ const CH4ConversionTable = [
     },
 ];
 
-type calculateGRKProp = DataLogs | { ch4: number; co2: number; [key: string]: any };
 
-export function calculateCH4(value: number) {
-    const { category } = CH4ConversionTable.find((e) => e.limit >= value);
-    return { value, category };
-}
 
-export function calculateCO2(value: number) {
-    const { category } = CO2ConversionTable.find((e) => e.limit >= value);
-    return { value, category };
+export function GRKtoCategorize(value: number, gas: 'CH4' | 'CO2'): GRKCategorize {
+    const tableConvertion = gas == 'CH4' ? CH4ConversionTable : gas == 'CO2' ? CO2ConversionTable : null
+    if (!tableConvertion) throw Error
+
+    const { category } = tableConvertion.find((e) => e.limit >= value);
+    return { gas, value, category };
 }

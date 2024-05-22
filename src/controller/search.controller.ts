@@ -1,38 +1,50 @@
+import { ProjectionAlias } from 'sequelize';
 import db from '../models/index.js';
 import { controllerType } from '../types/index.js';
 import { parseQueries } from '../utils/utils.js';
 
-export const searchUsersWithSubsStatus: controllerType = async (req, res, next) => {
+export const searchUsers: controllerType = async (req, res, next) => {
     const { page, limit, search, order, offset } = parseQueries(req, {
-        searchField: 'name',
-        sortOpt: ['name', 'createdAt'],
+        sortOpt: ['createdAt', 'name', 'role'],
     });
 
-    const groupId = req.query['is-in-group'] as string;
+    db.Users.findAndCountAll({
+        attributes: ['userId', 'profilePicture', 'name'],
+        where: { isVerified: true, ...search },
+        limit,
+        offset,
+        order
+    })
+        .then(({ count, rows: users }) => {
+            res.json({
+                success: true,
+                totalItems: count,
+                currentPage: page,
+                pageSize: limit,
+                result: users,
+            });
+        })
+        .catch(next)
+};
 
-    try {
-        const { count, rows: users } = await db.Users.findAndCountAll({
-            attributes: [
-                'userId',
-                'profilePicture',
-                'name',
-                [
-                    db.sequelize.literal(`
-                        (SELECT COUNT(*) FROM grouppermissions
-                            WHERE grouppermissions.userId = Users.userId
-                            AND grouppermissions.requestStatus = "approved"
-                            AND grouppermissions.groupId = ${groupId || 'null'}
-                        )
-                    `),
-                    'isInGroup',
-                ],
-            ],
-            where: { isVerified: true, ...search },
-            order: [[db.sequelize.literal('isInGroup'), 'ASC'], ...order],
-            limit,
-            offset,
-        });
+export const searchCompanies: controllerType = async (req, res, next) => {
+    const { page, limit, search, order, offset } = parseQueries(req, {
+        sortOpt: ['createdAt', 'name', 'type'],
+    });
 
+    const role = req.query.role as string
+
+    db.Companies.findAndCountAll({
+        attributes: [
+            'companyId',
+            'name',
+            'type'
+        ],
+        where: { ...search, ...(role ? { role } : {}) },
+        order,
+        limit,
+        offset,
+    }).then(({ count, rows: users }) => {
         res.json({
             success: true,
             totalItems: count,
@@ -40,48 +52,64 @@ export const searchUsersWithSubsStatus: controllerType = async (req, res, next) 
             pageSize: limit,
             result: users,
         });
-    } catch (e) {
-        next(e);
-    }
+    }).catch(next)
 };
 
-export const searchGoupWithSubsStatus: controllerType = async (req, res, next) => {
+export const searchNodes: controllerType = async (req, res, next) => {
     const { page, limit, search, order, offset } = parseQueries(req, {
-        searchField: 'name',
-        sortOpt: ['name', 'createdAt'],
+        sortOpt: ['createdAt', 'name', 'type'],
     });
 
-    const userId = req.query['is-has-user'] as string;
+    const withUserSub = req.query['info-sub-user'] as string
+    const withCompanySub = req.query['info-sub-company'] as string
 
-    try {
-        const { count, rows: users } = await db.Groups.findAndCountAll({
-            attributes: [
-                'groupId',
-                'name',
-                [
-                    db.sequelize.literal(`
-                        (SELECT requestStatus FROM grouppermissions
-                            WHERE grouppermissions.groupId = Groups.groupId
-                            AND grouppermissions.userId = ${userId || 'null'}
-                        )
-                    `),
-                    'status',
-                ],
-            ],
-            where: { ...search },
-            order: [[db.sequelize.literal('status'), 'ASC'], ...order],
-            limit,
-            offset,
-        });
+    let isSubscribedQuery: ProjectionAlias[] = []
 
-        res.json({
-            success: true,
-            totalItems: count,
-            currentPage: page,
-            pageSize: limit,
-            result: users,
-        });
-    } catch (e) {
-        next(e);
-    }
+    if (withUserSub) isSubscribedQuery = [[
+        db.sequelize.literal(`(
+            SELECT COUNT(*) FROM userssubscriptions
+            WHERE userssubscriptions.nodeId = Nodes.nodeId
+            AND userssubscriptions.userId = ${withUserSub || 'null'}
+        )`),
+        'isSubscribed',
+    ]]
+
+    if (withCompanySub) isSubscribedQuery = [[
+        db.sequelize.literal(`(
+            SELECT COUNT(*) FROM companysubscriptions
+            WHERE companysubscriptions.nodeId = Nodes.nodeId
+            AND companysubscriptions.companyId = ${withCompanySub || 'null'}
+        )`),
+        'isSubscribed',
+    ]]
+
+    if (isSubscribedQuery.length) order.unshift([db.sequelize.literal('isSubscribed'), 'ASC'])
+
+    db.Nodes.findAndCountAll({
+        attributes: [
+            'nodeId',
+            'name',
+            ,
+            'status',
+            'createdAt',
+            ...isSubscribedQuery
+        ],
+        where: { ...search },
+        order,
+        limit,
+        offset,
+    })
+        .then(({ count, rows: users }) => {
+            res.json({
+                success: true,
+                totalItems: count,
+                currentPage: page,
+                pageSize: limit,
+                result: users,
+            });
+        })
+        .catch(next)
 };
+
+
+
