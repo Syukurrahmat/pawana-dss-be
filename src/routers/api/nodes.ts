@@ -2,41 +2,27 @@ import { Router } from 'express';
 import {
     editNode,
     getAllNodes,
-    getNodeById,
+    getNodeById, getAllUsersSubscription,
     createNewNode,
+    getNodesSummary,
 } from '../../controller/nodes.controler.js';
 
 const nodesRouter = Router();
 
-nodesRouter.route('').get(getAllNodes).post(createNewNode);
 
-nodesRouter.route('/:id').get(getNodeById).put(editNode);
+nodesRouter.route('')           //  /api/nodes
+    .get(getAllNodes)
+    .post(createNewNode);
 
-nodesRouter.route('/:id/data').get(async (req, res, next) => {
-    let { params, start, end } = req.query;
+nodesRouter.route('/summary')   //  /api/nodes/summary
+    .get(getNodesSummary)
 
-    
+nodesRouter.route('/:id')       //  /api/nodes/:id
+    .get(getNodeById)
+    .put(editNode)
 
+nodesRouter.route('/usersubscriptions')       //  /api/nodes/:id/usersubscriptions
+    .get(getAllUsersSubscription)
 
-
-
-
-
-    if (!(params && start && end)){
-        res.json({
-            success : false, 
-            message : "query params invalid"
-        })
-    }
-
-
-
-
-
-
-    console.log(params, start, end);
-
-    res.end();
-});
 
 export default nodesRouter;

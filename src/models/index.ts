@@ -1,11 +1,12 @@
 import { Sequelize } from 'sequelize-typescript';
-import Activities from './activities.js';
+import EventLogs from './eventLogs.js';
 import DataLogs from './datalogs.js';
-import GroupPermissions from './grouppermissions.js';
-import Groups from './groups.js';
-import ActivityNodesJuncs from './activitynodesjuncs.js';
+import UsersSubscription from './usersSubscriptions.js';
+import Companies from './companies.js';
+import CompanySubscription from './companySubscriptions.js';
 import Nodes from './nodes.js';
 import Users from './users.js';
+import Reports from './reports.js';
 
 const sequelize = new Sequelize({
     database: process.env.DB_DATABASE,
@@ -17,24 +18,25 @@ const sequelize = new Sequelize({
 });
 
 sequelize.addModels([
-    Activities,
-    ActivityNodesJuncs,
+    EventLogs,
+    CompanySubscription,
     DataLogs,
-    GroupPermissions,
-    Groups,
-    Nodes,
+    UsersSubscription,
+    Companies,
     Users,
+    Nodes,
+    Reports,
 ]);
 
 const db = {
     sequelize,
-    Activities,
-    ActivityNodesJuncs,
+    Companies,
+    CompanySubscription,
     DataLogs,
-    GroupPermissions,
-    Groups,
+    UsersSubscription,
     Nodes,
     Users,
+    Reports
 };
 
 export default db;

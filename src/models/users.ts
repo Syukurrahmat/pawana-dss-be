@@ -1,98 +1,117 @@
-import { InferAttributes, InferCreationAttributes, BelongsToManyAddAssociationMixin, BelongsToManyAddAssociationsMixin, BelongsToManyCountAssociationsMixin, BelongsToManyCreateAssociationMixin, BelongsToManyGetAssociationsMixin, BelongsToManyHasAssociationMixin, BelongsToManyHasAssociationsMixin, BelongsToManyRemoveAssociationMixin, BelongsToManyRemoveAssociationsMixin, BelongsToManySetAssociationsMixin} from 'sequelize'; //prettier-ignore
-import {} from 'sequelize';
-import { Model, Table, Column, DataType, HasMany, BelongsToMany } from 'sequelize-typescript';
-import Activities from './activities.js';
-import GroupPermissions from './grouppermissions.js';
-import Groups from './groups.js';
+import { InferAttributes, InferCreationAttributes, BelongsToManyAddAssociationMixin, BelongsToManyAddAssociationsMixin, BelongsToManyCountAssociationsMixin, BelongsToManyCreateAssociationMixin, BelongsToManyGetAssociationsMixin, BelongsToManyHasAssociationMixin, BelongsToManyHasAssociationsMixin, BelongsToManyRemoveAssociationMixin, BelongsToManyRemoveAssociationsMixin, BelongsToManySetAssociationsMixin, HasManyGetAssociationsMixin, HasManyAddAssociationMixin, HasManyAddAssociationsMixin, HasManySetAssociationsMixin, HasManyRemoveAssociationMixin, HasManyRemoveAssociationsMixin, HasManyHasAssociationMixin, HasManyHasAssociationsMixin, HasManyCountAssociationsMixin, HasManyCreateAssociationMixin } from 'sequelize'; //prettier-ignore
+import { Model, Table, Column, DataType, HasMany, BelongsToMany, PrimaryKey, AutoIncrement, AllowNull, NotEmpty, IsNumeric, Default, Unique, IsEmail } from 'sequelize-typescript';
+import UsersSubscription from './usersSubscriptions.js';
+import Companies from './companies.js';
+import Reports from './reports.js';
+import Nodes from './nodes.js';
+import bcrypt from 'bcryptjs';
+import { myBcriptSalt } from '../utils/utils.js';
 
 @Table({ tableName: 'users' })
+
 export default class Users extends Model<InferAttributes<Users>, InferCreationAttributes<Users>> {
-    @Column({
-        primaryKey: true,
-        autoIncrement: true,
-        type: DataType.INTEGER,
-    })
+    @PrimaryKey
+    @AutoIncrement
+    @Column(DataType.INTEGER)
     userId?: number;
 
-    @Column({
-        type: DataType.STRING(30),
-        allowNull: false,
-        validate: { notEmpty: true },
-    })
+    @AllowNull(false)
+    @NotEmpty
+    @Column(DataType.STRING(30))
     name!: string;
 
-    @Column({
-        allowNull: false,
-        type: DataType.STRING(15),
-        validate: { isNumeric: true, notEmpty: true },
-    })
+    @AllowNull(false)
+    @NotEmpty
+    @IsNumeric
+    @Column(DataType.STRING(16))
     phone!: string;
 
-    @Column({
-        type: DataType.STRING(30),
-        allowNull: false,
-        validate: { notEmpty: true },
-    })
-    address?: string;
+    @AllowNull(false)
+    @NotEmpty
+    @Column(DataType.STRING(255))
+    address!: string;
 
-    @Column({
-        allowNull: true,
-        type: DataType.STRING(30),
-    })
+    @Column(DataType.STRING(255))
     description?: string;
 
-    @Column({
-        allowNull: false,
-        type: DataType.ENUM('admin', 'user'),
-        defaultValue: 'user',
-    })
+    @AllowNull(false)
+    @Default('regular')
+    @NotEmpty
+    @Column(DataType.ENUM('admin', 'gov', 'manager', 'regular'))
     role!: string;
 
-    @Column({
-        allowNull: true,
-        type: DataType.BLOB,
-    })
+    @Column(DataType.BLOB)
     profilePicture?: Uint8Array;
 
-    @Column({
-        type: DataType.STRING(35),
-        allowNull: false,
-        unique: true,
-        validate: { notEmpty: true, isEmail: true },
-    })
+    @Unique
+    @AllowNull(false)
+    @IsEmail
+    @NotEmpty
+    @Column(DataType.STRING(255))
     email!: string;
 
+    @AllowNull(false)
+    @NotEmpty
     @Column({
         type: DataType.STRING(60),
-        allowNull: true,
+        set(value: string) {
+            this.setDataValue('password', bcrypt.hashSync(value, myBcriptSalt));
+        }
     })
     password!: string;
 
-    @Column({
-        type: DataType.BOOLEAN(),
-        allowNull: false,
-        validate: { notEmpty: true },
-        defaultValue: false,
-    })
+    @Default(false)
+    @AllowNull(false)
+    @NotEmpty
+    @Column(DataType.BOOLEAN)
     isVerified!: boolean;
 
-    @HasMany(() => Activities, 'userId')
-    activities?: Activities[];
 
-    @BelongsToMany(() => Groups, () => GroupPermissions)
-    groups?: Array<Groups & { GroupPermissions: GroupPermissions }>;
+    @HasMany(() => Reports, 'userId')
+    reports?: Reports[]
 
-    @HasMany(() => GroupPermissions, 'userId')
-    groupPermissions?: GroupPermissions;
+    @BelongsToMany(() => Nodes, () => UsersSubscription)
+    subscribedNodes?: Array<Nodes & { UsersSubscription: UsersSubscription }>;
 
-    declare getGroups: BelongsToManyGetAssociationsMixin<Groups>;
-    declare addGroup: BelongsToManyAddAssociationMixin<Groups, number>;
-    declare addGroups: BelongsToManyAddAssociationsMixin<Groups, number>;
-    declare setGroups: BelongsToManySetAssociationsMixin<Groups, number>;
-    declare removeGroup: BelongsToManyRemoveAssociationMixin<Groups, number>;
-    declare removeGroups: BelongsToManyRemoveAssociationsMixin<Groups, number>;
-    declare hasGroup: BelongsToManyHasAssociationMixin<Groups, number>;
-    declare hasGroups: BelongsToManyHasAssociationsMixin<Groups, number>;
-    declare countGroups: BelongsToManyCountAssociationsMixin;
-    declare createGroup: BelongsToManyCreateAssociationMixin<Groups>;
+    @HasMany(() => Companies, 'managedBy')
+    companies?: Companies[]
+
+    @HasMany(() => Nodes, 'ownerId')
+    nodes?: Users[]
+
+    declare getCompanies: HasManyGetAssociationsMixin<Companies>;
+    declare addCompany: HasManyAddAssociationMixin<Companies, number>;
+    declare addCompanies: HasManyAddAssociationsMixin<Companies, number>;
+    declare setCompanies: HasManySetAssociationsMixin<Companies, number>;
+    declare removeCompany: HasManyRemoveAssociationMixin<Companies, number>;
+    declare removeCompanies: HasManyRemoveAssociationsMixin<Companies, number>;
+    declare hasCompany: HasManyHasAssociationMixin<Companies, number>;
+    declare hasCompanies: HasManyHasAssociationsMixin<Companies, number>;
+    declare countCompanies: HasManyCountAssociationsMixin;
+    declare createCompany: HasManyCreateAssociationMixin<Companies>;
+
+    declare getReports: HasManyGetAssociationsMixin<Reports>;
+    declare addReport: HasManyAddAssociationMixin<Reports, number>;
+    declare addReports: HasManyAddAssociationsMixin<Reports, number>;
+    declare setReports: HasManySetAssociationsMixin<Reports, number>;
+    declare removeReport: HasManyRemoveAssociationMixin<Reports, number>;
+    declare removeReports: HasManyRemoveAssociationsMixin<Reports, number>;
+    declare hasReport: HasManyHasAssociationMixin<Reports, number>;
+    declare hasReports: HasManyHasAssociationsMixin<Reports, number>;
+    declare countReports: HasManyCountAssociationsMixin;
+    declare createReport: HasManyCreateAssociationMixin<Reports>;
+
+    declare getSubscribedNodes: BelongsToManyGetAssociationsMixin<Nodes>;
+    declare addSubscribedNode: BelongsToManyAddAssociationMixin<Nodes, number>;
+    declare addSubscribedNodes: BelongsToManyAddAssociationsMixin<Nodes, number>;
+    declare setSubscribedNodes: BelongsToManySetAssociationsMixin<Nodes, number>;
+    declare removeSubscribedNode: BelongsToManyRemoveAssociationMixin<Nodes, number>;
+    declare removeSubscribedNodes: BelongsToManyRemoveAssociationsMixin<Nodes, number>;
+    declare hasSubscribedNode: BelongsToManyHasAssociationMixin<Nodes, number>;
+    declare hasSubscribedNodes: BelongsToManyHasAssociationsMixin<Nodes, number>;
+    declare countSubscribedNodes: BelongsToManyCountAssociationsMixin;
+    declare createSubscribedNode: BelongsToManyCreateAssociationMixin<Nodes>;
+
+
+    count : number
 }

@@ -9,7 +9,9 @@ import { GRKtoCategorize } from '../analitic/GRK.js';
 import DataLogs from '../models/datalogs.js';
 import { DashboardDataType, ResultOfMappingNode, ResultOfMultiNodeStats, SingleNodeAnalysis } from '../types/dashboardData.js';
 
-export default async function dashboardData(companyId = 40) {
+dashboardData()
+
+export default async function dashboardData(companyId = 1) {
 
     const companies = await db.Companies.findByPk(companyId, {
         attributes: { exclude: ['description', 'address', 'updatedAt'] }
@@ -17,7 +19,7 @@ export default async function dashboardData(companyId = 40) {
 
 
     const subscribedNodes = await companies.getSubscribedNodes({
-        attributes: ['nodeId', 'name', 'coordinate',  'status', 'ownerId', 'lastDataSent'],
+        attributes: ['nodeId', 'name', 'coordinate', 'status', 'ownerId', 'lastDataSent'],
         joinTableAttributes: [],
         include: [{
             model: db.DataLogs,
@@ -33,50 +35,78 @@ export default async function dashboardData(companyId = 40) {
         ],
     })
 
-    const mappedNodes = await Promise.all(subscribedNodes.map(mappingNode))
+    const mappedNodes = subscribedNodes.map(mappingNode)
 
     const indoorNodes = mappedNodes
         .filter(({ meta }) => meta.isIndoor && meta.dataIsUptodate)
     const outdoorNodes = mappedNodes
         .filter(({ meta }) => !meta.isIndoor && meta.dataIsUptodate)
 
-    const nodeBystatus = {
-        active: subscribedNodes.filter(e => e.status == 'active'),
-        noSendData: subscribedNodes.filter(e => e.status == 'idle'),
-        nonactive: subscribedNodes.filter(e => e.status == 'nonactive'),
-    }
 
     const result: DashboardDataType = {
         companyInfo: {
             ...companies.toJSON(),
-            countNodes: subscribedNodes.length,
-        },
-        indoor: {
             countNodes: {
-                all: subscribedNodes.filter(e => e.ownerId).length,
-                active: nodeBystatus.active.filter(e => e.ownerId).length,
-                noSendData: nodeBystatus.noSendData.filter(e => e.ownerId).length,
-                nonactive: nodeBystatus.nonactive.filter(e => e.ownerId).length,
+                indoor: subscribedNodes.filter(e => e.ownerId).length,
+                outdoor: subscribedNodes.filter(e => !e.ownerId).length,
             },
-            data: indoorNodes.length === 1 ? await singleNodeAnalysis(indoorNodes[0])
-                : indoorNodes.length > 1 ? multiNodeStatAnalysis(indoorNodes) : null,
         },
-        outdoor: {
-            countNodes: {
-                all: subscribedNodes.filter(e => !e.ownerId).length,
-                active: nodeBystatus.active.filter(e => !e.ownerId).length,
-                noSendData: nodeBystatus.noSendData.filter(e => !e.ownerId).length,
-                nonactive: nodeBystatus.nonactive.filter(e => !e.ownerId).length,
-            },
-            data: outdoorNodes.length === 1 ? await singleNodeAnalysis(outdoorNodes[0])
-                : outdoorNodes.length > 1 ? multiNodeStatAnalysis(outdoorNodes) : null,
+        activeNodeCount: {
+            indoor: indoorNodes.length,
+            outdoor: outdoorNodes.length,
         },
-        nodes: mappedNodes.map(({ node: { dataLogs, ...n }, ...e }) => ({
-            node: { ...n },
-            ...e
-        }))
+        ispu: {
+            indoor: null,
+            outdoor: null,
+        },
+        ch4: {
+            indoor: null,
+            outdoor: null,
+        },
+        co2: {
+            indoor: null,
+            outdoor: null,
+        },
+        // allNodes: mappedNodes.map(e=> ({dataLogs, CompanySubscriptions, ...r})=>({...r}))
+        allNodes: mappedNodes.map(({ node, ...e }) => {
+            let { dataLogs, ...n } = node
+            return {
+                node: { ...n },
+                ...e
+            }
+        })
     }
 
+
+    if (indoorNodes.length == 1) {
+        const { ispu, ch4, co2 } = await singleNodeAnalysis(indoorNodes[0])
+        result.ispu.indoor = ispu
+        result.ch4.indoor = ch4
+        result.co2.indoor = co2
+
+    }
+
+    if (indoorNodes.length > 1) {
+        const { ispu, ch4, co2 } = multiNodeStatAnalysis(indoorNodes)
+        result.ispu.indoor = ispu
+        result.ch4.indoor = ch4
+        result.co2.indoor = co2
+    }
+
+    if (outdoorNodes.length == 1) {
+        const { ispu, ch4, co2 } = await singleNodeAnalysis(outdoorNodes[0])
+        result.ispu.outdoor = ispu
+        result.ch4.outdoor = ch4
+        result.co2.outdoor = co2
+
+    }
+
+    if (outdoorNodes.length > 1) {
+        const { ispu, ch4, co2 } = multiNodeStatAnalysis(outdoorNodes)
+        result.ispu.outdoor = ispu
+        result.ch4.outdoor = ch4
+        result.co2.outdoor = co2
+    }
 
     return result
 }
@@ -85,34 +115,24 @@ export default async function dashboardData(companyId = 40) {
 /**
  * Mengembalikan data terbaru dari suatu node
  */
-async function mappingNode(node: Nodes) {
-    const { lastDataSent, dataLogs, status } = node
-
+function mappingNode(node: Nodes): ResultOfMappingNode {
+    const { lastDataSent, dataLogs } = node
     const diffLastDataSentInHours = moment().diff(lastDataSent, 'hour')
 
-    if (status != 'nonactive') {
-        node.status = diffLastDataSentInHours > 6 ? 'idle' : 'active'
-        await node.save()
+    if (!node.lastDataSent || diffLastDataSentInHours > 6) return {
+        meta: {
+            isIndoor: Boolean(node.ownerId),
+            dataIsUptodate: false,
+        },
+        node: node.toJSON(),
     }
 
-    if (!lastDataSent || status != 'active') {
-        return {
-            meta: {
-                isIndoor: Boolean(node.ownerId),
-                dataIsUptodate: false,
-            },
-            node: node.toJSON(),
-        }
-    }
-
-    console.log("awikwok")
     const currentISPUTime = moment(node.lastDataSent).startOf('h')
     const ISPU = calculateISPU(node.dataLogs, currentISPUTime.toDate())
 
     const { co2, ch4, pm25, pm100, datetime } = dataLogs.at(0)
 
-
-    const result: ResultOfMappingNode = {
+    return {
         meta: {
             isIndoor: Boolean(node.ownerId),
             dataIsUptodate: true,
@@ -124,8 +144,6 @@ async function mappingNode(node: Nodes) {
         pm25: { datetime, value: pm25 },
         pm100: { datetime, value: pm100 },
     };
-
-    return result
 }
 
 async function singleNodeAnalysis(nodeAnalysis: ResultOfMappingNode): Promise<SingleNodeAnalysis> {

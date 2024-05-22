@@ -1,70 +1,52 @@
-import {Model, Table, Column, DataType, ForeignKey} from "sequelize-typescript";
+import { Model, Table, Column, DataType, ForeignKey, PrimaryKey, AutoIncrement, AllowNull, NotEmpty } from "sequelize-typescript";
 import { InferAttributes, InferCreationAttributes } from "sequelize";
 import Nodes from "./nodes.js";
 
-@Table({ tableName: "datalogs" , timestamps : false})
+@Table({ tableName: "datalogs", timestamps: false })
 
 export default class DataLogs extends Model<InferAttributes<DataLogs>, InferCreationAttributes<DataLogs>> {
-    @Column({
-        primaryKey: true,
-        autoIncrement: true,
-        type: DataType.BIGINT
-    })
-    dataLogId?: number;
+    @PrimaryKey
+    @AutoIncrement
+    @Column(DataType.BIGINT)
+    dataLogId!: number;
 
     @ForeignKey(() => Nodes)
-    @Column({
-        type: DataType.INTEGER,
-        allowNull: false,
-    })
+    @AllowNull(false)
+    @Column(DataType.INTEGER)
     nodeId!: number;
+ 
+    @AllowNull(false)
+    @NotEmpty
+    @Column(DataType.DATE)
+    datetime!: Date ;
 
-    @Column({
-        type: DataType.DATE,
-        allowNull: false,
-        validate: { notEmpty: true },
-    })
-    datetime!: Date;
-
-    @Column({
-        type: DataType.FLOAT(12),
-        allowNull: false,
-        validate: { notEmpty: true },
-    })
+    @AllowNull(false)
+    @NotEmpty
+    @Column(DataType.FLOAT)
     pm25!: number;
 
-    @Column({
-        type: DataType.FLOAT(12),
-        allowNull: false,
-        validate: { notEmpty: true },
-    })
+    @AllowNull(false)
+    @NotEmpty
+    @Column(DataType.FLOAT)
     pm100!: number;
 
-    @Column({
-        type: DataType.INTEGER,
-        allowNull: false,
-        validate: { notEmpty: true },
-    })
+    @AllowNull(false)
+    @NotEmpty
+    @Column(DataType.INTEGER)
     ch4!: number;
 
-    @Column({
-        type: DataType.INTEGER,
-        allowNull: false,
-        validate: { notEmpty: true },
-    })
+    @AllowNull(false)
+    @NotEmpty
+    @Column(DataType.INTEGER)
     co2!: number;
 
-    @Column({
-        type: DataType.FLOAT(12),
-        allowNull: false,
-        validate: { notEmpty: true },
-    })
+    @AllowNull(false)
+    @NotEmpty
+    @Column(DataType.FLOAT)
     temperature!: number;
 
-    @Column({
-        type: DataType.FLOAT(12),
-        allowNull: false,
-        validate: { notEmpty: true },
-    })
+    @AllowNull(false)
+    @NotEmpty
+    @Column(DataType.FLOAT)
     humidity!: number;
 }
