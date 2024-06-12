@@ -4,12 +4,13 @@ import Companies from "./companies.js";
 
 @Table({ tableName: "eventlogs" })
 
+
 export default class EventLogs extends Model<InferAttributes<EventLogs>, InferCreationAttributes<EventLogs>> {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
     eventLogId!: number;
-    
+
     @ForeignKey(() => Companies)
     @AllowNull(false)
     @Column(DataType.INTEGER)
@@ -27,25 +28,30 @@ export default class EventLogs extends Model<InferAttributes<EventLogs>, InferCr
 
     @AllowNull(false)
     @NotEmpty
-    @Column(DataType.ENUM('production', 'maintenance', 'note', 'other'))
+    @Column(DataType.ENUM('production', 'maintenance', 'training', 'administrative', 'repair', 'other'))
     type!: string;
 
     @AllowNull(false)
-    @NotEmpty
-    @Default('inprogress')
-    @Column(DataType.ENUM('inprogress', 'completed', 'cancelled'))
+    @Default('in progress')
+    @Column(DataType.ENUM('in progress', 'completed', 'not started yet'))
     status!: string;
+
+    @Default(false)
+    @Column(DataType.BOOLEAN)
+    isCompleted!: boolean;
 
     @Column(DataType.STRING(255))
     location?: string;
-    
+
     @AllowNull(false)
     @NotEmpty
     @Column(DataType.DATEONLY)
-    date!: Date;
-    
-    @AllowNull(false)
+    startDate!: Date;
+
     @NotEmpty
     @Column(DataType.DATEONLY)
-    finishDate?: Date;
+    endDate?: Date;
 }
+
+
+ 

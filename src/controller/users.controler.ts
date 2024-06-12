@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import db from '../models/index.js';
-import { ControllerType } from '../types/index.js';
-import { parseQueries, myBcriptSalt } from '../utils/utils.js';
+import { ControllerType, QueryOfSting } from '../types/index.js';
+import { parseQueries, myBcriptSalt } from '../utils/common.utils.js';
 import { Op } from 'sequelize';
 import Randomstring from 'randomstring';
+import sendVerificationEmail from '../utils/email/sendEmail.utils.js';
 
 
 //  ======================= api/users =======================
@@ -14,15 +15,15 @@ export const getAllUsers: ControllerType = async (req, res, next) => {
         sortOpt: ['createdAt', 'name', 'role'],
     });
 
-    const roleQuery = req.query.role as string
+    const unverified = req.query.unverified as string == 'true'
+    const role = req.query.role as string
 
-    const role = roleQuery ? { role: roleQuery } : {}
-    const unverified = req.query.unverified as string === 'true'
+    const roleObj = role ? { role } : {}
 
     try {
         const { count, rows: users } = await db.Users.findAndCountAll({
             attributes: ['userId', 'name', 'phone', 'profilePicture', 'email', 'role', 'createdAt'],
-            where: { isVerified: !unverified, ...role, ...search },
+            where: { isVerified: !unverified, ...roleObj, ...search },
             offset,
             order,
             limit,
@@ -35,9 +36,8 @@ export const getAllUsers: ControllerType = async (req, res, next) => {
             pageSize: limit,
             result: users.map((e) => e.toJSON()),
         });
-    } catch (e) {
-        next(e);
-    }
+
+    } catch (e) { next(e) }
 };
 
 export const getUsersSummary: ControllerType = async (req, res, next) => {
@@ -71,11 +71,9 @@ export const getUsersSummary: ControllerType = async (req, res, next) => {
 }
 
 export const createNewUser: ControllerType = async (req, res, next) => {
-    const { name, email, phone, description, address, profilePicture } = req.body;
-
+    const { name, email, phone, description, address, profilePicture, role } = req.body;
 
     try {
-
         const emailAlreadyUsed = await db.Users.count({ where: { email } })
 
         if (emailAlreadyUsed) {
@@ -85,17 +83,18 @@ export const createNewUser: ControllerType = async (req, res, next) => {
             })
         }
 
-        let password = Randomstring.generate(12)
+        const token = jwt.sign({ email }, process.env.JWT_SECRETKEY, { expiresIn: '3d' });
+        await sendVerificationEmail(name, email, token)
 
-        let newUser = await db.Users.create({
-            name, email, phone, description, address, profilePicture, password
+        const password = Randomstring.generate(12)
+
+        const newUser = await db.Users.create({
+            name, email, phone, description, address,
+            profilePicture, password, role
         })
 
         if (!newUser) return next()
-
-        let token = jwt.sign({ email }, process.env.JWT_SECRETKEY, { expiresIn: '3d' });
-
-        console.log(token)
+        
 
         res.json({
             success: true,
@@ -103,29 +102,25 @@ export const createNewUser: ControllerType = async (req, res, next) => {
         })
 
 
-    } catch (error) {
-        next(error)
-    }
+    } catch (error) { next(error) }
 }
 
 //  ===================== api/users/:id =====================
 
 export const getUser: ControllerType = async (req, res, next) => {
-    const userId = req.params.id
+    const { id: userId } = req.params
 
     try {
-
         const user = await db.Users.findOne({
             where: { userId, isVerified: true },
             attributes: { exclude: ['createdAt', 'updatedAt', 'password'] },
         })
 
-        if (!user) {
-            return res.json({
-                success: false,
-                message: 'user tidak ditemukan',
-            });
-        }
+        if (!user) return res.status(404).json({
+            success: false,
+            message: 'user tidak ditemukan',
+        });
+
 
         const countSubscribedNodes = await user.countSubscribedNodes()
         const countManagedCompany = await user.countCompanies()
@@ -138,47 +133,34 @@ export const getUser: ControllerType = async (req, res, next) => {
             }
         });
 
-
     } catch (error) { next(error) }
 };
 
-export const editUserProfile: ControllerType = async (req, res, next) => {
-    const { name, phone, description, address, profilePicture } = req.body;
+export const editUserPassword: ControllerType = async (req, res, next) => {
+    const { id: userId } = req.params
     const { password, newPassword } = req.body;
 
-    const userId = req.params.id;
+    if (!password && !newPassword) return res.status(400).send("bad request")
 
-    console.log({
-        name,
-        phone,
-        description,
-        address,
-        profilePicture,
-        password,
-        newPassword,
-        userId,
+    if (!bcrypt.compareSync(password, req.user.password)) return res.json({
+        success: false,
+        message: 'Kata sandi tidak tepat',
     });
 
-    const isUpdatePassword = password && newPassword;
-
-    if (isUpdatePassword) {
-        try {
-            const user = await db.Users.findOne({
-                where: { userId },
-                attributes: ['password'],
+    db.Users.update({ password: newPassword }, { where: { userId } })
+        .then(([n]) => {
+            res.json({
+                success: Boolean(n),
+                message: n ? 'Kata Sandi berhasil diperbarui' : 'Kata Sandi gagal diperbarui',
             });
+        })
+        .catch(next);
+}
 
-            if (!bcrypt.compareSync(password, user.password)) {
-                res.json({
-                    success: false,
-                    message: 'Kata sandi tidak tepat',
-                });
-                return;
-            }
-        } catch (error) {
-            next(error);
-        }
-    }
+
+export const editUserProfile: ControllerType = async (req, res, next) => {
+    const { id: userId } = req.params
+    const { name, phone, description, address, profilePicture } = req.body;
 
     db.Users.update(
         {
@@ -187,22 +169,14 @@ export const editUserProfile: ControllerType = async (req, res, next) => {
             description,
             address,
             profilePicture,
-            password: isUpdatePassword ? bcrypt.hashSync(newPassword, myBcriptSalt) : undefined,
         },
         { where: { userId } }
     )
         .then(([n]) => {
-            if (n) {
-                res.json({
-                    success: true,
-                    message: 'Berhasil diperbarui',
-                });
-            } else {
-                res.json({
-                    success: false,
-                    message: 'Gagal diperbarui',
-                });
-            }
+            res.json({
+                success: Boolean(n),
+                message: n ? 'Berhasil diperbarui' : 'Gagal diperbarui',
+            });
         })
         .catch(next);
 };
@@ -214,30 +188,32 @@ export const getSubscribedNodes: ControllerType = async (req, res, next) => {
         sortOpt: ['name', 'createdAt'],
     });
 
-    const userId = req.params.id;
+    const { id: userId } = req.params
+
 
     try {
-        const user = await db.Users.findOne({ where: { userId } })
+        const user = await db.Users.findOne({ attributes: ['userId'], where: { userId } })
 
-        if (!user) {
-            return res.json({
-                success: false,
-                message: 'User tidak ditemukan',
-            });
-        }
+        if (!user) return res.status(404).json({
+            success: false,
+            message: 'User tidak ditemukan',
+        });
+
 
         const nodes = await user.getSubscribedNodes({
-            attributes: ['nodeId', 'name', 'coordinate', 'status', 'lastDataSent',],
+            attributes: [
+                'nodeId', 'name', 'coordinate', 'status', 'lastDataSent',
+                [db.sequelize.col('UsersSubscriptions.createdAt'), 'joinedAt'],
+                [db.sequelize.col('UsersSubscriptions.usersSubscriptionId'), 'subscriptionId']
+            ],
+            joinTableAttributes: [],
             where: { ...search },
-            joinTableAttributes: ['usersSubscriptionId', 'createdAt'],
             offset,
             limit,
-            order: [[db.sequelize.col('UsersSubscriptions.createdAt'), 'DESC']],
-
+            order: [[db.sequelize.col('joinedAt'), 'DESC']],
         })
 
         const count = await user.countSubscribedNodes({ where: { ...search } });
-
 
         res.json({
             success: true,
@@ -257,36 +233,43 @@ export const deleteNodeSubscription: ControllerType = async (req, res, next) => 
     const usersSubscriptionId = req.query.subscriptionid as string
 
     db.UsersSubscription.destroy({ where: { usersSubscriptionId } })
-        .then(affected => {
+        .then(n => {
             return res.json({
-                success: Boolean(affected),
-                message: affected ? 'Keanggotaan berhasil dihapus' : 'Opss!, Ada yang salah, keanggotaan gagal dihapus'
+                success: Boolean(n),
+                message: n
+                    ? 'Keanggotaan berhasil dihapus'
+                    : 'Opss!, Ada yang salah, keanggotaan gagal dihapus'
             })
         }).catch(next)
 };
 
 export const addNodeSubscription: ControllerType = async (req, res, next) => {
-    const nodeIds: number[] = req.body.nodeIds;
-    const userId = req.params.id;
+    const { id: userId } = req.params;
+    const nodeIds = req.body.nodeIds
+    const SUBS_LIMIT = 5
+
+    if (!(Array.isArray(nodeIds) && nodeIds.length)) return res.status(400)
 
     const user = await db.Users.findOne({ where: { userId }, attributes: ['userId'] });
 
-    if (!user) {
-        res.json({
-            success: false,
-            message: 'Pengguna tidak ditemukan',
-        });
-        return;
-    }
+    if (!user) return res.status(404).json({
+        success: false,
+        message: 'Pengguna tidak ditemukan',
+    });
+
+    const countSubscribed = await user.countSubscribedNodes()
+
+    if (countSubscribed >= SUBS_LIMIT) return res.status(404).json({
+        success: false,
+        message: 'Melebih batas yang diizinkan',
+    });
 
     const nodes = await db.Nodes.findAll({
         where: { nodeId: { [Op.in]: nodeIds.filter((e) => e) } },
         attributes: ['nodeId'],
     });
 
-    const userAdded = await user.addSubscribedNodes(nodes)
-
-    console.log(userAdded);
+    await user.addSubscribedNodes(nodes.slice(0, SUBS_LIMIT - countSubscribed))
 
     res.json({
         success: true,
@@ -301,20 +284,19 @@ export const getManagedCompanies: ControllerType = async (req, res, next) => {
         sortOpt: ['name', 'createdAt'],
     });
 
-    const userId = req.params.id;
+    const { id: userId } = req.params;
 
     try {
         const user = await db.Users.findOne({ where: { userId } })
 
-        if (!user) {
-            return res.json({
-                success: false,
-                message: 'User tidak ditemukan',
-            });
-        }
+        if (!user) return res.status(404).json({
+            success: false,
+            message: 'User tidak ditemukan',
+        });
+
 
         const companies = await user.getCompanies({
-            attributes: ['companyId', 'name', 'type', 'createdAt',],
+            attributes: ['companyId', 'name', 'type', 'createdAt', 'coordinate'],
             where: { ...search },
             offset,
             limit,

@@ -40,12 +40,10 @@ export default class DataLogs extends Model<InferAttributes<DataLogs>, InferCrea
     @Column(DataType.INTEGER)
     co2!: number;
 
-    @AllowNull(false)
     @NotEmpty
     @Column(DataType.FLOAT)
     temperature!: number;
 
-    @AllowNull(false)
     @NotEmpty
     @Column(DataType.FLOAT)
     humidity!: number;

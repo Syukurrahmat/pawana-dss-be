@@ -1,133 +1,146 @@
-// import sinon from 'sinon';
-
-// sinon.useFakeTimers({
-//     now: new Date('2024-03-16T17:30:00.000Z').getTime(),
-//     shouldAdvanceTime: false,
-// });
-
-// =======================
-import 'dotenv/config';
-import { createProxyMiddleware } from 'http-proxy-middleware';
-import express from 'express';
-import passport from 'passport';
-import cors from 'cors';
-import session from 'express-session';
 import bodyParser from 'body-parser';
-import apiRouter from './routers/api/index.js';
-import './auth/localStrategy.js';
-import authRouter from './routers/auth/index.js';
-import appRouter from './routers/app/index.js';
+import cors from 'cors';
+import 'dotenv/config';
+import express from 'express';
+import session from 'express-session';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import moment, { Moment } from 'moment-timezone';
+import passport from 'passport';
 import path from 'path';
+import './auth/localStrategy.js';
 import db from './models/index.js';
-import delay from 'express-delay';
-import { isAuthenticated } from './middleware/userAccess.js';
-import moment from 'moment';
-import { Op } from 'sequelize';
-
+import apiRouter from './routers/api/index.js';
+import authRouter from './routers/auth/index.js';
+import { ControllerType } from './types/index.js';
+import { groupByInterval } from './utils/common.utils.js';
 
 const port = process.env.PORT || 3000;
 const app = express();
 
-app.use(delay(1000));
+
+// db.sequelize.sync().then(e=>console.log(e))
 
 
-app.use(cors({ origin: '*', optionsSuccessStatus: 200, credentials: true }));
+app.use(cors());
+
+app.use(
+    session({
+        secret: process.env.SESSION_SECRETKEY,
+        resave: false,
+        saveUninitialized: true,
+        cookie: { secure: false }
+    })
+);
+
+
+const mySession: ControllerType = async (req, res, next) => {
+    if (req.session.activeDashboard === undefined) {
+        req.session.activeDashboard = 'companySubs'
+    }
+    if (req.session.activeCompany === undefined) {
+        const userHasCompany = await req.user.countCompanies()
+        const activeCompany = userHasCompany ? (await req.user.getCompanies({ attributes: ['companyId', 'coordinate', 'name', 'type',], limit: 1 })).at(0) : null
+
+        req.session.activeCompany = activeCompany
+    }
+    if (req.session.tz === undefined) req.session.tz = 'Asia/Bangkok'
+
+    moment.tz.setDefault(req.session.tz)
+
+    next()
+}
+
 
 app.use(express.static(path.resolve('public')));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 
-app.use(
-    session({
-        secret: process.env.SESSION_SECRETKEY,
-        resave: false,
-        saveUninitialized: false,
-    })
-);
+app.use(async (req, res, next) => {
+    req.user = await db.Users.findByPk(215)
+    next()
+})
 
- 
-
-
-// db.Reports.findOne({
-//     attributes: [
-//         [
-//             db.sequelize.literal(
-//                 `DISTINCT(DATE(CONVERT_TZ(createdAt, '+00:00', '${'+07:00'}')))`
-//             ),
-//             'date'
-//         ]
-//     ],
-//     order: [['createdAt', 'DESC']],
-//     where: db.sequelize.where(
-//         db.sequelize.literal(`DATE(CONVERT_TZ(createdAt, '+00:00', '${'+07:00'}'))`),
-//         Op.ne,
-//         currentDate
-//     ),
-//     limit: 1,
-//     offset: (3000 - 1),
-//     raw: true,
-// }).then(e => console.log(e))
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-
+app.use('/api', mySession, apiRouter);
 app.use('/auth', authRouter);
-app.use('/api', apiRouter);
-app.use('/app', appRouter);
+
+
+
+
+
 
 app.get('/login', (req, res, next) => {
-    console.log('jsjsjsjsjsj')
     res.sendFile(path.resolve('public/login.html'))
 });
 
-app.get(
-    '/*',
-    isAuthenticated,
-    (req, res, next) => {
-        console.log('ssjsjsj')
-        next()
-    },
-
-);
 
 
 
+app.get('/*', createProxyMiddleware({
+    target: 'http://localhost:5173/',
+    changeOrigin: true,
+}))
 
 
 
-app.use((err: any, req: any, res: any, next: any) => {
-    console.error(err.stack);
-    res.status(500).json({ success: false, message: 'Something broke!' });
+app.use((err, req, res, next) => {
+    res.status(500).json({ success: false, message: 'Something broke!', error: err });
 });
+
 
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
 
+function getRandomItem(arr) {
+    const randomIndex = Math.floor(Math.random() * arr.length);
+    return arr[randomIndex];
+}
+
+const updatedatetimeDatalogs = async () => {
+    let lastDate = (await db.DataLogs.findOne({ order: [['datetime', 'DESC']] })).datetime
+    let diff = moment().diff(lastDate, 'millisecond')
+    let datalogs = await db.DataLogs.findAll()
+
+    for (let i = 0; i < datalogs.length; i++) {
+        const dlogs = datalogs[i];
+        let { datetime } = dlogs
+        dlogs.datetime = moment(datetime).add(diff, 'millisecond').subtract(15, 'minutes').toDate()
+
+        await dlogs.save()
+        console.log(i + 1, '/', datalogs.length)
+    }
+
+    console.log('selesai')
+
+
+    let nodes = await db.Nodes.findAll()
+
+    for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        let datalog = await db.DataLogs.findOne({ where: { nodeId: node.nodeId }, order: [['datetime', 'desc']] })
+
+        if (datalog) {
+
+            node.lastDataSent = datalog.datetime
+            await node.save()
+
+            console.log(datalog.datetime)
+        }
+
+
+    }
+
+    console.log('selesai')
+
+
+}
 
 
 
-// let [latitude, longitude] = [-7.5265061, 110.08304936]
 
-// let distance = 1000
-
-// const distanceSphereQuery = (lat: number, lng: number) => (
-//     `ST_Distance_Sphere(coordinate, POINT(${lng}, ${lat}))`
-// )
-
-// db.Reports.findAll({
-//     attributes: {
-//         include: [
-//             [
-//                 db.sequelize.literal(distanceSphereQuery(latitude, longitude)),
-//                 'distance'
-//             ]
-//         ]
-//     },
-//     where: db.sequelize.literal(`${distanceSphereQuery(latitude, longitude)} <= ${distance}`)
-// }).then(reports => {
-//     console.log(reports);
-// });
