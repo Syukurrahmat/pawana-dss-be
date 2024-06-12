@@ -1,5 +1,6 @@
-import { InferAttributes } from "sequelize";
-import Nodes from "../models/nodes.ts";
+import DataLogs from "../models/datalogs.ts";
+import EventLogs from "../models/eventLogs.ts";
+import Reports from "../models/reports.ts";
 
 type Timeseries<V = number> = { datetime: Date, value: V }
 
@@ -7,8 +8,9 @@ type ISPUValue = {
     pollutant: 'PM100' | 'PM25';
     ispu: number;
     ispuFloat: number;
-    value: number;
+    pollutantValue: number;
     category: string;
+    recomendation?: string
 }
 
 
@@ -16,41 +18,43 @@ type GRKCategorize = {
     gas: "CH4" | "CO2";
     value: number;
     category: string;
+    recomendation?: string
 }
-
-type NodeInfo = {
-    name: string, nodeId: number
-};
-
 
 // ===========================================================
 
 declare type ResultOfMappingNode = {
-    meta: {
-        isIndoor: boolean;
-        dataIsUptodate: boolean;
+    nodeId: number;
+    companyId: any;
+    name: string;
+    status: string;
+    lastDataSent: Date
+    coordinate: number[];
+    dataLogs?: DataLogs[],
+
+
+    latestData?: {
+        ispu: {
+            datetime: Date;
+            value: [] | [ISPUValue, ISPUValue];
+        };
+        ch4: {
+            datetime: Date;
+            value: GRKCategorize;
+        };
+        co2: {
+            datetime: Date;
+            value: GRKCategorize;
+        };
+        pm25: {
+            datetime: Date;
+            value: number;
+        };
+        pm100: {
+            datetime: Date;
+            value: number;
+        };
     }
-    node: InferAttributes<Nodes, { omit: never; }>
-    ispu?: {
-        datetime: Date;
-        value: ISPUValue[];
-    };
-    ch4?: {
-        datetime: Date;
-        value: GRKCategorize;
-    };
-    co2?: {
-        datetime: Date;
-        value: GRKCategorize;
-    };
-    pm25?: {
-        datetime: Date;
-        value: number;
-    };
-    pm100?: {
-        datetime: Date;
-        value: number;
-    };
 }
 
 
@@ -59,20 +63,26 @@ declare type ResultOfMappingNode = {
 
 
 type SingleNodeAnalysis = {
-    ispu: SingleNodeAnalysisItem<ISPUValue[], ISPUValue[]>
-    ch4: SingleNodeAnalysisItem<GRKCategorize, number>;
-    co2: SingleNodeAnalysisItem<GRKCategorize, number>;
+    node: {
+        name: string,
+        nodeId: number,
+        lastDataSent: Date;
+    }
+
+    ispu: SingleNodeAnalysisItem<ISPUValue[]>
+    ch4: SingleNodeAnalysisItem<GRKCategorize>;
+    co2: SingleNodeAnalysisItem<GRKCategorize>;
+
 }
 
-type SingleNodeAnalysisItem<V, W> = {
-    node: NodeInfo
-    current: {
+type SingleNodeAnalysisItem<V> = {
+    latestData: {
         datetime: Date;
         value: V;
-    };
+    }
     tren: {
         datetime: Date;
-        value: W;
+        value: V;
     }[];
 }
 
@@ -87,20 +97,39 @@ type ResultOfMultiNodeStats = {
 };
 
 type NodeStat<T> = {
+    average: {
+        data: {
+            datetime: Date;
+            value: T
+        }
+    };
     highest: {
-        node: NodeInfo;
-        data: Timeseries<T>;
+        nodeId: number;
+        name: string;
+        lastDataSent: Date;
+        data: {
+            datetime: Date;
+            value: T
+        }
     };
     lowest: {
-        node: NodeInfo;
-        data: Timeseries<T>;
+        nodeId: number;
+        name: string;
+        lastDataSent: Date;
+        data: {
+            datetime: Date;
+            value: T
+        }
     };
-    average: {
-        data: Timeseries<T>;
-    };
+
     list: {
-        node: NodeInfo;
-        data: Timeseries<T>;
+        nodeId: number;
+        name: string;
+        lastDataSent: Date;
+        data: {
+            datetime: Date;
+            value: T
+        }
     }[]
 };
 
@@ -108,13 +137,14 @@ type NodeStat<T> = {
 // ====================================================================
 
 declare type DashboardDataType = {
-    companyInfo: {
-        companyId: number;
-        managedBy: number;
+    dashboardInfo: {
         name: string;
         type: string;
-        createdAt?: string;
         countNodes: number
+
+        companyId?: number;
+        managedBy?: number;
+        createdAt?: string;
     };
     indoor: {
         countNodes: DetailCountNodes;
@@ -124,12 +154,12 @@ declare type DashboardDataType = {
         countNodes: DetailCountNodes;
         data: SingleNodeAnalysis | ResultOfMultiNodeStats | null;
     };
-    nodes: ResultOfMappingNode[]
+    nodes: ResultOfMappingNode[];
+    currentEventLogs: EventLogs[];
+    nearReports: Reports[]
 }
 
 type DetailCountNodes = {
     all: number;
     active: number;
-    nonactive: number;
-    noSendData: number;
 }

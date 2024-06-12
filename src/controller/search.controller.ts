@@ -1,9 +1,9 @@
 import { ProjectionAlias } from 'sequelize';
 import db from '../models/index.js';
-import { controllerType } from '../types/index.js';
-import { parseQueries } from '../utils/utils.js';
+import { ControllerType, QueryOfSting } from '../types/index.js';
+import { parseQueries } from '../utils/common.utils.js';
 
-export const searchUsers: controllerType = async (req, res, next) => {
+export const searchUsers: ControllerType = async (req, res, next) => {
     const { page, limit, search, order, offset } = parseQueries(req, {
         sortOpt: ['createdAt', 'name', 'role'],
     });
@@ -27,12 +27,10 @@ export const searchUsers: controllerType = async (req, res, next) => {
         .catch(next)
 };
 
-export const searchCompanies: controllerType = async (req, res, next) => {
+export const searchCompanies: ControllerType = async (req, res, next) => {
     const { page, limit, search, order, offset } = parseQueries(req, {
         sortOpt: ['createdAt', 'name', 'type'],
     });
-
-    const role = req.query.role as string
 
     db.Companies.findAndCountAll({
         attributes: [
@@ -40,7 +38,7 @@ export const searchCompanies: controllerType = async (req, res, next) => {
             'name',
             'type'
         ],
-        where: { ...search, ...(role ? { role } : {}) },
+        where: { ...search},
         order,
         limit,
         offset,
@@ -55,15 +53,34 @@ export const searchCompanies: controllerType = async (req, res, next) => {
     }).catch(next)
 };
 
-export const searchNodes: controllerType = async (req, res, next) => {
+
+// api/companies/:id/avaiable-node
+// api/users/:id/avaiable-node
+
+export const searchNodes: ControllerType = async (req, res, next) => {
     const { page, limit, search, order, offset } = parseQueries(req, {
         sortOpt: ['createdAt', 'name', 'type'],
     });
 
+    const userId = parseInt(req.query.userId as string)
+    const companyId = parseInt(req.query.companyId as string)
+
+    // Tolak permintaan jika kedua nilai diisi, atau tidak diisi sama sekali
+    if ([userId, companyId].filter(e => e).length != 1) {
+        return res.status(400).send('Bad Request')
+    }
+    
+    let isSubscribedQuery: ProjectionAlias[] = []
+
+    if(userId ){
+        if(req.user.role !== 'admin' && req.user.userId !== userId){
+            return res.status(403).send('Forbidden')
+        }
+    }
+
     const withUserSub = req.query['info-sub-user'] as string
     const withCompanySub = req.query['info-sub-company'] as string
 
-    let isSubscribedQuery: ProjectionAlias[] = []
 
     if (withUserSub) isSubscribedQuery = [[
         db.sequelize.literal(`(

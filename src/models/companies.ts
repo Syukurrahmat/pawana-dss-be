@@ -4,7 +4,7 @@ import Nodes from './nodes.js';
 import Users from './users.js';
 import EventLogs from './eventLogs.js';
 import CompanySubscription from './companySubscriptions.js';
-import { coordinateGetterSetter } from '../utils/utils.js';
+import { coordinateGetterSetter } from '../utils/common.utils.js';
 
 @Table({ tableName: 'companies' })
 
@@ -53,6 +53,12 @@ export default class Companies extends Model<InferAttributes<Companies>, InferCr
     @BelongsTo(() => Users)
     manager: Users;
 
+
+
+
+    @HasMany(() => Nodes, 'companyId')
+    privateNodes?: Users[]
+
     @HasMany(() => EventLogs, 'companyId')
     eventLogs?: EventLogs[]
 
@@ -82,5 +88,16 @@ export default class Companies extends Model<InferAttributes<Companies>, InferCr
     declare countEventLogs: HasManyCountAssociationsMixin;
     declare createEventLog: HasManyCreateAssociationMixin<EventLogs>;
 
-    count : number 
+    declare getPrivateNodes: HasManyGetAssociationsMixin<Nodes>;
+    declare addPrivateNode: HasManyAddAssociationMixin<Nodes, number>;
+    declare addPrivateNodes: HasManyAddAssociationsMixin<Nodes, number>;
+    declare setPrivateNodes: HasManySetAssociationsMixin<Nodes, number>;
+    declare removePrivateNode: HasManyRemoveAssociationMixin<Nodes, number>;
+    declare removePrivateNodes: HasManyRemoveAssociationsMixin<Nodes, number>;
+    declare hasPrivateNode: HasManyHasAssociationMixin<Nodes, number>;
+    declare hasPrivateNodes: HasManyHasAssociationsMixin<Nodes, number>;
+    declare countPrivateNodes: HasManyCountAssociationsMixin;
+    declare createPrivateNode: HasManyCreateAssociationMixin<Nodes>;
+
+    count: number
 }

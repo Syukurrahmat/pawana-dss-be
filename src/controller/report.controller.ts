@@ -1,42 +1,69 @@
-import { getTimeZoneOffsetString } from '../utils/utils.js';
 import db from '../models/index.js';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { Op } from 'sequelize';
-import { ControllerType } from '../types/index.js';
+import { ControllerType, QueryOfSting } from '../types/index.js';
 import { uploadPhotos as uploadPhotosToImgbb } from '../services/imgbb.js';
+import { Where } from 'sequelize/lib/utils';
+
+export const getReport: ControllerType = async (req, res, next) => {
+    const { date, nearCompany, distance } = req.query as QueryOfSting
+    const { tz: timezone } = req.session
 
 
-export const getCurrentReport: ControllerType = async (req, res, next) => {
-    let date = req.query.date as string
-    let timezoneOffset = req.query.timezoneOffset as string;
+    const momentCurrentDate = moment()
+    const currentDate = momentCurrentDate.format('YYYY-MM-DD')
+    const requestedDate = moment(date, "YYYY-MM-DD", true).isValid() ? date : currentDate
 
-    console.log(date)
+    const nearCompanyId = parseInt(nearCompany) || null
+    const distancefromCompany = parseInt(distance) || 250
 
-    const { offsetUTC, timeZone } = getTimeZoneOffsetString(timezoneOffset);
-    const momentCurrDate = moment().utcOffset(-offsetUTC).format('YYYY-MM-DD')
+    const isToday = requestedDate === currentDate
 
-    date = moment(date, "YYYY-MM-DD", true).isValid() ? date : momentCurrDate
+    let filterByDistance: Where
+
+    if (nearCompanyId && (await req.user.hasCompany(nearCompanyId) || req.user.role == 'admin')) {
+        const { coordinate: [latitude, longitude] } = await db.Companies
+            .findByPk(nearCompany, { attributes: ['coordinate'] })
+
+        filterByDistance = db.sequelize.where(
+            db.sequelize.fn(
+                'ST_Distance_Sphere',
+                db.sequelize.col('coordinate'),
+                db.sequelize.fn('ST_GeomFromText', `POINT(${longitude} ${latitude})`)
+            ),
+            { [Op.lte]: distancefromCompany }
+        )
+    }
+
+
+    const convertedCreatedAtCol = `DATE(CONVERT_TZ(Reports.createdAt, '+00:00', '${moment.tz(timezone).format('Z')}'))`
+
+    console.log('convertedCreatedAtCol', convertedCreatedAtCol)
+
+    const filterByDate = isToday ?
+        { createdAt: { [Op.between]: [moment(momentCurrentDate).subtract(1, 'd').toDate(), momentCurrentDate.toDate()] } }
+        : db.sequelize.literal(`${convertedCreatedAtCol} = '${requestedDate}'`)
+
 
     const reports = await db.Reports.findAll({
-        where: db.sequelize.literal(`DATE(CONVERT_TZ(\`Reports\`.\`createdAt\`, '+00:00', '${timeZone}')) = '${date}'`),
+        where: { [Op.and]: [filterByDate, filterByDistance] },
         include: [{
             model: db.Users,
             attributes: ['name', 'userId', 'profilePicture']
         }]
     })
 
-    const [prevDate, nextDate] = await Promise.all((['<', '>'].map(sign => (
+    console.log(reports)
+
+    const prevNextDateOpt = [{ sign: '<', sort: 'DESC' }, { sign: '>', sort: 'ASC' }]
+
+    const [prevDate, nextDate] = await Promise.all((prevNextDateOpt.map(({ sign, sort }) => (
         db.Reports.findOne({
             attributes: [
-                [
-                    db.sequelize.literal(
-                        `DATE(CONVERT_TZ(createdAt, '+00:00', '${timeZone}'))`
-                    ),
-                    'date'
-                ]
+                [db.sequelize.literal(convertedCreatedAtCol), 'date']
             ],
-            where: db.sequelize.literal(`DATE(CONVERT_TZ(\`createdAt\`, '+00:00', '${timeZone}')) ${sign} '${date}'`),
-            order: [['createdAt', 'DESC']],
+            where: db.sequelize.literal(`${convertedCreatedAtCol} ${sign} '${requestedDate}'`),
+            order: [['createdAt', sort]],
         }).then(e => e ? e.getDataValue('date') : null)
     ))))
 
@@ -44,101 +71,14 @@ export const getCurrentReport: ControllerType = async (req, res, next) => {
         success: true,
         pagination: {
             previous: prevDate,
-            current: date,
-            next: nextDate,
+            current: requestedDate,
+            next: (nextDate || isToday) ? nextDate : currentDate,
         },
         result: reports,
     })
 
 };
 
-export const getCurrentsReport: ControllerType = async (req, res, next) => {
-    let page = parseInt(req.query.page as string)
-    page = page && page > 0 ? page : 0
-
-    const offsetQuery = req.query.timezoneOffset as string;
-    const { offsetUTC, timeZone } = getTimeZoneOffsetString(offsetQuery);
-
-    const momentCurrDate = moment().utcOffset(-offsetUTC).format('YYYY-MM-DD')
-
-    const currentDate = page ? await getDate(page) : momentCurrDate
-    const nextDate = await getDate(page + 1)
-    const previousPage = page == 1 ? momentCurrDate : page > 1 ? await getDate(page - 1) : null
-
-
-    let reports = page == 0
-        ? await db.Reports.findAll({
-            where: {
-                createdAt: {
-                    [Op.gte]: moment().subtract(1, 'days').toDate()
-                }
-            },
-            include: [{
-                model: db.Users,
-                attributes: ['name', 'userId', 'profilePicture']
-            }]
-        })
-        : currentDate ?
-            await db.Reports.findAll({
-                where: db.sequelize.where(
-                    db.sequelize.literal(`DATE(CONVERT_TZ(\`Reports\`.\`createdAt\`, '+00:00', '${timeZone}'))`),
-                    Op.eq,
-                    currentDate
-                ),
-                include: [{
-                    model: db.Users,
-                    attributes: ['name', 'userId', 'profilePicture']
-                }]
-            })
-            : []
-
-
-    return res.json({
-        success: true,
-        pagination: {
-            previous: {
-                page: previousPage ? page - 1 : null,
-                date: previousPage
-            },
-            current: {
-                page: page,
-                date: currentDate
-            },
-            next: {
-                page: nextDate ? page + 1 : null,
-                date: nextDate
-            },
-        },
-        result: reports,
-    })
-
-
-
-    function getDate(page: number) {
-        return (
-            db.Reports.findOne({
-                attributes: [
-                    [
-                        db.sequelize.literal(
-                            `DISTINCT(DATE(CONVERT_TZ(createdAt, '+00:00', '${timeZone}')))`
-                        ),
-                        'date'
-                    ]
-                ],
-                order: [['createdAt', 'DESC']],
-                where: db.sequelize.where(
-                    db.sequelize.literal(`DATE(CONVERT_TZ(createdAt, '+00:00', '${timeZone}'))`),
-                    Op.ne,
-                    momentCurrDate
-                ),
-                limit: 1,
-                offset: (page - 1),
-                raw: true,
-            }).then(e => e ? e.date : null)
-        );
-    }
-
-};
 
 
 export const createReport: ControllerType = async (req, res, next) => {
@@ -148,16 +88,16 @@ export const createReport: ControllerType = async (req, res, next) => {
         const imageUrl = await uploadPhotosToImgbb(images)
 
         let report = await db.Reports.create({
-            userId: 3,
+            userId: req.user.userId,
             message,
             coordinate,
             rating,
-            images: imageUrl.join('\n')
+            images: imageUrl
         })
 
         if (!report) return res.json({ success: false, message: 'Gagal, Ada yang salahh' })
 
-        res.json({ success: true, message: 'Berhasil menambahkan Laporan' })
+        res.json({ success: true, message: 'Berhasil menambahkan Aduan' })
 
     } catch (error) { next(error) }
 }

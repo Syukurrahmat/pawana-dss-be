@@ -9,5 +9,6 @@ searchRouter.get('/users', searchUsers);
 searchRouter.get('/nodes', searchNodes);
 searchRouter.get('/companies', searchCompanies);
 
+searchRouter.get('/avaiable-nodes', searchNodes);
 
 export default searchRouter;

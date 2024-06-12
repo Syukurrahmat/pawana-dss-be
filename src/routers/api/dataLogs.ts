@@ -1,19 +1,18 @@
 import { Router } from 'express';
-import {
-    editNode,
-    getAllNodes,
-    getNodeById,
-    createNewNode,
-} from '../../controller/nodes.controler.js';
+import { getDownloadableNode } from '../../controller/datalogs.controler.js';
+import { getDatalogs } from '../../controller/nodes.controler.js';
+import { postDatafromSensor } from '../../controller/datalogs.controler.js';
 
-const dataLosgRouter = Router();
+export const dataLogsRouter = Router();
 
-dataLosgRouter.route('').get(async (req, res, next) => {
-    console.log((req.query.params as string).split(','));
+dataLogsRouter.route('/')
+    .get(getDatalogs)
+    .post(postDatafromSensor)
 
-    res.end();
-});
+dataLogsRouter.get('/downloadable-node', getDownloadableNode)
+dataLogsRouter.post('/',)
 
-dataLosgRouter.route('/:id').get().put();
+export default dataLogsRouter;
 
-export default dataLosgRouter;
+
+

@@ -5,7 +5,7 @@ import Companies from './companies.js';
 import Reports from './reports.js';
 import Nodes from './nodes.js';
 import bcrypt from 'bcryptjs';
-import { myBcriptSalt } from '../utils/utils.js';
+import { myBcriptSalt } from '../utils/common.utils.js';
 
 @Table({ tableName: 'users' })
 
@@ -76,8 +76,7 @@ export default class Users extends Model<InferAttributes<Users>, InferCreationAt
     @HasMany(() => Companies, 'managedBy')
     companies?: Companies[]
 
-    @HasMany(() => Nodes, 'ownerId')
-    nodes?: Users[]
+
 
     declare getCompanies: HasManyGetAssociationsMixin<Companies>;
     declare addCompany: HasManyAddAssociationMixin<Companies, number>;
@@ -113,5 +112,5 @@ export default class Users extends Model<InferAttributes<Users>, InferCreationAt
     declare createSubscribedNode: BelongsToManyCreateAssociationMixin<Nodes>;
 
 
-    count : number
+    count?: number
 }

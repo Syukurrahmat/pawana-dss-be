@@ -5,11 +5,8 @@ import Users from './users.js';
 import UsersSubscription from './usersSubscriptions.js';
 import Companies from './companies.js';
 import CompanySubscriptions from './companySubscriptions.js';
-import { coordinateGetterSetter } from '../utils/utils.js';
-
-
-
-
+import { coordinateGetterSetter } from '../utils/common.utils.js';
+import moment from 'moment';
 
 @Table({ tableName: 'nodes' })
 
@@ -20,10 +17,10 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     nodeId!: number;
 
 
-    @ForeignKey(() => Users)
+    @ForeignKey(() => Companies)
     @AllowNull(true)
     @Column(DataType.INTEGER)
-    ownerId!: number;
+    companyId!: number;
 
 
     @AllowNull(false)
@@ -52,14 +49,14 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
 
 
     @AllowNull(false)
-    @Default('active')
+    @Default('neversentdata')
     @NotEmpty
-    @Column(DataType.ENUM('active', 'nonactive', 'idle'))
+    @Column(DataType.ENUM('active', 'nonactive', 'idle', 'neversentdata'))
     status!: string;
 
 
     @Column(DataType.DATEONLY)
-    instalationDate?: string;
+    instalationDate?: Date;
 
     @AllowNull(false)
     @NotEmpty
@@ -69,20 +66,35 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     @Column(DataType.DATE)
     lastDataSent!: Date;
 
+    // VIRTUAL
 
-    // ---------------------------
+    @Column({
+        type: DataType.VIRTUAL,
+        get(this: Nodes) {
+            if (!this.lastDataSent) return false
+            return moment().diff(moment(this.lastDataSent), 'hour') <= 6
+        },
+        set() { },
+    })
+    isUptodate: boolean
 
-    @BelongsTo(() => Users)
-    owner: Users;
+    // RELATIONSHIP WITH OTHER TABLES
 
-    @HasMany(() => DataLogs, 'nodeId')
-    dataLogs?: DataLogs[]
+    @BelongsTo(() => Companies)
+    owner: Companies;
 
     @BelongsToMany(() => Users, () => UsersSubscription)
     userSubscriptions?: Array<Users & { UsersSubscription: UsersSubscription }>;
 
+    // ------
+
+    @HasMany(() => DataLogs, 'nodeId')
+    dataLogs?: DataLogs[]
+
     @BelongsToMany(() => Companies, () => CompanySubscriptions)
     companySubscriptions?: Array<Companies & { CompanySubscriptions: CompanySubscriptions }>;
+
+    // RELATIONSHIP INTERFACE
 
     declare getUserSubscriptions: BelongsToManyGetAssociationsMixin<Users>;
     declare addUserSubscription: BelongsToManyAddAssociationMixin<Users, number>;

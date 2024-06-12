@@ -2,27 +2,48 @@ import { Router } from 'express';
 import {
     editNode,
     getAllNodes,
-    getNodeById, getAllUsersSubscription,
+    getNodeById, getUsersHaveSubscribed,
     createNewNode,
+    deleteUsersSubscription,
+    deleteCompanySubscription,
     getNodesSummary,
+    getCompaniesHaveSubscribed,
+    toggleNodeStatus,
+    getDatalogs,
+    getAvailableNode,
+    downloadableNode
 } from '../../controller/nodes.controler.js';
+
 
 const nodesRouter = Router();
 
 
-nodesRouter.route('')           //  /api/nodes
+
+nodesRouter.route('')
     .get(getAllNodes)
     .post(createNewNode);
 
-nodesRouter.route('/summary')   //  /api/nodes/summary
-    .get(getNodesSummary)
 
-nodesRouter.route('/:id')       //  /api/nodes/:id
+nodesRouter.get('/summary', getNodesSummary)
+nodesRouter.get('/available', getAvailableNode)
+nodesRouter.get('/downloadable', downloadableNode)
+
+nodesRouter.put('/:id/toggle-status', toggleNodeStatus)
+
+nodesRouter.route('/:id')
     .get(getNodeById)
     .put(editNode)
 
-nodesRouter.route('/usersubscriptions')       //  /api/nodes/:id/usersubscriptions
-    .get(getAllUsersSubscription)
+
+nodesRouter.route('/:id/users')
+    .get(getUsersHaveSubscribed)
+    .delete(deleteUsersSubscription)
+
+nodesRouter.route('/:id/companies')
+    .get(getCompaniesHaveSubscribed)
+    .delete(deleteCompanySubscription)
+
+nodesRouter.get('/:id/datalogs', getDatalogs)
 
 
 export default nodesRouter;

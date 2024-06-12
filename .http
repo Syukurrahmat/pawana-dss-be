@@ -15,7 +15,18 @@ http://localhost:3000/api/nodes
 
 
 ###
-http://localhost:3000/api/reports
+POST /api/datalogs HTTP/1.1
+Host: localhost:3000
+Content-Type: application/x-www-form-urlencoded
+
+apiKey=9911632f-4b9e-4810-ac40-ef2ce708d163
+&pm25=444
+&pm100=eee
+&co2=333
+&ch4=2222
+&datetime=2024-05-30 22:33
 
 
 
+###
+http://localhost:3000/api/summary/monthly

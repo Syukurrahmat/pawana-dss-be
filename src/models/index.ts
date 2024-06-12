@@ -36,7 +36,8 @@ const db = {
     UsersSubscription,
     Nodes,
     Users,
-    Reports
+    Reports,
+    EventLogs
 };
 
 export default db;
