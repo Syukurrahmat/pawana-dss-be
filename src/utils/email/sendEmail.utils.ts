@@ -6,13 +6,11 @@ import path from 'path';
 
 // @ts-ignore
 const mailjet = new Mailjet({
-    apiKey: process.env.MJ_APIKEY_PUBLIC || '2cefff9869a1128640f5842b643d7d57',
-    apiSecret: process.env.MJ_APIKEY_PRIVATE || '827255df13df49e52d0dcf2f0692e38e'
+    apiKey: process.env.MJ_APIKEY_PUBLIC,
+    apiSecret: process.env.MJ_APIKEY_PRIVATE,
 });
 
-
 const htmlEmailTemplate = readFileSync(path.resolve('./src/utils/email/email.html'), 'utf-8')
-
 
 export default async function sendVerificationEmail(name: string, email: string, token: string) {
     const verifyUrl = `${HOST_URL}/auth/verify/${token}`;

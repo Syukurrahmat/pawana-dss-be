@@ -1,10 +1,11 @@
-import bcrypt from 'bcryptjs';
-import { BelongsToManyAddAssociationMixin, BelongsToManyAddAssociationsMixin, BelongsToManyCountAssociationsMixin, BelongsToManyCreateAssociationMixin, BelongsToManyGetAssociationsMixin, BelongsToManyHasAssociationMixin, BelongsToManyHasAssociationsMixin, BelongsToManyRemoveAssociationMixin, BelongsToManyRemoveAssociationsMixin, BelongsToManySetAssociationsMixin, HasManyAddAssociationMixin, HasManyAddAssociationsMixin, HasManyCountAssociationsMixin, HasManyCreateAssociationMixin, HasManyGetAssociationsMixin, HasManyHasAssociationMixin, HasManyHasAssociationsMixin, HasManyRemoveAssociationMixin, HasManyRemoveAssociationsMixin, HasManySetAssociationsMixin, InferAttributes, InferCreationAttributes } from 'sequelize'; //prettier-ignore
-import { AllowNull, AutoIncrement, BelongsToMany, Column, DataType, Default, HasMany, IsEmail, IsNumeric, Model, NotEmpty, PrimaryKey, Table, Unique } from 'sequelize-typescript';
-import Companies from './companies.js';
-import Nodes from './nodes.js';
-import Reports from './reports.js';
+import { InferAttributes, InferCreationAttributes, BelongsToManyAddAssociationMixin, BelongsToManyAddAssociationsMixin, BelongsToManyCountAssociationsMixin, BelongsToManyCreateAssociationMixin, BelongsToManyGetAssociationsMixin, BelongsToManyHasAssociationMixin, BelongsToManyHasAssociationsMixin, BelongsToManyRemoveAssociationMixin, BelongsToManyRemoveAssociationsMixin, BelongsToManySetAssociationsMixin, HasManyGetAssociationsMixin, HasManyAddAssociationMixin, HasManyAddAssociationsMixin, HasManySetAssociationsMixin, HasManyRemoveAssociationMixin, HasManyRemoveAssociationsMixin, HasManyHasAssociationMixin, HasManyHasAssociationsMixin, HasManyCountAssociationsMixin, HasManyCreateAssociationMixin } from 'sequelize'; //prettier-ignore
+import { Model, Table, Column, DataType, HasMany, BelongsToMany, PrimaryKey, AutoIncrement, AllowNull, NotEmpty, IsNumeric, Default, Unique, IsEmail } from 'sequelize-typescript';
 import UsersSubscription from './usersSubscriptions.js';
+import Companies from './companies.js';
+import Reports from './reports.js';
+import Nodes from './nodes.js';
+import bcrypt from 'bcryptjs';
+import { myBcriptSalt } from '../../utils/common.utils.js';
 
 @Table({ tableName: 'users' })
 
@@ -37,10 +38,10 @@ export default class Users extends Model<InferAttributes<Users>, InferCreationAt
     @Default('regular')
     @NotEmpty
     @Column(DataType.ENUM('admin', 'gov', 'manager', 'regular'))
-    role!: string;
+    role!: 'admin' | 'gov' | 'manager' | 'regular';
 
-    @Column(DataType.STRING)
-    profilePicture?: string;
+    @Column(DataType.BLOB)
+    profilePicture?: Uint8Array;
 
     @Unique
     @AllowNull(false)
@@ -54,7 +55,7 @@ export default class Users extends Model<InferAttributes<Users>, InferCreationAt
     @Column({
         type: DataType.STRING(60),
         set(value: string) {
-            this.setDataValue('password', bcrypt.hashSync(value));
+            this.setDataValue('password', bcrypt.hashSync(value, myBcriptSalt));
         }
     })
     password!: string;

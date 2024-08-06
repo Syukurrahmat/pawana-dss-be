@@ -1,43 +1,20 @@
-import { Moment } from 'moment';
-import Users from '../models/users.ts';
-import { Request, Response, NextFunction } from 'express';
-import Companies from '../models/companies.ts';
-
-declare global {
-    namespace Express {
-        interface User extends Users { }
-        interface Request {
-            resource?: string;
-            company?: Companies,
-        }
-    }
+type APIResponse<T = any> = {
+    statusCode: number;
+    message: string;
+    error: string | null;
+    data: T;
 }
 
-
-declare module 'express-serve-static-core' {
-    interface Request {
-        moment: Moment;
-    }
+type Paginated = {
+    rows: any[],
+    meta: MetaPaginated
 }
-
-declare module "express-session" {
-    interface SessionData {
-        viewCompany: {
-            companyId?: number,
-            coordinate: number[],
-            type: string,
-            name: string,
-        } | null;
-        viewUser: {
-            userId?: number,
-            role: string,
-            name: string,
-        } | null;
-        tz: string
-    }
+type MetaPaginated = {
+    total: number;
+    totalPage: number;
+    page: number;
+    search: string | undefined;
+    limit: number;
+    prev: number | null;
+    next: number | null;
 }
-
-declare type ControllerType = (req: Request, res: Response, next: NextFunction) => void | any;
-
-declare type QueryOfSting = { [key: string]: string }
-

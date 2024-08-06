@@ -1,17 +1,27 @@
 {
-    "include": ["src/**/*", "cb.js", "public"],
-
     "compilerOptions": {
-        "module": "NodeNext",
-        "moduleResolution": "NodeNext",
-        "target": "ES6",
-        "sourceMap": true,
-        "outDir": "public",
-        "lib": ["ES2015"],
-        "experimentalDecorators": true,
+        "module": "commonjs",
+        "declaration": true,
+        "removeComments": true,
         "emitDecoratorMetadata": true,
-        "noErrorTruncation": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "target": "ES2021",
+        "sourceMap": true,
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "incremental": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "noImplicitAny": false,
+        "strictBindCallApply": false,
+        "forceConsistentCasingInFileNames": false,
+        "noFallthroughCasesInSwitch": false,
+        "strict": true,
         "strictNullChecks": true,
+        "paths": {
+            "@/*": ["src/*"]
+        },
         "typeRoots": ["src/types"]
     }
 }
