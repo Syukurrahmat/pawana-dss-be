@@ -4,14 +4,11 @@ import { dashboardDataForRegularUser } from '../../controller/dashboard.controll
 
 const usersRouter = Router();
 
-
 usersRouter.route('/')
     .get(getAllUsers)
     .post(createNewUser)
 
 usersRouter.get('/summary', getUsersSummary);
-
-// usersRouter.route('/').
 
 usersRouter.route('/:id')
     .get(getUser)
