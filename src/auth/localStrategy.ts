@@ -13,8 +13,7 @@ passport.use(
                         return done(null, false);
                     }
 
-                    console.log('okekk')
-                    return done(null, user.toJSON());
+                    return done(null, user);
                 })
                 .catch((err) => done(null, false));
         }

@@ -6,6 +6,8 @@ import { parseQueries, myBcriptSalt } from '../utils/common.utils.js';
 import { Op } from 'sequelize';
 import Randomstring from 'randomstring';
 import sendVerificationEmail from '../utils/email/sendEmail.utils.js';
+import { SUBS_LIMIT } from '../constants/server.js';
+import moment from 'moment';
 
 
 //  ======================= api/users =======================
@@ -83,7 +85,7 @@ export const createNewUser: ControllerType = async (req, res, next) => {
             })
         }
 
-        const token = jwt.sign({ email }, process.env.JWT_SECRETKEY, { expiresIn: '3d' });
+        const token = jwt.sign({ email }, process.env.JWT_SECRETKEY!, { expiresIn: '3d' });
         await sendVerificationEmail(name, email, token)
 
         const password = Randomstring.generate(12)
@@ -94,7 +96,7 @@ export const createNewUser: ControllerType = async (req, res, next) => {
         })
 
         if (!newUser) return next()
-        
+
 
         res.json({
             success: true,
@@ -121,7 +123,6 @@ export const getUser: ControllerType = async (req, res, next) => {
             message: 'user tidak ditemukan',
         });
 
-
         const countSubscribedNodes = await user.countSubscribedNodes()
         const countManagedCompany = await user.countCompanies()
 
@@ -142,7 +143,7 @@ export const editUserPassword: ControllerType = async (req, res, next) => {
 
     if (!password && !newPassword) return res.status(400).send("bad request")
 
-    if (!bcrypt.compareSync(password, req.user.password)) return res.json({
+    if (!bcrypt.compareSync(password, req.user!.password)) return res.json({
         success: false,
         message: 'Kata sandi tidak tepat',
     });
@@ -178,7 +179,12 @@ export const editUserProfile: ControllerType = async (req, res, next) => {
                 message: n ? 'Berhasil diperbarui' : 'Gagal diperbarui',
             });
         })
-        .catch(next);
+        .catch(() => {
+            res.json({
+                success: false,
+                message: 'Gagal diperbarui',
+            });
+        });
 };
 
 //  ===================== api/users/:id/nodes =====================
@@ -202,7 +208,7 @@ export const getSubscribedNodes: ControllerType = async (req, res, next) => {
 
         const nodes = await user.getSubscribedNodes({
             attributes: [
-                'nodeId', 'name', 'coordinate', 'status', 'lastDataSent',
+                'nodeId', 'name', 'coordinate', 'lastDataSent', 'isUptodate',
                 [db.sequelize.col('UsersSubscriptions.createdAt'), 'joinedAt'],
                 [db.sequelize.col('UsersSubscriptions.usersSubscriptionId'), 'subscriptionId']
             ],
@@ -246,7 +252,6 @@ export const deleteNodeSubscription: ControllerType = async (req, res, next) => 
 export const addNodeSubscription: ControllerType = async (req, res, next) => {
     const { id: userId } = req.params;
     const nodeIds = req.body.nodeIds
-    const SUBS_LIMIT = 5
 
     if (!(Array.isArray(nodeIds) && nodeIds.length)) return res.status(400)
 
@@ -316,3 +321,98 @@ export const getManagedCompanies: ControllerType = async (req, res, next) => {
         next(error);
     }
 };
+
+
+export const getRemainingSubsLimit: ControllerType = async (req, res, next) => {
+    res.json({ success: true, result: SUBS_LIMIT - await req.user!.countSubscribedNodes() });
+};
+
+
+
+export const getOwnNodes: ControllerType = async (req, res, next) => {
+    const { id: userId } = req.params
+
+    try {
+
+        const companyIds = await db.Companies
+            .findAll({ attributes: ['companyId'], where: { managedBy: userId } })
+            .then(e => e.map(f => f.companyId!))
+
+        const nodes = await db.Nodes.findAll({
+            attributes: ['nodeId', 'isUptodate', 'name', 'createdAt', 'lastDataSent'],
+            include: {
+                model: db.Companies,
+                as: 'owner',
+                attributes: ['name', 'companyId', 'type'],
+                where: { companyId: { [Op.in]: companyIds } },
+                required: true,
+            },
+            order: [[{ model: db.Companies, as: 'owner' }, 'name', 'ASC']]
+        })
+
+        res.json({
+            success: true,
+            result: nodes
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getOwnNodesSummary: ControllerType = async (req, res, next) => {
+    const sixHoursAgo = moment().subtract(6, 'hours').toDate();
+
+    try {
+
+        const nodeIds = await req.user!.getCompanies({
+            include: {
+                model: db.Nodes,
+                as: 'privateNodes',
+                attributes: ['nodeId']
+            }
+        })
+            .then(companies => (
+                companies.map(company => company.privateNodes?.map(e => e.nodeId!)!).flatMap(e => e))
+            )
+
+        const filterByNodeIds = { nodeId: { [Op.in]: nodeIds } }
+
+
+        const all = await db.Nodes.count({
+            where: {
+                ...filterByNodeIds
+            }
+        })
+
+
+        const activeNodes = await db.Nodes.count({
+            where: {
+                lastDataSent: { [Op.gte]: sixHoursAgo },
+                ...filterByNodeIds
+            }
+        })
+        const nonActiveNodes = await db.Nodes.count({
+            where: {
+                lastDataSent: { [Op.lt]: new Date() },
+                ...filterByNodeIds
+            }
+        })
+
+        const status = [
+            { value: 'active', count: activeNodes },
+            { value: 'nonactive', count: nonActiveNodes }
+        ]
+
+        res.json({
+            success: true,
+            result: {
+                all,
+                status
+            }
+        })
+
+    } catch (error) {
+        next(error)
+    }
+}

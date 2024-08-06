@@ -1,5 +1,6 @@
-import DataLogs from "../models/datalogs.ts";
+import { Moment } from "moment";
 import EventLogs from "../models/eventLogs.ts";
+import Nodes from "../models/nodes.ts";
 import Reports from "../models/reports.ts";
 
 type Timeseries<V = number> = { datetime: Date, value: V }
@@ -9,34 +10,32 @@ type ISPUValue = {
     ispu: number;
     ispuFloat: number;
     pollutantValue: number;
-    category: string;
-    recomendation?: string
+    category?: string;
+    recomendation?: {
+        info: string;
+        company: string;
+        public: string;
+    }
 }
 
 
 type GRKCategorize = {
-    gas: "CH4" | "CO2";
     value: number;
-    category: string;
-    recomendation?: string
+    category?: string;
+    recomendation?: {
+        info: string;
+        company: string;
+        public: string;
+    }
 }
 
 // ===========================================================
 
-declare type ResultOfMappingNode = {
-    nodeId: number;
-    companyId: any;
-    name: string;
-    status: string;
-    lastDataSent: Date
-    coordinate: number[];
-    dataLogs?: DataLogs[],
-
-
+declare type NodeWLastestData = Nodes & {
     latestData?: {
         ispu: {
             datetime: Date;
-            value: [] | [ISPUValue, ISPUValue];
+            value: [ISPUValue, ISPUValue] | null;
         };
         ch4: {
             datetime: Date;
@@ -54,6 +53,15 @@ declare type ResultOfMappingNode = {
             datetime: Date;
             value: number;
         };
+    },
+
+    PMDatalogs?: {
+        ispuHour: Moment,
+        tren: {
+            datetime: Date;
+            pm100: number;
+            pm25: number;
+        }[]
     }
 }
 
@@ -69,7 +77,7 @@ type SingleNodeAnalysis = {
         lastDataSent: Date;
     }
 
-    ispu: SingleNodeAnalysisItem<ISPUValue[]>
+    ispu: SingleNodeAnalysisItem<[ISPUValue, ISPUValue] | null>
     ch4: SingleNodeAnalysisItem<GRKCategorize>;
     co2: SingleNodeAnalysisItem<GRKCategorize>;
 
@@ -98,41 +106,21 @@ type ResultOfMultiNodeStats = {
 
 type NodeStat<T> = {
     average: {
-        data: {
-            datetime: Date;
-            value: T
-        }
+        data: Timeseries<T>
     };
     highest: {
         nodeId: number;
         name: string;
         lastDataSent: Date;
-        data: {
-            datetime: Date;
-            value: T
-        }
+        data: Timeseries<T>
     };
     lowest: {
         nodeId: number;
         name: string;
         lastDataSent: Date;
-        data: {
-            datetime: Date;
-            value: T
-        }
+        data: Timeseries<T>
     };
-
-    list: {
-        nodeId: number;
-        name: string;
-        lastDataSent: Date;
-        data: {
-            datetime: Date;
-            value: T
-        }
-    }[]
 };
-
 
 // ====================================================================
 
@@ -146,20 +134,22 @@ declare type DashboardDataType = {
         managedBy?: number;
         createdAt?: string;
     };
-    indoor: {
-        countNodes: DetailCountNodes;
-        data: SingleNodeAnalysis | ResultOfMultiNodeStats | null;
+    indoor?: NodesGroup;
+    outdoor: NodesGroup;
+    nodes: {
+        indoor?: NodeWLastestData[],
+        outdoor: NodeWLastestData[]
     };
-    outdoor: {
-        countNodes: DetailCountNodes;
-        data: SingleNodeAnalysis | ResultOfMultiNodeStats | null;
-    };
-    nodes: ResultOfMappingNode[];
     currentEventLogs: EventLogs[];
     nearReports: Reports[]
 }
 
-type DetailCountNodes = {
-    all: number;
-    active: number;
+
+type NodesGroup = {
+    analiysisDataType: string;
+    countNodes: {
+        all: number;
+        active: number;
+    };
+    data: SingleNodeAnalysis | ResultOfMultiNodeStats | null;
 }

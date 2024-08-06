@@ -38,7 +38,7 @@ export default class Users extends Model<InferAttributes<Users>, InferCreationAt
     @Default('regular')
     @NotEmpty
     @Column(DataType.ENUM('admin', 'gov', 'manager', 'regular'))
-    role!: string;
+    role!: 'admin' | 'gov' | 'manager' | 'regular';
 
     @Column(DataType.BLOB)
     profilePicture?: Uint8Array;
@@ -64,7 +64,7 @@ export default class Users extends Model<InferAttributes<Users>, InferCreationAt
     @AllowNull(false)
     @NotEmpty
     @Column(DataType.BOOLEAN)
-    isVerified!: boolean;
+    isVerified?: boolean;
 
 
     @HasMany(() => Reports, 'userId')

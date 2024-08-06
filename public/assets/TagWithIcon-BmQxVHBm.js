@@ -1,0 +1,1 @@
+import{j as e}from"./createReactComponent-m2GCamtz.js";import{T as s,d as o,b as i}from"./dateFormating-CjiM6gKV.js";function c({icon:r,...a}){return e.jsxs(s,{size:"md",variant:"subtle",colorScheme:"green",...a,children:[e.jsx(o,{boxSize:"16px",as:r}),e.jsx(i,{children:a.children})]})}export{c as T};

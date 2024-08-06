@@ -19,11 +19,13 @@ export const getReport: ControllerType = async (req, res, next) => {
 
     const isToday = requestedDate === currentDate
 
-    let filterByDistance: Where
+    let filterByDistance: Where;
 
-    if (nearCompanyId && (await req.user.hasCompany(nearCompanyId) || req.user.role == 'admin')) {
-        const { coordinate: [latitude, longitude] } = await db.Companies
-            .findByPk(nearCompany, { attributes: ['coordinate'] })
+    if (nearCompanyId && (await req.user?.hasCompany(nearCompanyId) || req.user?.role == 'admin')) {
+        const company = await db.Companies.findByPk(nearCompany, { attributes: ['coordinate'] })
+        if (!company) return next()
+
+        const { coordinate: [latitude, longitude] } = company
 
         filterByDistance = db.sequelize.where(
             db.sequelize.fn(
@@ -36,9 +38,7 @@ export const getReport: ControllerType = async (req, res, next) => {
     }
 
 
-    const convertedCreatedAtCol = `DATE(CONVERT_TZ(Reports.createdAt, '+00:00', '${moment.tz(timezone).format('Z')}'))`
-
-    console.log('convertedCreatedAtCol', convertedCreatedAtCol)
+    const convertedCreatedAtCol = `DATE(CONVERT_TZ(Reports.createdAt, '+00:00', '${moment().format('Z')}'))`
 
     const filterByDate = isToday ?
         { createdAt: { [Op.between]: [moment(momentCurrentDate).subtract(1, 'd').toDate(), momentCurrentDate.toDate()] } }
@@ -46,14 +46,13 @@ export const getReport: ControllerType = async (req, res, next) => {
 
 
     const reports = await db.Reports.findAll({
+        //@ts-ignore
         where: { [Op.and]: [filterByDate, filterByDistance] },
         include: [{
             model: db.Users,
             attributes: ['name', 'userId', 'profilePicture']
         }]
     })
-
-    console.log(reports)
 
     const prevNextDateOpt = [{ sign: '<', sort: 'DESC' }, { sign: '>', sort: 'ASC' }]
 
@@ -88,7 +87,8 @@ export const createReport: ControllerType = async (req, res, next) => {
         const imageUrl = await uploadPhotosToImgbb(images)
 
         let report = await db.Reports.create({
-            userId: req.user.userId,
+            //@ts-ignore
+            userId: req.user?.userId,
             message,
             coordinate,
             rating,

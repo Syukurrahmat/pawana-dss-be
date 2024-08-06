@@ -1,5 +1,5 @@
 {
-    "include": ["src/**/*", "cb.js"],
+    "include": ["src/**/*", "cb.js", "public"],
 
     "compilerOptions": {
         "module": "NodeNext",
@@ -11,6 +11,7 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "noErrorTruncation": true,
+        "strictNullChecks": true,
         "typeRoots": ["src/types"]
     }
 }

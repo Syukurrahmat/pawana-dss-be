@@ -1,4 +1,4 @@
-http://localhost:3000/xixixi
+http://localhost:3000/api/dashboard
 
 
 
@@ -30,3 +30,7 @@ apiKey=9911632f-4b9e-4810-ac40-ef2ce708d163
 
 ###
 http://localhost:3000/api/summary/monthly
+
+###
+http://localhost:3000/api/companies/2/events/current
+

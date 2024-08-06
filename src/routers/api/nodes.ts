@@ -1,17 +1,17 @@
 import { Router } from 'express';
 import {
+    createNewNode,
+    deleteCompanySubscription,
+    deleteUsersSubscription,
+    downloadableNode,
     editNode,
     getAllNodes,
-    getNodeById, getUsersHaveSubscribed,
-    createNewNode,
-    deleteUsersSubscription,
-    deleteCompanySubscription,
-    getNodesSummary,
-    getCompaniesHaveSubscribed,
-    toggleNodeStatus,
-    getDatalogs,
     getAvailableNode,
-    downloadableNode
+    getCompaniesHaveSubscribed,
+    getDatalogs,
+    getNodeById,
+    getNodesSummary,
+    getUsersHaveSubscribed
 } from '../../controller/nodes.controler.js';
 
 
@@ -28,7 +28,6 @@ nodesRouter.get('/summary', getNodesSummary)
 nodesRouter.get('/available', getAvailableNode)
 nodesRouter.get('/downloadable', downloadableNode)
 
-nodesRouter.put('/:id/toggle-status', toggleNodeStatus)
 
 nodesRouter.route('/:id')
     .get(getNodeById)
