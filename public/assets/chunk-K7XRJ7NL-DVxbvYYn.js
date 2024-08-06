@@ -1,0 +1,1 @@
+import{f as o,u as t,o as c,j as l,b as k,c as m}from"./createReactComponent-m2GCamtz.js";var f=o(function(s,e){const n=t("Link",s),{className:r,isExternal:a,...i}=c(s);return l.jsx(k.a,{target:a?"_blank":void 0,rel:a?"noopener":void 0,ref:e,className:m("chakra-link",r),...i,__css:n})});f.displayName="Link";export{f as L};

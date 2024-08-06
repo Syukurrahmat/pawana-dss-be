@@ -12,7 +12,7 @@ export default class Companies extends Model<InferAttributes<Companies>, InferCr
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
-    companyId!: number;
+    companyId?: number;
 
     @ForeignKey(() => Users)
     @AllowNull(false)
@@ -51,13 +51,13 @@ export default class Companies extends Model<InferAttributes<Companies>, InferCr
 
 
     @BelongsTo(() => Users)
-    manager: Users;
+    manager?: Users;
 
 
 
 
     @HasMany(() => Nodes, 'companyId')
-    privateNodes?: Users[]
+    privateNodes?: Nodes[]
 
     @HasMany(() => EventLogs, 'companyId')
     eventLogs?: EventLogs[]
@@ -99,5 +99,5 @@ export default class Companies extends Model<InferAttributes<Companies>, InferCr
     declare countPrivateNodes: HasManyCountAssociationsMixin;
     declare createPrivateNode: HasManyCreateAssociationMixin<Nodes>;
 
-    count: number
+    count?: number
 }

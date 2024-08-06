@@ -7,6 +7,7 @@ import Companies from './companies.js';
 import CompanySubscriptions from './companySubscriptions.js';
 import { coordinateGetterSetter } from '../utils/common.utils.js';
 import moment from 'moment';
+import db from './index.js';
 
 @Table({ tableName: 'nodes' })
 
@@ -14,13 +15,13 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
-    nodeId!: number;
+    nodeId?: number;
 
 
     @ForeignKey(() => Companies)
     @AllowNull(true)
     @Column(DataType.INTEGER)
-    companyId!: number;
+    companyId: number | null;
 
 
     @AllowNull(false)
@@ -52,7 +53,7 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     @Default('neversentdata')
     @NotEmpty
     @Column(DataType.ENUM('active', 'nonactive', 'idle', 'neversentdata'))
-    status!: string;
+    status?: string;
 
 
     @Column(DataType.DATEONLY)
@@ -64,9 +65,8 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     apiKey!: string;
 
     @Column(DataType.DATE)
-    lastDataSent!: Date;
-
-    // VIRTUAL
+    lastDataSent?: Date;
+ 
 
     @Column({
         type: DataType.VIRTUAL,
@@ -76,12 +76,12 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
         },
         set() { },
     })
-    isUptodate: boolean
+    isUptodate?: boolean
 
     // RELATIONSHIP WITH OTHER TABLES
 
     @BelongsTo(() => Companies)
-    owner: Companies;
+    owner?: Companies;
 
     @BelongsToMany(() => Users, () => UsersSubscription)
     userSubscriptions?: Array<Users & { UsersSubscription: UsersSubscription }>;

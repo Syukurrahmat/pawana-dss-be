@@ -1,0 +1,1 @@
+import{j as o,H as s,L as e,J as i}from"./createReactComponent-m2GCamtz.js";function a({IconEl:t,...r}){return o.jsxs(s,{mt:"8",pb:"2",mb:"2",borderBottom:"1px solid",borderColor:"gray.300",children:[t&&o.jsx(e,{as:t,boxSize:"20px"}),o.jsx(i,{fontSize:"xl",fontWeight:"600",...r})]})}export{a as S};

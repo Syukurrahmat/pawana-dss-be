@@ -8,12 +8,12 @@ export default class DataLogs extends Model<InferAttributes<DataLogs>, InferCrea
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    dataLogId!: number;
+    dataLogId?: number;
 
     @ForeignKey(() => Nodes)
     @AllowNull(false)
     @Column(DataType.INTEGER)
-    nodeId!: number;
+    nodeId?: number;
  
     @AllowNull(false)
     @NotEmpty
@@ -42,9 +42,18 @@ export default class DataLogs extends Model<InferAttributes<DataLogs>, InferCrea
 
     @NotEmpty
     @Column(DataType.FLOAT)
-    temperature!: number;
+    temperature?: number;
 
     @NotEmpty
     @Column(DataType.FLOAT)
-    humidity!: number;
+    humidity?: number;
+
+
+
+
+
+
+
+
+    hour? : string
 }

@@ -4,7 +4,7 @@ import sharp from "sharp";
 export const uploadPhotos = (base64images: string[]) => {
     return new Promise<string[]>((resolve, reject) => {
         Promise.all((base64images).filter(e => e).map(image => (
-            sharp(Buffer.from(image.split(';base64,').pop(), 'base64'))
+            sharp(Buffer.from(image.split(';base64,').pop() as string, 'base64'))
                 .jpeg()
                 .toBuffer()
                 .then(buffer => {

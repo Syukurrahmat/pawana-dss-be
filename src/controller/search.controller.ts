@@ -1,4 +1,4 @@
-import { ProjectionAlias } from 'sequelize';
+import { ProjectionAlias, WhereOptions } from 'sequelize';
 import db from '../models/index.js';
 import { ControllerType, QueryOfSting } from '../types/index.js';
 import { parseQueries } from '../utils/common.utils.js';
@@ -32,17 +32,25 @@ export const searchCompanies: ControllerType = async (req, res, next) => {
         sortOpt: ['createdAt', 'name', 'type'],
     });
 
-    db.Companies.findAndCountAll({
-        attributes: [
-            'companyId',
-            'name',
-            'type'
-        ],
-        where: { ...search},
-        order,
-        limit,
-        offset,
-    }).then(({ count, rows: users }) => {
+    const where: WhereOptions = { ...search }
+
+    const isManager = req.user!.role == 'manager'
+    if (isManager) { where.managedBy = req.user!.userId }
+
+
+    try {
+        const { count, rows: users } = await db.Companies.findAndCountAll({
+            attributes: [
+                'companyId',
+                'name',
+                'type'
+            ],
+            where,
+            order,
+            limit,
+            offset,
+        })
+
         res.json({
             success: true,
             totalItems: count,
@@ -50,7 +58,9 @@ export const searchCompanies: ControllerType = async (req, res, next) => {
             pageSize: limit,
             result: users,
         });
-    }).catch(next)
+
+
+    } catch (error) { next(error) }
 };
 
 
@@ -69,11 +79,11 @@ export const searchNodes: ControllerType = async (req, res, next) => {
     if ([userId, companyId].filter(e => e).length != 1) {
         return res.status(400).send('Bad Request')
     }
-    
+
     let isSubscribedQuery: ProjectionAlias[] = []
 
-    if(userId ){
-        if(req.user.role !== 'admin' && req.user.userId !== userId){
+    if (userId) {
+        if (req.user!.role !== 'admin' && req.user!.userId !== userId) {
             return res.status(403).send('Forbidden')
         }
     }
@@ -106,8 +116,7 @@ export const searchNodes: ControllerType = async (req, res, next) => {
         attributes: [
             'nodeId',
             'name',
-            ,
-            'status',
+            'isUptodate',
             'createdAt',
             ...isSubscribedQuery
         ],

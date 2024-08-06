@@ -5,7 +5,7 @@ import { ControllerType } from '../types/index.js';
 
 export const getDownloadableNode: ControllerType = async (req, res, next) => {
     try {
-        const user = await db.Users.findByPk(req.user.userId);
+        const user = await db.Users.findByPk(req.user!.userId);
 
         if (!user) {
             return res.json({
@@ -50,7 +50,7 @@ export const getDownloadableNode: ControllerType = async (req, res, next) => {
             result: result.map((e => ({
                 name: e.name,
                 nodeId: e.nodeId,
-                subscription: e.companySubscriptions.at(0)?.name
+                subscription: e.companySubscriptions!.at(0)?.name
             })))
         });
 
@@ -61,14 +61,19 @@ export const getDownloadableNode: ControllerType = async (req, res, next) => {
 
 export const postDatafromSensor: ControllerType = async (req, res, next) => {
     const { apiKey, datetime, pm25, pm100, co2, ch4, temperature, humidity } = req.body;
-
     if (!(moment(datetime).isValid() && apiKey && pm25 && pm100 && co2 && ch4)) return res.status(400).send('awikwok om');
 
     const node = await db.Nodes.findOne({ where: { apiKey }, attributes: ['nodeId'] });
     if (!node) return res.status(404).send('awikwok om');
 
     const newDataLog = await node.createDataLog({
-        datetime, pm25, pm100, co2, ch4, temperature, humidity
+        datetime,
+        pm25,
+        pm100,
+        co2,
+        ch4,
+        temperature,
+        humidity
     });
 
     res.json({

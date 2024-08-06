@@ -2,14 +2,16 @@ import { Model, Table, Column, DataType, ForeignKey, PrimaryKey, AutoIncrement, 
 import { InferAttributes, InferCreationAttributes } from "sequelize";
 import Companies from "./companies.js";
 
-@Table({ tableName: "eventlogs" })
+export const eventLogType = ['production', 'maintenance', 'training', 'administrative', 'repair', 'other']
+export const eventLogStatus = ['inProgress' , 'completed' , 'upcoming']
 
+@Table({ tableName: "eventlogs" })
 
 export default class EventLogs extends Model<InferAttributes<EventLogs>, InferCreationAttributes<EventLogs>> {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
-    eventLogId!: number;
+    eventLogId?: number;
 
     @ForeignKey(() => Companies)
     @AllowNull(false)
@@ -28,17 +30,12 @@ export default class EventLogs extends Model<InferAttributes<EventLogs>, InferCr
 
     @AllowNull(false)
     @NotEmpty
-    @Column(DataType.ENUM('production', 'maintenance', 'training', 'administrative', 'repair', 'other'))
-    type!: string;
-
-    @AllowNull(false)
-    @Default('in progress')
-    @Column(DataType.ENUM('in progress', 'completed', 'not started yet'))
-    status!: string;
+    @Column(DataType.ENUM(...eventLogType))
+    type!:  'production' | 'maintenance' | 'training' | 'administrative' | 'repair' | 'other';
 
     @Default(false)
     @Column(DataType.BOOLEAN)
-    isCompleted!: boolean;
+    isCompleted?: boolean;
 
     @Column(DataType.STRING(255))
     location?: string;
@@ -51,7 +48,13 @@ export default class EventLogs extends Model<InferAttributes<EventLogs>, InferCr
     @NotEmpty
     @Column(DataType.DATEONLY)
     endDate?: Date;
+
+    @Column(DataType.VIRTUAL)
+    status?: 'inProgress' | 'completed' | 'upcoming'
+
+    @Column(DataType.VIRTUAL)
+    duration?: number
 }
 
 
- 
+

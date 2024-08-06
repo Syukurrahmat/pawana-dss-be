@@ -58,12 +58,12 @@ export const accessControlSetResource = (resource: Subjects): ControllerType => 
 }
 
 export const accessControl: ControllerType = async (req, res, next) => {
-    const ability = defineAbilitiesFor(req.user);
+    const ability = defineAbilitiesFor(req.user!);
     const action = methodToAction[req.method];
     const resourceId = parseInt(req.params.id)
     const resource = req.resource as Subjects
 
-    const isOwnFunc = req.user['has' + resource]
+    const isOwnFunc = req.user!['has' + resource]
 
 
 
@@ -81,8 +81,6 @@ export const accessControl: ControllerType = async (req, res, next) => {
     if (resourceId) {
         const { primaryKeyAttribute } = db[resource]
         let g = await db[resource].count({ where: { [primaryKeyAttribute]: resourceId } })
-
-        console.log(g)
     }
 
     return next();

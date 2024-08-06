@@ -1,50 +1,36 @@
 import moment from 'moment';
 import db from '../models/index.js';
-import { DashboardDataType } from '../types/dashboardData.js';
+import { DashboardDataType, NodeWLastestData } from '../types/dashboardData.js';
 
-import { Op, Order } from 'sequelize';
-import { analyzingNode, chooseAnalyzeData, identifyAnalyzeType } from '../services/decisionLogic/index.js';
+import { Op, literal, where } from 'sequelize';
+import { analyzingNode as getLastestData, chooseAnalyzeData, identifyAnalyzeType } from '../services/decisionLogic/index.js';
 import { ControllerType } from '../types/index.js';
 
-const nodeAttributes = ['nodeId', 'name', 'coordinate', 'status', 'companyId', 'lastDataSent', 'isUptodate']
+const nodeAttributes = ['nodeId', 'name', 'coordinate', 'companyId', 'lastDataSent', 'isUptodate']
 const eventLogAttributes = ['eventLogId', 'companyId', 'name', 'type', 'isCompleted', 'startDate', 'endDate']
-const order: Order = [[{ model: db.DataLogs, as: 'dataLogs' }, 'datetime', 'DESC']]
-const includeDatalogs = {
-    model: db.DataLogs,
-    where: {
-        datetime: {
-            [Op.lte]: db.sequelize.col('Nodes.lastDataSent'),
-            [Op.gt]: db.sequelize.literal(`DATE_SUB(Nodes.lastDataSent, INTERVAL 24 HOUR)`)
-        }
-    },
-    required: false
-}
 
-export const dashboardDataForManagerUser: ControllerType = async (req, res, next) => {
+
+export const dashboardDataForCompany: ControllerType = async (req, res, next) => {
+    const companyId = req.params.id
+
     const now = new Date()
-    const { companyId } = req.session.activeCompany
 
-    const company = await db.Companies.findByPk(companyId, { attributes: ['companyId', 'managedBy', 'name', 'type', 'coordinate'] });
+    const company = await db.Companies.findByPk(companyId, { attributes: ['companyId', 'managedBy', 'name', 'type', 'coordinate', 'createdAt'] });
+    if (!company) return next()
+
     const companyInformation = company.toJSON()
-
-    const outdoorSubscribedNodes = await company.getSubscribedNodes({
-        attributes: nodeAttributes,
-        joinTableAttributes: [],
-        include: [includeDatalogs],
-        order
-    })
-
-    const indoorOwnedNodes = await company.getPrivateNodes({
-        attributes: nodeAttributes,
-        include: [includeDatalogs],
-        order
-    })
+    const outdoorNodes = await company.getSubscribedNodes({ attributes: nodeAttributes, joinTableAttributes: [] })
+    const indoorNodes = await company.getPrivateNodes({ attributes: nodeAttributes })
 
     const currentEventLogs = await company.getEventLogs({
         attributes: eventLogAttributes,
         where: {
             startDate: { [Op.lte]: now },
-            [Op.or]: [{ endDate: { [Op.is]: null } }, { endDate: { [Op.gte]: now } }]
+            isCompleted : false,
+            [Op.or]: [
+                { endDate: { [Op.is]: null } },
+                { endDate: { [Op.gte]: now } }
+            ]
         }
     })
 
@@ -52,14 +38,11 @@ export const dashboardDataForManagerUser: ControllerType = async (req, res, next
         where: {
             [Op.and]: [
                 { createdAt: { [Op.between]: [moment(now).subtract(1, 'd').toDate(), now] } },
-                db.sequelize.where(
-                    db.sequelize.fn(
-                        'ST_Distance_Sphere',
-                        db.sequelize.col('coordinate'),
-                        db.sequelize.fn('ST_GeomFromText', `POINT(${company.coordinate[1]} ${company.coordinate[0]})`)
-                    ),
+                where(
+                    literal(`ST_Distance_Sphere(coordinate, ST_GeomFromText('POINT(${company.coordinate[1]} ${company.coordinate[0]})'))`),
                     { [Op.lte]: 500 }
-                )]
+                )
+            ]
         },
         include: [{
             model: db.Users,
@@ -68,39 +51,44 @@ export const dashboardDataForManagerUser: ControllerType = async (req, res, next
     })
 
 
-    const indoorNodeAnalized = indoorOwnedNodes.filter(e => e.isUptodate).map(analyzingNode)
-    const outdoorNodeAnalized = outdoorSubscribedNodes.filter(e => e.isUptodate).map(analyzingNode)
+    const indoorNodesWLastestData = await Promise.all<NodeWLastestData>(indoorNodes.map(e => getLastestData(e, req.session.tz!)))
+    const outdoorNodesWLastestData = await Promise.all<NodeWLastestData>(outdoorNodes.map(e => getLastestData(e, req.session.tz!)))
 
-    const indoorAnaliysisType = identifyAnalyzeType(indoorNodeAnalized)
-    const outdoorAnaliysisType = identifyAnalyzeType(outdoorNodeAnalized)
+    const activeIndoorNodes = indoorNodesWLastestData.filter(e => e.latestData)
+    const activeOutdoorNodes = outdoorNodesWLastestData.filter(e => e.latestData)
+
+    const indoorAnaliysisType = identifyAnalyzeType(activeIndoorNodes)
+    const outdoorAnaliysisType = identifyAnalyzeType(activeOutdoorNodes)
 
     const indoorData = {
         countNodes: {
-            active: indoorNodeAnalized.length,
-            all: indoorOwnedNodes.length,
+            active: activeIndoorNodes.length,
+            all: indoorNodes.length,
         },
         analiysisDataType: indoorAnaliysisType,
-        data: await chooseAnalyzeData(indoorNodeAnalized, indoorAnaliysisType),
+        data: await chooseAnalyzeData(activeIndoorNodes, req.session.tz!, indoorAnaliysisType),
     }
-
 
     const outdoorData = {
         countNodes: {
-            active: outdoorNodeAnalized.length,
-            all: outdoorSubscribedNodes.length,
+            active: activeOutdoorNodes.length,
+            all: outdoorNodes.length,
         },
         analiysisDataType: outdoorAnaliysisType,
-        data: await chooseAnalyzeData(outdoorNodeAnalized, outdoorAnaliysisType)
+        data: await chooseAnalyzeData(activeOutdoorNodes, req.session.tz!, outdoorAnaliysisType)
     }
 
     const result: DashboardDataType = {
         dashboardInfo: {
             ...companyInformation,
-            countNodes: outdoorSubscribedNodes.length + indoorOwnedNodes.length
+            countNodes: outdoorNodes.length + indoorNodes.length
+        },
+        nodes: {
+            indoor: indoorNodesWLastestData.map((e) => ({ ...e.toJSON(), latestData: e.latestData })) as any,
+            outdoor: outdoorNodesWLastestData.map((e) => ({ ...e.toJSON(), latestData: e.latestData })) as any
         },
         indoor: indoorData,
         outdoor: outdoorData,
-        nodes: outdoorNodeAnalized.map(({ dataLogs, ...n }) => ({ ...n })),
         currentEventLogs,
         nearReports
     }
@@ -112,35 +100,39 @@ export const dashboardDataForManagerUser: ControllerType = async (req, res, next
 }
 
 export const dashboardDataForRegularUser: ControllerType = async (req, res, next) => {
-    const outdoorSubscribedNodes = await req.user.getSubscribedNodes({
-        attributes: nodeAttributes,
-        joinTableAttributes: [],
-        include: [includeDatalogs],
-        order
-    })
+    const userId = req.params.id
 
-    const outdoorNodeAnalized = outdoorSubscribedNodes.filter(e => e.isUptodate).map(analyzingNode)
-    const outdoorAnaliysisType = identifyAnalyzeType(outdoorNodeAnalized)
+    const user = (await db.Users.findByPk(userId, { attributes: ['userId'] }))!
 
+    const outdoorNodes = await user.getSubscribedNodes({ attributes: nodeAttributes, joinTableAttributes: [] })
+    if (!outdoorNodes) return next()
+
+    const analyzedOutdoorNodes = await Promise.all(outdoorNodes.map(e => getLastestData(e, req.session.tz!)))
+    const filteredAnalyzedOutdoorNodes = analyzedOutdoorNodes.filter(e => e.latestData) as NodeWLastestData[]
+    const outdoorAnaliysisType = identifyAnalyzeType(filteredAnalyzedOutdoorNodes)
 
     const outdoorData = {
         countNodes: {
-            active: outdoorNodeAnalized.length,
-            all: outdoorSubscribedNodes.length,
+            active: filteredAnalyzedOutdoorNodes.length,
+            all: outdoorNodes.length,
         },
         analiysisDataType: outdoorAnaliysisType,
-        data: await chooseAnalyzeData(outdoorNodeAnalized, outdoorAnaliysisType)
+        data: await chooseAnalyzeData(filteredAnalyzedOutdoorNodes, req.session.tz!, outdoorAnaliysisType)
     }
 
     const result: DashboardDataType = {
         dashboardInfo: {
             type: 'regular',
             name: 'Node yang Anda Ikuti',
-            countNodes: outdoorSubscribedNodes.length
+            countNodes: outdoorNodes.length
         },
-        indoor: null,
+        indoor: undefined,
         outdoor: outdoorData,
-        nodes: outdoorNodeAnalized.map(({ dataLogs, ...n }) => ({ ...n })),
+        nodes: {
+            indoor: undefined,
+            outdoor: analyzedOutdoorNodes.map((e) => ({ ...e.toJSON(), latestData: e.latestData })) as any
+
+        },
         currentEventLogs: [],
         nearReports: []
     }
@@ -150,14 +142,3 @@ export const dashboardDataForRegularUser: ControllerType = async (req, res, next
         result: result,
     })
 }
-
-
-
-
-export const dashboardData: ControllerType = (req, res, next) => {
-    if (req.user.role == 'manager') return dashboardDataForManagerUser(req, res, next)
-    else return dashboardDataForRegularUser(req, res, next)
-}
-
-
-

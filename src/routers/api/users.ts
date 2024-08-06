@@ -1,31 +1,40 @@
 import { Router } from 'express';
-import { addNodeSubscription, createNewUser, deleteNodeSubscription, editUserProfile, getManagedCompanies, getSubscribedNodes, getAllUsers, getUser, getUsersSummary, editUserPassword } from '../../controller/users.controler.js';
-import { accessControl as ac, accessControlSetResource } from '../../auth/accesssControl.js';
+import { addNodeSubscription, createNewUser, deleteNodeSubscription, editUserProfile, getManagedCompanies, getSubscribedNodes, getAllUsers, getUser, getUsersSummary, editUserPassword, getRemainingSubsLimit, getOwnNodes, getOwnNodesSummary } from '../../controller/users.controler.js';
+import { dashboardDataForRegularUser } from '../../controller/dashboard.controller.js';
 
 const usersRouter = Router();
 
-usersRouter.use(accessControlSetResource('Users'))
 
 usersRouter.route('/')
-    .get(ac, getAllUsers)
-    .post(ac, createNewUser)
+    .get(getAllUsers)
+    .post(createNewUser)
 
-usersRouter.get('/summary', ac, getUsersSummary);
+usersRouter.get('/summary', getUsersSummary);
 
 // usersRouter.route('/').
 
 usersRouter.route('/:id')
-    .get(ac, getUser)
-    .put(ac, editUserProfile);
+    .get(getUser)
+    .put(editUserProfile);
 
-usersRouter.put('/:id/password', ac, editUserPassword)
+usersRouter.get('/:id/dashboard', dashboardDataForRegularUser)
+usersRouter.get('/:id/remaining-subs-limit', getRemainingSubsLimit)
+
+usersRouter.put('/:id/password', editUserPassword)
 
 usersRouter.route('/:id/nodes')
-    .get(ac, getSubscribedNodes)
-    .post(ac, addNodeSubscription)
-    .delete(ac, deleteNodeSubscription)
+    .get(getSubscribedNodes)
+    .post(addNodeSubscription)
+    .delete(deleteNodeSubscription)
+
+usersRouter.get('/:id/own-nodes/summary', getOwnNodesSummary)
+
+usersRouter.route('/:id/own-nodes')
+    .get(getOwnNodes)
+
+
 
 usersRouter.route('/:id/companies')
-    .get(ac, getManagedCompanies)
+    .get(getManagedCompanies)
 
 export default usersRouter;
