@@ -2,8 +2,8 @@ import moment, { Moment } from 'moment';
 import { Op, col, fn, literal } from 'sequelize';
 import Nodes from '../../_models/nodes.js';
 import { GRKCategorize, ISPUValue, NodeWLastestData, ResultOfMultiNodeStats, SingleNodeAnalysis, Timeseries } from '../../_types/dashboardData.js';
-import { arrayOfObjectHours, average, sortByDatetime } from '../../../utils/common.utils.js';
-import { fillMissingData } from '../../../utils/dataAnalyze.utils.js';
+import { arrayOfObjectHours, average, sortByDatetime } from '../../../lib/common.utils.js';
+import { fillMissingData } from '../../../lib/dataAnalyze.utils.js';
 import { evaluateCH4, evaluateCO2, evaluateISPU } from './evaluateByConversionTable.js';
 
 

@@ -7,8 +7,8 @@ import { evaluateCH4, evaluateCO2, evaluateISPU } from '../_services/decisionLog
 import { GRKCategorize, ISPUValue } from '../_types/dashboardData.js';
 import { ControllerType } from '../_types/index.js';
 import { Summary } from '../_types/summaryData.js';
-import { average } from '../../utils/common.utils.js';
-import { DatalogsLinearImputation } from '../../utils/dataAnalyze.utils.js';
+import { average } from '../../lib/common.utils.js';
+import { DatalogsLinearImputation } from '../../lib/dataAnalyze.utils.js';
 import { getEventLogsInRange, identifyEventStatus } from './eventLogs.controller.js';
 import { calculateEventDuration } from './eventLogs.controller.js';
 import { eventLogStatus, eventLogType } from '../_models/eventLogs.js';

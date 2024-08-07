@@ -17,14 +17,13 @@ import {
 
 const nodesRouter = Router();
 
-
-
 nodesRouter.route('')
     .get(getAllNodes)
     .post(createNewNode);
 
 
 nodesRouter.get('/summary', getNodesSummary)
+
 nodesRouter.get('/available', getAvailableNode)
 nodesRouter.get('/downloadable', downloadableNode)
 

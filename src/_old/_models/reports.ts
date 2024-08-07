@@ -1,7 +1,7 @@
 import { Model, Table, Column, DataType, ForeignKey, PrimaryKey, AutoIncrement, AllowNull, NotEmpty, BelongsTo } from "sequelize-typescript";
 import { InferAttributes, InferCreationAttributes } from "sequelize";
 import Users from "./users.js";
-import { coordinateGetterSetter } from '../../utils/common.utils.js';
+import { coordinateGetterSetter } from '../../lib/common.utils.js';
 
 @Table({ tableName: "reports" })
 

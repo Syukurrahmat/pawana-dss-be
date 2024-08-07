@@ -5,7 +5,7 @@ import Users from './users.js';
 import UsersSubscription from './usersSubscriptions.js';
 import Companies from './companies.js';
 import CompanySubscriptions from './companySubscriptions.js';
-import { coordinateGetterSetter } from '../../utils/common.utils.js';
+import { coordinateGetterSetter } from '../../lib/common.utils.js';
 import moment from 'moment';
 import db from './index.js';
 
@@ -21,7 +21,7 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     @ForeignKey(() => Companies)
     @AllowNull(true)
     @Column(DataType.INTEGER)
-    companyId: number | null;
+    companyId?: number;
 
 
     @AllowNull(false)

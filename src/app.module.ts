@@ -1,21 +1,34 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { RouterModule } from '@nestjs/core';
+import { SequelizeModule } from '@nestjs/sequelize';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { AppController } from './app.controller';
+import { CompaniesModule } from './api/Companies/companies.module';
+import { CompanyNodeSubsModule } from './api/Companies/CompanyNodeSubs/companyNodeSubs.module';
+import { NodesModule } from './api/Nodes/nodes.module';
+import { NodeSubscriberModule } from './api/Nodes/NodeSubscriber/nodeSubscriber.module';
+import { ReportsModule } from './api/Reports/reports.module';
+import { UserNodeSubsModule } from './api/Users/UserNodeSubs/userNodeSubs.module';
+import { UsersModule } from './api/Users/users.module';
+import { AuthModule } from './auth/auth.module';
 import { PUBLIC_DIR } from './config/config';
-import { UsersModule } from './users/users.module';
-import { EmailModule } from './email/email.module';
-import { SequelizeModule } from '@nestjs/sequelize';
+import { AuthMiddleware } from './middleware/auth.middleware';
+import { UserSessionMiddleware } from './middleware/userSession.middleware';
 import allDBModels from './models';
-import { NodeSubscriptionModule } from './users/nodeSubscription/nodeSubscription.module';
+import { EventlogsModule } from './api/Companies/Eventlogs/eventlog.module';
 
 @Module({
     imports: [
-        // AuthModule,
+        AuthModule,
         UsersModule,
-        EmailModule,
-        NodeSubscriptionModule,
+        UserNodeSubsModule,
+        ReportsModule,
+        CompaniesModule,
+        CompanyNodeSubsModule,
+        NodesModule,
+        NodeSubscriberModule,
+        EventlogsModule,
         ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', PUBLIC_DIR) }),
         ConfigModule.forRoot({ isGlobal: true }),
         SequelizeModule.forRoot({
@@ -27,10 +40,34 @@ import { NodeSubscriptionModule } from './users/nodeSubscription/nodeSubscriptio
             database: process.env.DB_DATABASE!,
             models: allDBModels,
         }),
+        RouterModule.register([
+            {
+                path: '/api',
+                children:
+                    [
+                        UsersModule,
+                        UserNodeSubsModule,
+                        ReportsModule,
+                        CompaniesModule,
+                        CompanyNodeSubsModule,
+                        NodesModule,
+                        NodeSubscriberModule,
+                        EventlogsModule
+                    ].map(e => ({
+                        path: '/',
+                        module: e
+                    }))
+            }])
     ],
 
-    controllers: [AppController],
     providers: [],
 })
 
-export class AppModule { }
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer
+            .apply(AuthMiddleware, UserSessionMiddleware)
+            .forRoutes('/api/*')
+    }
+}
+

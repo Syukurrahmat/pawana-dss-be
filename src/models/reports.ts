@@ -1,7 +1,7 @@
 import { Model, Table, Column, DataType, ForeignKey, PrimaryKey, AutoIncrement, AllowNull, NotEmpty, BelongsTo } from "sequelize-typescript";
 import { InferAttributes, InferCreationAttributes } from "sequelize";
 import Users from "./users.js";
-import { coordinateGetterSetter } from '../utils/common.utils.js';
+import { coordinateGetterSetter } from '../lib/common.utils.js';
 
 @Table({ tableName: "reports" })
 
@@ -9,7 +9,7 @@ export default class Reports extends Model<InferAttributes<Reports>, InferCreati
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
-    reportId!: number;
+    reportId?: number;
 
     @ForeignKey(() => Users)
     @AllowNull(false)
@@ -52,5 +52,5 @@ export default class Reports extends Model<InferAttributes<Reports>, InferCreati
     @BelongsTo(() => Users)
     creator?: Users;
 
-    declare date: string;
+    declare date?: string;
 }

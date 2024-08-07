@@ -5,7 +5,7 @@ import Companies from './companies.js';
 import Reports from './reports.js';
 import Nodes from './nodes.js';
 import bcrypt from 'bcryptjs';
-import { myBcriptSalt } from '../../utils/common.utils.js';
+// import { myBcriptSalt } from '../../lib/common.utils.js';
 
 @Table({ tableName: 'users' })
 
@@ -55,7 +55,7 @@ export default class Users extends Model<InferAttributes<Users>, InferCreationAt
     @Column({
         type: DataType.STRING(60),
         set(value: string) {
-            this.setDataValue('password', bcrypt.hashSync(value, myBcriptSalt));
+            this.setDataValue('password', bcrypt.hashSync(value));
         }
     })
     password!: string;

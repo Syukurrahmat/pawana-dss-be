@@ -31,7 +31,7 @@ export default class EventLogs extends Model<InferAttributes<EventLogs>, InferCr
     @AllowNull(false)
     @NotEmpty
     @Column(DataType.ENUM(...eventLogType))
-    type!:  'production' | 'maintenance' | 'training' | 'administrative' | 'repair' | 'other';
+    type!: 'production' | 'maintenance' | 'training' | 'administrative' | 'repair' | 'other';
 
     @Default(false)
     @Column(DataType.BOOLEAN)

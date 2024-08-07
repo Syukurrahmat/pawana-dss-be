@@ -5,7 +5,7 @@ import Users from './users.js';
 import UsersSubscription from './usersSubscriptions.js';
 import Companies from './companies.js';
 import CompanySubscriptions from './companySubscriptions.js';
-import { coordinateGetterSetter } from '../utils/common.utils.js';
+import { coordinateGetterSetter } from '../lib/common.utils.js';
 import moment from 'moment';
 
 @Table({ tableName: 'nodes' })
@@ -20,7 +20,7 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     @ForeignKey(() => Companies)
     @AllowNull(true)
     @Column(DataType.INTEGER)
-    companyId?: number;
+    companyId?: number | null;
 
 
     @AllowNull(false)
@@ -33,19 +33,15 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     @Column(DataType.STRING(255))
     description!: string;
 
-    @AllowNull(false)
-    @NotEmpty
     @Column(DataType.STRING(255))
-    address!: string;
+    address?: string;
 
-
-    @AllowNull(false)
-    @NotEmpty
+ 
     @Column({
         type: DataType.GEOGRAPHY('POINT'),
         ...coordinateGetterSetter
     })
-    coordinate!: number[]
+    coordinate?: number[]
 
 
     @AllowNull(false)

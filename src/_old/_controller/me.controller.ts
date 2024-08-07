@@ -2,7 +2,7 @@ import moment from 'moment-timezone';
 import { SUBS_LIMIT } from '../constants/server.js';
 import db from '../_models/index.js';
 import { ControllerType } from '../_types/index.js';
-import { parseQueries } from '../../utils/common.utils.js';
+import { parseQueries } from '../../lib/common.utils.js';
 
 const companyAttr = ['companyId', 'coordinate', 'name', 'type'];
 

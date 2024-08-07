@@ -2,7 +2,7 @@ import { Op, ProjectionAlias, WhereOptions } from 'sequelize';
 import { v4 as uuidV4 } from 'uuid';
 import db from '../_models/index.js';
 import { ControllerType, QueryOfSting } from '../_types/index.js';
-import { parseQueries } from '../../utils/common.utils.js';
+import { parseQueries } from '../../lib/common.utils.js';
 import moment from 'moment';
 
 

@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import db from '../_models/index.js';
 import { ControllerType } from '../_types/index.js';
-import { parseQueries } from '../../utils/common.utils.js';
+import { parseQueries } from '../../lib/common.utils.js';
 import { SUBS_LIMIT } from '../constants/server.js'
 
 export const getAllCompanies: ControllerType = async (req, res, next) => {
@@ -129,7 +129,6 @@ export const getAllSubscribedNode: ControllerType = async (req, res, next) => {
 
 
     try {
-
         const nodes = await req.company!.getSubscribedNodes({
             where: { ...search },
             attributes: [
@@ -201,7 +200,6 @@ export const getAllPrivateNode: ControllerType = async (req, res, next) => {
     const { id: companyId } = req.params
     const { page, limit, search, order, offset } = parseQueries(req);
 
-
     try {
         const company = await db.Companies.findByPk(companyId);
 
@@ -235,13 +233,7 @@ export const getAllPrivateNode: ControllerType = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-
-
-
-
-
 }
-
 
 
 

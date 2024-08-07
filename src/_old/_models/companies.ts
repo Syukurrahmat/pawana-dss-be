@@ -4,7 +4,7 @@ import Nodes from './nodes.js';
 import Users from './users.js';
 import EventLogs from './eventLogs.js';
 import CompanySubscription from './companySubscriptions.js';
-import { coordinateGetterSetter } from '../../utils/common.utils.js';
+import { coordinateGetterSetter } from '../../lib/common.utils.js';
 
 @Table({ tableName: 'companies' })
 

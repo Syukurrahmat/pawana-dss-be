@@ -1,7 +1,7 @@
 import { ProjectionAlias, WhereOptions } from 'sequelize';
 import db from '../_models/index.js';
 import { ControllerType, QueryOfSting } from '../_types/index.js';
-import { parseQueries } from '../../utils/common.utils.js';
+import { parseQueries } from '../../lib/common.utils.js';
 
 export const searchUsers: ControllerType = async (req, res, next) => {
     const { page, limit, search, order, offset } = parseQueries(req, {

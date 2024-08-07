@@ -2,10 +2,10 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import db from '../_models/index.js';
 import { ControllerType, Pagination, QueryOfSting } from '../_types/index.js';
-import { parseQueries, myBcriptSalt } from '../../utils/common.utils.js';
+import { parseQueries, myBcriptSalt } from '../../lib/common.utils.js';
 import { Op } from 'sequelize';
 import Randomstring from 'randomstring';
-import sendVerificationEmail from '../../utils/email/sendEmail.utils.js';
+import sendVerificationEmail from '../../lib/email/sendEmail.utils.js';
 import { SUBS_LIMIT } from '../constants/server.js';
 import moment from 'moment';
 
