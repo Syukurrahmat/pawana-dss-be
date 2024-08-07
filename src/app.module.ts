@@ -2,8 +2,6 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RouterModule } from '@nestjs/core';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { ApplicationModule } from './Api/App/app.module';
 import { CompaniesModule } from './Api/Companies/companies.module';
 import { NodesModule } from './Api/Nodes/nodes.module';
@@ -18,7 +16,6 @@ import { SummaryModule } from './services/Summary/summary.module';
 
 @Module({
     imports: [
-        ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'public') }),
         ConfigModule.forRoot({ isGlobal: true }),
         SequelizeModule.forRoot({
             dialect: 'mysql',
@@ -37,17 +34,16 @@ import { SummaryModule } from './services/Summary/summary.module';
                 UsersModule,
                 CompaniesModule,
                 NodesModule,
-            ].map(e => ({
-                path: '/',
-                module: e
-            }))
+            ].map(e => ({ path: '/', module: e }))
         }]),
-        AuthModule,
+
         ApplicationModule,
         ReportsModule,
         UsersModule,
         CompaniesModule,
         NodesModule,
+        
+        AuthModule,
         SummaryModule,
         DashboardModule,
     ],
