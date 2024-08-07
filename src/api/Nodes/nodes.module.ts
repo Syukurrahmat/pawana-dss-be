@@ -6,9 +6,26 @@ import { NodesService } from './nodes.service.js';
 import CompanySubscriptions from '../../models/companySubscriptions.js';
 import UsersSubscriptions from '../../models/usersSubscriptions.js';
 import Companies from '../../models/companies.js';
+import { NodeSubscriberModule } from './NodeSubscriber/nodeSubscriber.module.js';
+import { RouterModule } from '@nestjs/core';
+import { NodeUtilsModule } from './NodeUtils/nodeUtils.module.js';
 
 @Module({
-    imports: [SequelizeModule.forFeature([Nodes, Companies, CompanySubscriptions, UsersSubscriptions, CompanySubscriptions])],
+    imports: [
+        NodeSubscriberModule,
+        NodeUtilsModule,
+        SequelizeModule.forFeature([Nodes, Companies, CompanySubscriptions, UsersSubscriptions, CompanySubscriptions]),
+        RouterModule.register([
+            {
+                path: 'api/nodes/:id/',
+                module: NodeSubscriberModule
+            },
+            {
+                path: 'api/nodes/',
+                module: NodeUtilsModule
+            },
+        ])
+    ],
     controllers: [NodesController],
     providers: [NodesService],
     exports: [NodesService],

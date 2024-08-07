@@ -15,7 +15,7 @@ export class ApplicationService {
     }
 
     getUserInformation(user: Users, session: SessionData, timezoneQuery: string | undefined,) {
-        const { password, address, description, ...rest } = user
+        const { password, address, description, ...rest } = user.toJSON()
         const { role } = rest
 
         if (timezoneQuery && moment.tz.zone(timezoneQuery)) {
@@ -35,7 +35,7 @@ export class ApplicationService {
 
 
     async configureUserView(user: Users, session: SessionData, companyId: number | undefined) {
-        const { role } = user
+        const { role } = user.toJSON()
 
         if (companyId) {
             const company = await this.companiesDb.findByPk(companyId, {

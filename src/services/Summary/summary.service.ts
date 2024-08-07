@@ -18,7 +18,7 @@ import Users from '../../models/users.js';
 import { InjectModel } from '@nestjs/sequelize';
 import DataLogs from '../../models/datalogs.js';
 import Reports from '../../models/reports.js';
-import { EventlogsService } from '../../api/Companies/Eventlogs/eventlog.service.js';
+import { EventlogsService } from '../../Api/Companies/Eventlogs/eventlog.service.js';
 
 // import { getEventLogsInRange, identifyEventStatus } from './eventLogs.controller.js';
 // import { calculateEventDuration } from './eventLogs.controller.js';

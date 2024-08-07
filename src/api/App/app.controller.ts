@@ -14,7 +14,7 @@ export class ApplicationController {
         @User() user: Users,
         @Query('timezone') timezone?: string,
     ) {
-        this.appService.getUserInformation(user, session, timezone)
+        return this.appService.getUserInformation(user, session, timezone)
     }
 
     @Patch('configure-view')
@@ -23,6 +23,6 @@ export class ApplicationController {
         @User() user: Users,
         @Body('companyId', new ParseIntPipe({ optional: true })) companyId? : number
     ) {
-        this.appService.configureUserView(user, session, companyId)
+        return this.appService.configureUserView(user, session, companyId)
     }
 }

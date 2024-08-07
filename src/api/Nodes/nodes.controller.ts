@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, ParseBoolPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, ParseBoolPipe, UseGuards } from '@nestjs/common';
 import { NodesService } from './nodes.service.js';
 import { PaginationQueryDto } from '../../lib/pagination.dto.js';
 import { ApiTags } from '@nestjs/swagger';
@@ -7,15 +7,20 @@ import Users from '../../models/users.js';
 import { CreateNodeDto } from './dto/create-nodes.dto.js';
 import { FindNodesDto } from './dto/find-nodes.dto.js';
 import { UpdateNodeDto } from './dto/update-nodes.dto.js';
+import { NodesGuard } from './nodes.guard.js';
 
 @Controller('nodes')
-@ApiTags('nodes')
+@ApiTags('Nodes')
+@UseGuards(NodesGuard)
 export class NodesController {
     constructor(private readonly usersService: NodesService) { }
 
     @Post('/')
-    create(@Body() createDto: CreateNodeDto) {
-        return this.usersService.create(createDto);
+    create(
+        @Body() createDto: CreateNodeDto,
+        @User() user: Users
+    ) {
+        return this.usersService.create(createDto, user);
     }
 
     @Get('/')
@@ -46,22 +51,6 @@ export class NodesController {
         return this.usersService.remove(id);
     }
 
-    @Get('/subscribeable')
-    getSubscribeableNodes(
-        @Query('search') search?: string,
-        @Query('forCompanySubs', new ParseIntPipe({ optional: true })) forCompanySubs?: number,
-        @Query('forUserSubs', new ParseIntPipe({ optional: true })) forUserSubs?: number,
-    ) {
-        return this.usersService.getSubscribeableNodes(forCompanySubs, forUserSubs, search)
-    }
-
-    @Get('/downloadable')
-    getDownloadableNodes(
-        @Query() pagination: PaginationQueryDto,
-        @User() User: Users,
-    ) {
-        return this.usersService.getDownloadableNodes(User, pagination)
-    }
 
     @Get('/:id/datalogs')
     getDataLogs(

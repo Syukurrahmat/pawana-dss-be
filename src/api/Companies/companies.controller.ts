@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Session } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Session, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SessionData } from 'express-session';
 import { PaginationQueryDto } from '../../lib/pagination.dto.js';
@@ -7,15 +7,22 @@ import { CreateCompaniesDto } from './dto/create-companies.dto.js';
 import { FindCompaniesDto } from './dto/find-companies.dto.js';
 import { SummaryDto } from './dto/get-summary.dto.js';
 import { UpdateCompaniesDto } from './dto/update-companies.dto.js';
+import { User } from '../../decorator/user.decorator.js';
+import Users from '../../models/users.js';
+import { CompanyGuard } from './companies.guard.js';
 
 @Controller('companies')
-@ApiTags('companies')
+@ApiTags('Companies')
+@UseGuards(CompanyGuard)
 export class CompaniesController {
-    constructor(private readonly usersService: CompaniesService) { }
+    constructor(private readonly service: CompaniesService) { }
 
     @Post('/')
-    create(@Body() createDto: CreateCompaniesDto) {
-        return this.usersService.create(createDto);
+    create(
+        @User() user: Users,
+        @Body() createDto: CreateCompaniesDto
+    ) {
+        return this.service.create(createDto, user);
     }
 
     @Get('/')
@@ -23,27 +30,27 @@ export class CompaniesController {
         @Query() pagination: PaginationQueryDto,
         @Query() filter: FindCompaniesDto,
     ) {
-        return this.usersService.findAll(filter, pagination);
+        return this.service.findAll(filter, pagination);
     }
 
     @Get('/overview')
     getOverview() {
-        return this.usersService.getOverview()
+        return this.service.getOverview()
     }
 
     @Get(':id')
     findOne(@Param('id', ParseIntPipe) id: number) {
-        return this.usersService.findOne(id);
+        return this.service.findOne(+id);
     }
 
     @Patch(':id')
     update(@Param('id', ParseIntPipe) id: number, @Body() updateDto: UpdateCompaniesDto) {
-        return this.usersService.update(id, updateDto);
+        return this.service.update(id, updateDto);
     }
 
     @Delete(':id')
     remove(@Param('id', ParseIntPipe) id: number) {
-        return this.usersService.remove(id);
+        return this.service.remove(id);
     }
 
     @Get(':id/private-nodes')
@@ -51,7 +58,7 @@ export class CompaniesController {
         @Param('id', ParseIntPipe) id: number,
         @Query() pagination: PaginationQueryDto,
     ) {
-        return this.usersService.getPrivateNodes(id, pagination)
+        return this.service.getPrivateNodes(id, pagination)
     }
 
 
@@ -60,7 +67,7 @@ export class CompaniesController {
         @Param('id', ParseIntPipe) id: number,
         @Session() session: SessionData
     ) {
-        return this.usersService.getDashboardData(id, session.tz);
+        return this.service.getDashboardData(id, session.tz);
     }
 
     @Get(':id/summary/')
@@ -69,6 +76,6 @@ export class CompaniesController {
         @Param('id', ParseIntPipe) id: number,
         @Session() session: SessionData
     ) {
-        return this.usersService.getSummary(id, summaryDto, session.tz);
+        return this.service.getSummary(id, summaryDto, session.tz);
     }
 }

@@ -1,18 +1,22 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Session } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Session, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateEventDto } from './dto/create-eventlog.dto.js';
 import { EventlogsService } from './eventlog.service.js';
 import { SessionData } from 'express-session';
 import { UpdateEventDto } from './dto/update-eventlog.dto.js';
+import { CompanyGuard } from '../companies.guard.js';
 
-@Controller('/companies/:companyId/events')
-@ApiTags('/companies/:companyId/events')
+// ==================== api/companies/:id/events/ ================== 
+
+@Controller('')
+@ApiTags('Eventlogs')
+@UseGuards(CompanyGuard)
 export class EventlogController {
     constructor(private readonly usersService: EventlogsService) { }
 
     @Post('/')
     create(
-        @Param('companyId', ParseIntPipe) companyId: number,
+        @Param('id', ParseIntPipe) companyId: number,
         @Body() createDto: CreateEventDto
     ) {
         return this.usersService.create(companyId, createDto);
@@ -20,7 +24,7 @@ export class EventlogController {
 
     @Get('/')
     findAll(
-        @Param('companyId', ParseIntPipe) companyId: number,
+        @Param('id', ParseIntPipe) companyId: number,
         @Session() session: SessionData,
         @Query('month') month?: string,
     ) {
@@ -28,8 +32,8 @@ export class EventlogController {
     }
 
     @Get('/overview')
-    getCurrentEventOverview (
-        @Param('companyId', ParseIntPipe) companyId: number,
+    getCurrentEventOverview(
+        @Param('id', ParseIntPipe) companyId: number,
         @Session() session: SessionData,
     ) {
         return this.usersService.getCurrentEventSummary(companyId, session.tz);
@@ -37,7 +41,7 @@ export class EventlogController {
 
     @Get('/:id')
     findById(
-        @Param('companyId', ParseIntPipe) companyId: number,
+        @Param('id', ParseIntPipe) companyId: number,
         @Param('id', ParseIntPipe) eventId: number,
         @Session() session: SessionData
     ) {
@@ -46,7 +50,7 @@ export class EventlogController {
 
     @Patch('/:id/start-now')
     setStartNow(
-        @Param('companyId', ParseIntPipe) companyId: number,
+        @Param('id', ParseIntPipe) companyId: number,
         @Param('id', ParseIntPipe) eventId: number,
     ) {
         return this.usersService.setEventIsStartNow(companyId, eventId);

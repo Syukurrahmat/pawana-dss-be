@@ -30,11 +30,18 @@ export class NodesService {
         private CompanySubscriptionsDB: typeof CompanySubscriptions,
     ) { }
 
-    async create(createDto: CreateNodeDto) {
+    async create(createDto: CreateNodeDto, user: Users) {
         let { name, description, address, coordinate, instalationDate, companyId } = createDto;
+        let company: Companies | null;
 
-        const apiKey = uuidV4()
-        const company = companyId ? await this.CompaniesDB.findByPk(companyId) : null
+
+        if (user.role == 'manager') {
+            if (!companyId) throw new BadRequestException('companyId is required')
+            company = await this.CompaniesDB.findOne({ where: { managedBy: user.userId, companyId } })
+            if (!company) throw new NotFoundException('company not found')
+        } else {
+            company = companyId ? await this.CompaniesDB.findByPk(companyId) : null
+        }
 
         if (!company && (!address || !coordinate)) {
             throw new BadRequestException('adress dan coordinate harus diisi')
@@ -47,7 +54,7 @@ export class NodesService {
             name: name!,
             description: description!,
             instalationDate,
-            apiKey,
+            apiKey: uuidV4(),
         })
 
         if (!newNode) throw new UnprocessableEntityException('Data tidak bisa diproses');
@@ -95,7 +102,7 @@ export class NodesService {
         };
     }
 
-    async getOverview () {
+    async getOverview() {
         const sixHoursAgo = moment().subtract(6, 'hours').toDate();
 
         const all = await this.NodesDB.count()
@@ -182,78 +189,6 @@ export class NodesService {
         await node.destroy()
 
         return 'success'
-    }
-
-    async getSubscribeableNodes(companyId: number | undefined, userId: number | undefined, search: string | undefined) {
-
-        let isSubscribedQuery: ProjectionAlias[] = [];
-
-        if (companyId) isSubscribedQuery = [[
-            Sequelize.literal(`(
-                SELECT COUNT(*) FROM companysubscriptions
-                WHERE companysubscriptions.nodeId = Nodes.nodeId
-                AND companysubscriptions.companyId = ${companyId || 'null'}
-            )`),
-            'isSubscribed',
-        ]];
-
-        if (userId) isSubscribedQuery = [[
-            Sequelize.literal(`(
-                SELECT COUNT(*) FROM userssubscriptions
-                WHERE userssubscriptions.nodeId = Nodes.nodeId
-                AND userssubscriptions.userId = ${userId || 'null'}
-            )`),
-            'isSubscribed',
-        ]];
-
-        const searchObj = search ? { name: { [Op.like]: search } } : {}
-
-        const nodes = await this.NodesDB.findAll({
-            attributes: [
-                'nodeId',
-                'name',
-                'coordinate',
-                'isUptodate',
-                'lastDataSent',
-                'createdAt',
-                'companyId',
-                ...isSubscribedQuery
-            ],
-            where: {
-                ...searchObj,
-                companyId: { [Op.is]: undefined }
-            }
-        })
-
-        return nodes
-    };
-
-    async getDownloadableNodes(user: Users, pagination: PaginationQueryDto) {
-        const { paginationObj, searchObj, getMetaData } = pagination
-        const { role } = user
-
-        const whereOpt = { ...searchObj }
-
-        if (role == 'manager') {
-            const companyIds = (await user.getCompanies({ attributes: ['companyId'] })).map(e => e.companyId!);
-
-            whereOpt[Op.or] = [
-                { companyId: { [Op.in]: companyIds } },
-                { '$companySubscriptions.companyId$': { [Op.in]: companyIds } },
-            ]
-        }
-
-        const { count, rows } = await this.NodesDB.findAndCountAll({
-            attributes: ['nodeId', 'name'],
-            where: whereOpt,
-            ...paginationObj
-        });
-
-
-        return {
-            rows,
-            meta: getMetaData(pagination, count)
-        };
     }
 
 

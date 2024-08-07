@@ -4,21 +4,17 @@ import { RouterModule } from '@nestjs/core';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { CompaniesModule } from './api/Companies/companies.module';
-import { CompanyNodeSubsModule } from './api/Companies/CompanyNodeSubs/companyNodeSubs.module';
-import { EventlogsModule } from './api/Companies/Eventlogs/eventlog.module';
-import { NodesModule } from './api/Nodes/nodes.module';
-import { NodeSubscriberModule } from './api/Nodes/NodeSubscriber/nodeSubscriber.module';
-import { ReportsModule } from './api/Reports/reports.module';
-import { UserNodeSubsModule } from './api/Users/UserNodeSubs/userNodeSubs.module';
-import { UsersModule } from './api/Users/users.module';
-import { AuthModule } from './auth/auth.module';
+import { ApplicationModule } from './Api/App/app.module';
+import { CompaniesModule } from './Api/Companies/companies.module';
+import { NodesModule } from './Api/Nodes/nodes.module';
+import { ReportsModule } from './Api/Reports/reports.module';
+import { UsersModule } from './Api/Users/users.module';
+import { AuthModule } from './Auth/auth.module';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { UserSessionMiddleware } from './middleware/userSession.middleware';
 import allDBModels from './models';
 import { DashboardModule } from './services/Dashboard/dashboard.module';
 import { SummaryModule } from './services/Summary/summary.module';
-import { ApplicationModule } from './api/App/app.module';
 
 @Module({
     imports: [
@@ -36,32 +32,24 @@ import { ApplicationModule } from './api/App/app.module';
         RouterModule.register([{
             path: '/api',
             children: [
-                UsersModule,
-                UserNodeSubsModule,
-                ReportsModule,
-                CompaniesModule,
-                CompanyNodeSubsModule,
-                NodesModule,
-                NodeSubscriberModule,
-                EventlogsModule,
                 ApplicationModule,
+                ReportsModule,
+                UsersModule,
+                CompaniesModule,
+                NodesModule,
             ].map(e => ({
                 path: '/',
                 module: e
             }))
         }]),
-        SummaryModule,
         AuthModule,
-        UsersModule,
-        UserNodeSubsModule,
-        ReportsModule,
-        CompaniesModule,
-        CompanyNodeSubsModule,
-        NodesModule,
-        NodeSubscriberModule,
-        EventlogsModule,
-        DashboardModule,
         ApplicationModule,
+        ReportsModule,
+        UsersModule,
+        CompaniesModule,
+        NodesModule,
+        SummaryModule,
+        DashboardModule,
     ],
 })
 

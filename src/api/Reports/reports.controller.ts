@@ -6,7 +6,7 @@ import { FindReportDto } from './dto/find-report.dto';
 import { ReportsService } from './reports.service';
 
 @Controller('reports')
-@ApiTags('reports')
+@ApiTags('Reports')
 export class ReportsController {
     constructor(private readonly reportsService: ReportsService) { }
 

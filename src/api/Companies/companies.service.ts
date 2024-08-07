@@ -21,8 +21,10 @@ export class CompaniesService {
         private summaryService: SummaryService,
     ) { }
 
-    async create(createDto: CreateCompaniesDto) {
-        const { name, description, address, type, managerId: managedBy, coordinate } = createDto;
+    async create(createDto: CreateCompaniesDto, user: Users) {
+        let { name, description, address, type, managerId: managedBy, coordinate } = createDto;
+
+        if (user.role == 'manager') managedBy = user.userId
 
         const newCompany = await this.CompaniesDB.create({
             name: name!,
@@ -34,6 +36,7 @@ export class CompaniesService {
         })
 
         if (!newCompany) throw new UnprocessableEntityException('Data tidak bisa diproses');
+
         return 'success'
     }
 
@@ -152,7 +155,6 @@ export class CompaniesService {
     private async getCompany(id: number, opt?: FindOptions<InferAttributes<Companies, { omit: never }>>) {
         const company = await this.CompaniesDB.findOne({
             where: { companyId: id },
-            attributes: ['name', 'userId', 'phone', 'profilePicture', 'email'],
             ...opt
         })
 

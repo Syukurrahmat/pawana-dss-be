@@ -1,16 +1,17 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Session } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Session, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SessionData } from 'express-session';
-import { User } from '../../decorator/user.decorator.js';
+import { Roles } from '../../decorator/role.decorator.js';
 import { PaginationQueryDto } from '../../lib/pagination.dto.js';
-import Users from '../../models/users.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { FindUserDto } from './dto/find-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
+import { UserGuard } from './user.guard.js';
 import { UsersService } from './users.service.js';
 
 @Controller('users')
-@ApiTags('users')
+@ApiTags('Users')
+@UseGuards(UserGuard)
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
@@ -22,7 +23,6 @@ export class UsersController {
 
     @Get('/')
     async findAll(
-        @User() users: Users,
         @Query() pagination: PaginationQueryDto,
         @Query() filter: FindUserDto,
     ) {
@@ -30,11 +30,12 @@ export class UsersController {
     }
 
     @Get('/overview')
-    getOverview () {
+    getOverview() {
         return this.usersService.getOverview()
     }
 
     @Get(':id')
+    @Roles(['admin', 'gov'])
     findOne(@Param('id', ParseIntPipe) id: number) {
         return this.usersService.findOne(id);
     }

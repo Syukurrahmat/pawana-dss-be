@@ -1,5 +1,5 @@
 import { PassportSerializer } from "@nestjs/passport";
-import { UsersService } from "../api/Users/users.service";
+import { UsersService } from "../Api/users/users.service";
 import { InjectModel } from "@nestjs/sequelize";
 import Users from "../models/users";
 

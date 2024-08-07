@@ -5,6 +5,8 @@ import passport from 'passport';
 import { AppModule } from './app.module';
 import { ResponseInterceptor } from './interceptor/transformInterceptor';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import Users from './models/users';
+import { Request } from 'express';
 
 
 async function bootstrap() {
@@ -14,15 +16,20 @@ async function bootstrap() {
         .setTitle('Cats example')
         .setDescription('The cats API description')
         .setVersion('1.0')
-        .addTag('users')
-        .addTag('users subscription')
-        .addTag('companies')
-        .addTag('companies subscription')
-        .addTag('reports')
+        .addTag('Users')
+        .addTag('Users subscription')
+        .addTag('Companies')
+        .addTag('Companies subscription')
+        .addTag('Eventlogs')
+        .addTag('Reports')
+        .addTag('Nodes')
+        .addTag('Nodes subscriber')
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
+    SwaggerModule.setup('api', app, document, {
+        jsonDocumentUrl: 'swagger/json',
+    });
 
     app.use(
         session({
@@ -40,6 +47,11 @@ async function bootstrap() {
     app.useGlobalPipes(new ValidationPipe({ transform: true }))
     app.useGlobalInterceptors(new ResponseInterceptor())
 
+    
+    app.use(async (req:Request, res, next) => {
+        req.user = await Users.findByPk(6) || undefined
+        next()
+    })
 
     await app.listen(3000);
 }

@@ -1,11 +1,15 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { CompanyNodeSubsService } from './companyNodeSubs.service.js';
 import { CreateSubscriptionDto } from './dto/create-subs.dto.js';
 import { PaginationQueryDto } from '../../../lib/pagination.dto.js';
 import { ApiTags } from '@nestjs/swagger';
+import { CompanyGuard } from '../companies.guard.js';
 
-@Controller('companies/:id/nodes')
-@ApiTags('companies subscription')
+// ==================== api/companies/:id/nodes/ ================== 
+
+@Controller('/')
+@UseGuards(CompanyGuard)
+@ApiTags('Companies subscription')
 export class CompanyNodeSubsController {
     constructor(private readonly services: CompanyNodeSubsService) { }
 
@@ -14,7 +18,7 @@ export class CompanyNodeSubsController {
         @Param('id', ParseIntPipe) companyId: number,
         @Query() pagination: PaginationQueryDto,
     ) {
-        this.services.getSubscribedNodes(companyId, pagination)
+        return this.services.getSubscribedNodes(companyId, pagination)
     }
 
     @Post('/')
@@ -22,12 +26,12 @@ export class CompanyNodeSubsController {
         @Param('id', ParseIntPipe) companyId: number,
         @Body() createSubsDto: CreateSubscriptionDto,
     ) {
-        this.services.createNodeSubscription(companyId, createSubsDto)
+        return this.services.createNodeSubscription(companyId, createSubsDto)
     }
 
     @Get('/limit')
     getRemainingSubsLimit(@Param('id', ParseIntPipe) companyId: number) {
-        this.services.getRemainingSubsLimit(companyId)
+        return this.services.getRemainingSubsLimit(companyId)
     }
 
     @Delete('/:subscriptionId')
@@ -35,6 +39,6 @@ export class CompanyNodeSubsController {
         @Param('id', ParseIntPipe) companyId: number,
         @Param('subscriptionId', ParseIntPipe) subscriptionId: number,
     ) {
-        this.services.removeNodeSubscription(companyId, subscriptionId)
+        return this.services.removeNodeSubscription(companyId, subscriptionId)
     }
 }

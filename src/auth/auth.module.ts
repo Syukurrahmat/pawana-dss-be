@@ -4,7 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './local.strategy.js';
 import SessionSerializer from './session.serializer.js';
 import { AuthController } from './auth.controller.js';
-import { UsersModule } from '../api/Users/users.module.js';
+import { UsersModule } from '../Api/Users/users.module.js';
 import { SequelizeModule } from '@nestjs/sequelize';
 import Users from '../models/users.js';
 
