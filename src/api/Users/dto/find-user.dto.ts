@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsIn, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
+import { IsBoolean, IsIn, IsOptional, IsString } from "class-validator"
 
 export class FindUserDto {
     @IsIn(['admin', 'gov', 'regular', 'manager'])
@@ -7,5 +7,10 @@ export class FindUserDto {
 
     @IsBoolean()
     @IsOptional()
-    unverified? : boolean
+    unverified?: boolean
+
+    @IsString()
+    @IsOptional()
+    @IsIn(['simple', 'all'])
+    view: 'simple' | 'all' = 'all'
 }

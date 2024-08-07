@@ -17,6 +17,7 @@ async function bootstrap() {
         .addTag('users')
         .addTag('users subscription')
         .addTag('companies')
+        .addTag('companies subscription')
         .addTag('reports')
         .build();
 

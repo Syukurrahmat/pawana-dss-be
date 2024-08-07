@@ -4,32 +4,37 @@ import { CreateSubscriptionDto } from './dto/create-subs.dto.js';
 import { PaginationQueryDto } from '../../../lib/pagination.dto.js';
 import { ApiTags } from '@nestjs/swagger';
 
-@Controller('companies/:id')
+@Controller('companies/:id/nodes')
 @ApiTags('companies subscription')
 export class CompanyNodeSubsController {
-    constructor(private readonly eachUserService: CompanyNodeSubsService) { }
+    constructor(private readonly services: CompanyNodeSubsService) { }
 
-    @Get('/nodes')
+    @Get('/')
     getSubscibedPublicNodes(
-        @Param('id', ParseIntPipe) userId : number,
+        @Param('id', ParseIntPipe) companyId: number,
         @Query() pagination: PaginationQueryDto,
     ) {
-        this.eachUserService.getSubscribedNodes(userId, pagination)
-    }
-   
-    @Post('/nodes')
-    createNodeSubscription(
-        @Param('id', ParseIntPipe) userId : number,
-        @Body() createSubsDto : CreateSubscriptionDto,
-    ) {
-        this.eachUserService.createNodeSubscription(userId, createSubsDto)
+        this.services.getSubscribedNodes(companyId, pagination)
     }
 
-    @Delete('/nodes/:subscriptionId')
-    deleteSubscibedPublicNodes(
-        @Param('id', ParseIntPipe) userId : number,
-        @Param('subscriptionId', ParseIntPipe) subscriptionId : number,
+    @Post('/')
+    createNodeSubscription(
+        @Param('id', ParseIntPipe) companyId: number,
+        @Body() createSubsDto: CreateSubscriptionDto,
     ) {
-        this.eachUserService.removeNodeSubscription(userId, subscriptionId)
+        this.services.createNodeSubscription(companyId, createSubsDto)
+    }
+
+    @Get('/limit')
+    getRemainingSubsLimit(@Param('id', ParseIntPipe) companyId: number) {
+        this.services.getRemainingSubsLimit(companyId)
+    }
+
+    @Delete('/:subscriptionId')
+    deleteSubscibedPublicNodes(
+        @Param('id', ParseIntPipe) companyId: number,
+        @Param('subscriptionId', ParseIntPipe) subscriptionId: number,
+    ) {
+        this.services.removeNodeSubscription(companyId, subscriptionId)
     }
 }

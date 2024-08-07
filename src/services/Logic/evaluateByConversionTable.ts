@@ -1,5 +1,5 @@
-import { CH4ConversionTable, CO2ConversionTable, ISPUConvertionTable } from '../../../constants/conversionTable.js';
-import { GRKCategorize, ISPUValue } from '../../_types/dashboardData.js';
+import { GRKCategorize, ISPUValue } from '../../types/dashboardData.js';
+import { CH4ConversionTable, CO2ConversionTable, ISPUConvertionTable } from './conversionTable.js';
 
 const errorReturn = { category: undefined, recomendation: undefined }
 

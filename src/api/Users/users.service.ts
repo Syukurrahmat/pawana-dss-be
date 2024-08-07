@@ -8,10 +8,11 @@ import { InferAttributes, Op, Sequelize, WhereOptions } from 'sequelize';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { FindUserDto } from './dto/find-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
-import { EmailService } from '../../services/email/email.service.js';
+import { EmailService } from '../../services/Email/email.service.js';
 import Nodes from '../../models/nodes.js';
 import Companies from '../../models/companies.js';
 import { PaginationQueryDto } from '../../lib/pagination.dto';
+import { DashboardService } from '../../services/Dashboard/dashboard.service';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +22,7 @@ export class UsersService {
         @InjectModel(Nodes)
         private nodesDB: typeof Nodes,
 
+        private dashboardService: DashboardService,
         private emailService: EmailService
     ) { }
 
@@ -51,14 +53,20 @@ export class UsersService {
 
     async findAll(filter: FindUserDto, pagination: PaginationQueryDto) {
         const { paginationObj, searchObj, getMetaData } = pagination
-        const { role, unverified } = filter
+        const { role, unverified, view } = filter
 
         const whereOpt: WhereOptions<InferAttributes<Users>> = searchObj
         if (role) whereOpt.role = role
         if (unverified) whereOpt.isVerified = unverified
 
+
+        const attributes = view == 'all'
+            ? ['userId', 'name', 'phone', 'profilePicture', 'email', 'role', 'createdAt']
+            : ['userId', 'profilePicture', 'name']
+
+
         const { count, rows } = await this.usersDB.findAndCountAll({
-            attributes: ['userId', 'name', 'phone', 'profilePicture', 'email', 'role', 'createdAt'],
+            attributes,
             where: whereOpt,
             ...paginationObj
         })
@@ -69,7 +77,7 @@ export class UsersService {
         };
     }
 
-    async getAllUsersSummary() {
+    async getOverview() {
         const all = await this.usersDB.count()
 
         const userTypeEnum = ['admin', 'gov', 'manager', 'regular']
@@ -96,7 +104,7 @@ export class UsersService {
         return { all, role: countRole }
     }
 
-    
+
 
     async findOne(id: number) {
         const user = await this.getUser(id)
@@ -170,7 +178,7 @@ export class UsersService {
         }
 
         const [count, rows] = await Promise.all([
-            this.nodesDB.count({where}),
+            this.nodesDB.count({ where }),
             this.nodesDB.findAll({
                 attributes: ['nodeId', 'isUptodate', 'name', 'createdAt', 'lastDataSent'],
                 where,
@@ -188,6 +196,11 @@ export class UsersService {
             rows,
             meta: getMetaData(pagination, count)
         };
+    }
+
+    async getDashboardData(id: number, tz: string) {
+        const user = await this.getUser(id)
+        return await this.dashboardService.forRegularUser(user, tz)
     }
 
     private async getUser(id: number) {

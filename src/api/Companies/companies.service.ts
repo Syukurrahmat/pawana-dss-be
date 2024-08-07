@@ -7,12 +7,18 @@ import Users from '../../models/users.js';
 import { CreateCompaniesDto } from './dto/create-companies.dto.js';
 import { FindCompaniesDto } from './dto/find-companies.dto.js';
 import { UpdateCompaniesDto } from './dto/update-companies.dto.js';
+import { DashboardService } from '../../services/Dashboard/dashboard.service.js';
+import { SummaryDto } from './dto/get-summary.dto.js';
+import { SummaryService } from '../../services/Summary/summary.service.js';
 
 @Injectable()
 export class CompaniesService {
     constructor(
         @InjectModel(Companies)
         private CompaniesDB: typeof Companies,
+
+        private dashboardService: DashboardService,
+        private summaryService: SummaryService,
     ) { }
 
     async create(createDto: CreateCompaniesDto) {
@@ -33,12 +39,16 @@ export class CompaniesService {
 
     async findAll(filter: FindCompaniesDto, pagination: PaginationQueryDto) {
         const { paginationObj, searchObj, getMetaData } = pagination
-        const { all } = filter
+        const { all, view } = filter
 
         const paginateObj = all ? {} : paginationObj
 
+        const attributes = view == 'all'
+            ? { exclude: ['updatedAt', 'description'] }
+            : ['companyId', 'name', 'type']
+
         const { count, rows } = await this.CompaniesDB.findAndCountAll({
-            attributes: { exclude: ['updatedAt', 'description'] },
+            attributes,
             include: {
                 model: Users,
                 attributes: ['userId', 'name', 'profilePicture']
@@ -53,7 +63,7 @@ export class CompaniesService {
         };
     }
 
-    async getAllUsersSummary() {
+    async getOverview() {
         const all = await this.CompaniesDB.count()
 
         const companyTypeEnum = ['tofufactory', 'service', 'agriculture', 'retailstore', 'restaurant', 'other']
@@ -127,6 +137,16 @@ export class CompaniesService {
             rows,
             meta: getMetaData(pagination, count)
         };
+    }
+
+    async getDashboardData(id: number, tz: string) {
+        const company = await this.getCompany(id)
+        return await this.dashboardService.forCompany(company, tz)
+    }
+
+    async getSummary(id: number, { periode, type }: SummaryDto, tz: string) {
+        const company = await this.getCompany(id)
+        return await this.summaryService.getSummary(company, type!, periode!, tz)
     }
 
     private async getCompany(id: number, opt?: FindOptions<InferAttributes<Companies, { omit: never }>>) {

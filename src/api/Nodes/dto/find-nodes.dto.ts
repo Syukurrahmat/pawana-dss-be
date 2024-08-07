@@ -10,4 +10,9 @@ export class FindNodesDto {
     @IsOptional()
     @IsIn(['private', 'public'])
     ownship?: string
+
+    @IsString()
+    @IsOptional()
+    @IsIn(['simple', 'all'])
+    view: 'simple' | 'all' = 'all'
 }

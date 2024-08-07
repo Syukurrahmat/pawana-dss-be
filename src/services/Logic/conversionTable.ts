@@ -2,16 +2,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
 export const ISPUConvertionTable = [
     {
         ISPU: 50,

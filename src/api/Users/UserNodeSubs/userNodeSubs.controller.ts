@@ -4,32 +4,37 @@ import { PaginationQueryDto } from '../../../lib/pagination.dto.js';
 import { ApiTags } from '@nestjs/swagger';
 import { UserNodeSubsService } from './userNodeSubs.service.js';
 
-@Controller('users/:id')
+@Controller('users/:id/nodes')
 @ApiTags('users subscription')
 export class UserNodeSubsController {
-    constructor(private readonly eachUserService: UserNodeSubsService) { }
+    constructor(private readonly services: UserNodeSubsService) { }
 
-    @Get('/nodes')
+    @Get('/')
     getSubscibedPublicNodes(
         @Param('id', ParseIntPipe) userId : number,
         @Query() pagination: PaginationQueryDto,
     ) {
-        this.eachUserService.getSubscribedNodes(userId, pagination)
+        this.services.getSubscribedNodes(userId, pagination)
     }
    
-    @Post('/nodes')
+    @Post('/')
     createNodeSubscription(
         @Param('id', ParseIntPipe) userId : number,
         @Body() createSubsDto : CreateSubscriptionDto,
     ) {
-        this.eachUserService.createNodeSubscription(userId, createSubsDto)
+        this.services.createNodeSubscription(userId, createSubsDto)
     }
 
-    @Delete('/nodes/:subscriptionId')
+    @Delete('/:subscriptionId')
     deleteSubscibedPublicNodes(
         @Param('id', ParseIntPipe) userId : number,
         @Param('subscriptionId', ParseIntPipe) subscriptionId : number,
     ) {
-        this.eachUserService.removeNodeSubscription(userId, subscriptionId)
+        this.services.removeNodeSubscription(userId, subscriptionId)
+    }
+
+    @Get('/limit')
+    getRemainingSubsLimit(@Param('id', ParseIntPipe) userId: number) {
+        this.services.getRemainingSubsLimit(userId)
     }
 }

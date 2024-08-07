@@ -74,6 +74,12 @@ export class UserNodeSubsService {
     };
 
 
+    
+    async getRemainingSubsLimit(userId : number){
+        const user = await this.getUser(userId)
+        return SUBS_LIMIT - await user.countSubscribedNodes()
+    }
+
     private async getUser(id: number) {
         const user = await this.userDB.findOne({
             where: { userId: id, isVerified: true },

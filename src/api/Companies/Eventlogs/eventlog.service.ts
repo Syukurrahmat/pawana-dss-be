@@ -1,22 +1,15 @@
 import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { Moment } from 'moment';
 import moment from 'moment-timezone';
 import { FindOptions, InferAttributes, Op } from 'sequelize';
 import EventLogs from '../../../models/eventLogs.js';
-import Nodes from '../../../models/nodes.js';
-import Users from '../../../models/users.js';
 import { CreateEventDto } from './dto/create-eventlog.dto.js';
-import { Moment } from 'moment';
 import { UpdateEventDto } from './dto/update-eventlog.dto.js';
 
 @Injectable()
 export class EventlogsService {
     constructor(
-        @InjectModel(Users)
-        private usersDB: typeof Users,
-        @InjectModel(Nodes)
-        private nodesDB: typeof Nodes,
-
         @InjectModel(EventLogs)
         private EventLogsDB: typeof EventLogs,
     ) { }
@@ -201,8 +194,8 @@ export class EventlogsService {
 
         return 'Kegiatan berhasil diatur untuk mulai sekarang'
     }
- 
-    private async getEvents(companyId: number, id: number, opt?: FindOptions<InferAttributes<EventLogs, { omit: never }>>) {
+
+    async getEvents(companyId: number, id: number, opt?: FindOptions<InferAttributes<EventLogs, { omit: never }>>) {
         const event = await this.EventLogsDB.findOne({
             where: { eventLogId: id, companyId },
             ...opt
@@ -212,7 +205,7 @@ export class EventlogsService {
         return event
     }
 
-    private async identifyEventStatus(event: EventLogs, tz: string) {
+    async identifyEventStatus(event: EventLogs, tz: string) {
         const now = moment.tz(tz);
         const startOfToday = now.clone().startOf('d').toDate();
         const endOfToday = now.clone().endOf('d').toDate();
@@ -237,7 +230,7 @@ export class EventlogsService {
         return event;
     }
 
-    private calculateEventDuration(eventLogs: EventLogs[] | EventLogs, tz: string, boundary?: { startDate: Moment; endDate: Moment; }) {
+    calculateEventDuration(eventLogs: EventLogs[] | EventLogs, tz: string, boundary?: { startDate: Moment; endDate: Moment; }) {
         const startBoundary = boundary?.startDate;
         const endBoundary = boundary?.endDate || moment.tz(tz);
 

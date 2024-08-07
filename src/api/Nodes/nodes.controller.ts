@@ -26,9 +26,9 @@ export class NodesController {
         return this.usersService.findAll(filter, pagination);
     }
 
-    @Get('/summary')
-    getsummary() {
-        return this.usersService.getSummary()
+    @Get('/overview')
+    getOverview() {
+        return this.usersService.getOverview()
     }
 
     @Get(':id')
@@ -54,7 +54,7 @@ export class NodesController {
     ) {
         return this.usersService.getSubscribeableNodes(forCompanySubs, forUserSubs, search)
     }
-   
+
     @Get('/downloadable')
     getDownloadableNodes(
         @Query() pagination: PaginationQueryDto,
@@ -62,12 +62,12 @@ export class NodesController {
     ) {
         return this.usersService.getDownloadableNodes(User, pagination)
     }
-  
+
     @Get('/:id/datalogs')
     getDataLogs(
-        @Param('id', ParseIntPipe) id: number, 
-        @Query('start') start : string,
-        @Query('end') end : string,
+        @Param('id', ParseIntPipe) id: number,
+        @Query('start') start: string,
+        @Query('end') end: string,
     ) {
         return this.usersService.getDatalogs(id, start, end)
     }

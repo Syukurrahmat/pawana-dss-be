@@ -1,4 +1,4 @@
-import { MISSING_DATA_TRESHOLD } from '../constants/server.js';
+import { MISSING_DATA_TRESHOLD } from '../../constants/server.js';
 
 
 export const fillMissingData = (data: number[], length?: number) => {

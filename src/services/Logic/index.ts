@@ -1,9 +1,9 @@
 import moment, { Moment } from 'moment';
 import { Op, col, fn, literal } from 'sequelize';
-import Nodes from '../../_models/nodes.js';
-import { GRKCategorize, ISPUValue, NodeWLastestData, ResultOfMultiNodeStats, SingleNodeAnalysis, Timeseries } from '../../_types/dashboardData.js';
-import { arrayOfObjectHours, average, sortByDatetime } from '../../../lib/common.utils.js';
-import { fillMissingData } from '../../../lib/dataAnalyze.utils.js';
+import Nodes from '../../models/nodes.js';
+import { GRKCategorize, ISPUValue, NodeWLastestData, ResultOfMultiNodeStats, SingleNodeAnalysis, Timeseries } from '../../types/dashboardData.js';
+import { arrayOfObjectHours, average, sortByDatetime } from '../../lib/common.utils.js';
+import { fillMissingData } from './missingDataCalculation.js';
 import { evaluateCH4, evaluateCO2, evaluateISPU } from './evaluateByConversionTable.js';
 
 
@@ -217,10 +217,7 @@ export function calculateISPU(pmDatalogs: PMDatalogs[], ispuHour: moment.Moment,
     const pm100PerHour = fillMissingData(datalogsPerHour.map(e => e.pm100))
 
 
-
     if (!(pm25PerHour && pm100PerHour)) return null
-
-
 
     const PM25Average = average(pm25PerHour.slice(0, 24));
     const PM100Average = average(pm100PerHour.slice(0, 24));

@@ -6,30 +6,23 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { CompaniesModule } from './api/Companies/companies.module';
 import { CompanyNodeSubsModule } from './api/Companies/CompanyNodeSubs/companyNodeSubs.module';
+import { EventlogsModule } from './api/Companies/Eventlogs/eventlog.module';
 import { NodesModule } from './api/Nodes/nodes.module';
 import { NodeSubscriberModule } from './api/Nodes/NodeSubscriber/nodeSubscriber.module';
 import { ReportsModule } from './api/Reports/reports.module';
 import { UserNodeSubsModule } from './api/Users/UserNodeSubs/userNodeSubs.module';
 import { UsersModule } from './api/Users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { PUBLIC_DIR } from './config/config';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { UserSessionMiddleware } from './middleware/userSession.middleware';
 import allDBModels from './models';
-import { EventlogsModule } from './api/Companies/Eventlogs/eventlog.module';
+import { DashboardModule } from './services/Dashboard/dashboard.module';
+import { SummaryModule } from './services/Summary/summary.module';
+import { ApplicationModule } from './api/App/app.module';
 
 @Module({
     imports: [
-        AuthModule,
-        UsersModule,
-        UserNodeSubsModule,
-        ReportsModule,
-        CompaniesModule,
-        CompanyNodeSubsModule,
-        NodesModule,
-        NodeSubscriberModule,
-        EventlogsModule,
-        ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', PUBLIC_DIR) }),
+        ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'public') }),
         ConfigModule.forRoot({ isGlobal: true }),
         SequelizeModule.forRoot({
             dialect: 'mysql',
@@ -40,27 +33,36 @@ import { EventlogsModule } from './api/Companies/Eventlogs/eventlog.module';
             database: process.env.DB_DATABASE!,
             models: allDBModels,
         }),
-        RouterModule.register([
-            {
-                path: '/api',
-                children:
-                    [
-                        UsersModule,
-                        UserNodeSubsModule,
-                        ReportsModule,
-                        CompaniesModule,
-                        CompanyNodeSubsModule,
-                        NodesModule,
-                        NodeSubscriberModule,
-                        EventlogsModule
-                    ].map(e => ({
-                        path: '/',
-                        module: e
-                    }))
-            }])
+        RouterModule.register([{
+            path: '/api',
+            children: [
+                UsersModule,
+                UserNodeSubsModule,
+                ReportsModule,
+                CompaniesModule,
+                CompanyNodeSubsModule,
+                NodesModule,
+                NodeSubscriberModule,
+                EventlogsModule,
+                ApplicationModule,
+            ].map(e => ({
+                path: '/',
+                module: e
+            }))
+        }]),
+        SummaryModule,
+        AuthModule,
+        UsersModule,
+        UserNodeSubsModule,
+        ReportsModule,
+        CompaniesModule,
+        CompanyNodeSubsModule,
+        NodesModule,
+        NodeSubscriberModule,
+        EventlogsModule,
+        DashboardModule,
+        ApplicationModule,
     ],
-
-    providers: [],
 })
 
 export class AppModule implements NestModule {

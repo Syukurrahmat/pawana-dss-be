@@ -27,8 +27,8 @@ export class EventlogController {
         return this.usersService.findAll(companyId, month, session.tz);
     }
 
-    @Get('/summary')
-    getCurrentEventSummary(
+    @Get('/overview')
+    getCurrentEventOverview (
         @Param('companyId', ParseIntPipe) companyId: number,
         @Session() session: SessionData,
     ) {

@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
-import { CompaniesService } from './companies.service.js';
-import { PaginationQueryDto } from '../../lib/pagination.dto.js';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Session } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { User } from '../../decorator/user.decorator.js';
-import Users from '../../models/users.js';
+import { SessionData } from 'express-session';
+import { PaginationQueryDto } from '../../lib/pagination.dto.js';
+import { CompaniesService } from './companies.service.js';
 import { CreateCompaniesDto } from './dto/create-companies.dto.js';
 import { FindCompaniesDto } from './dto/find-companies.dto.js';
+import { SummaryDto } from './dto/get-summary.dto.js';
 import { UpdateCompaniesDto } from './dto/update-companies.dto.js';
 
 @Controller('companies')
@@ -26,9 +26,9 @@ export class CompaniesController {
         return this.usersService.findAll(filter, pagination);
     }
 
-    @Get('/summary')
-    getsummary() {
-        return this.usersService.getAllUsersSummary()
+    @Get('/overview')
+    getOverview() {
+        return this.usersService.getOverview()
     }
 
     @Get(':id')
@@ -52,5 +52,23 @@ export class CompaniesController {
         @Query() pagination: PaginationQueryDto,
     ) {
         return this.usersService.getPrivateNodes(id, pagination)
+    }
+
+
+    @Get(':id/dashhboard')
+    dashhboard(
+        @Param('id', ParseIntPipe) id: number,
+        @Session() session: SessionData
+    ) {
+        return this.usersService.getDashboardData(id, session.tz);
+    }
+
+    @Get(':id/summary/')
+    getReport(
+        @Query() summaryDto: SummaryDto,
+        @Param('id', ParseIntPipe) id: number,
+        @Session() session: SessionData
+    ) {
+        return this.usersService.getSummary(id, summaryDto, session.tz);
     }
 }

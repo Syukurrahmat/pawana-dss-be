@@ -17,8 +17,8 @@ export class CompanyNodeSubsService {
         private nodeDB: typeof Nodes,
     ) { }
 
-    async createNodeSubscription(userId: number, createDto: CreateSubscriptionDto) {
-        const company = await this.getCompany(userId)
+    async createNodeSubscription(companyId: number, createDto: CreateSubscriptionDto) {
+        const company = await this.getCompany(companyId)
         const nodeIds = createDto.nodeIds!
 
         const countSubscribed = await company.countSubscribedNodes()
@@ -39,9 +39,9 @@ export class CompanyNodeSubsService {
     };
 
 
-    async getSubscribedNodes(userId: number, pagination: PaginationQueryDto) {
+    async getSubscribedNodes(companyId: number, pagination: PaginationQueryDto) {
         const { paginationObj, searchObj, getMetaData } = pagination
-        const company = await this.getCompany(userId)
+        const company = await this.getCompany(companyId)
 
         const where = { ...searchObj }
 
@@ -67,12 +67,17 @@ export class CompanyNodeSubsService {
     };
 
 
-    async removeNodeSubscription(userId: number, subscriptionId: number) {
-        const company = await this.getCompany(userId)
+    async removeNodeSubscription(companyId: number, subscriptionId: number) {
+        const company = await this.getCompany(companyId)
         await company.removeSubscribedNode(subscriptionId)
         return 'success'
     };
 
+
+    async getRemainingSubsLimit(companyId : number){
+        const company = await this.getCompany(companyId)
+        return SUBS_LIMIT - await company.countSubscribedNodes()
+    }
 
     private async getCompany(id: number) {
         const company = await this.companyeDB.findOne({

@@ -16,17 +16,17 @@ export class CreateUserDto {
     @IsOptional()
     @MaxLength(300)
     description?: string
-    
+
     @IsString()
     @MaxLength(300)
     address?: string
-    
+
     @IsString()
     @IsOptional()
     profilePicture?: string
 
-    
+
     @IsString()
     @IsIn(['admin', 'gov', 'regular', 'manager'])
-    role?: string
+    role?: 'admin' | 'gov' | 'regular' | 'manager'
 }

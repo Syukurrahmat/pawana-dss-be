@@ -58,7 +58,7 @@ export class NodesService {
     async findAll(filter: FindNodesDto, pagination: PaginationQueryDto) {
         const { paginationObj, searchObj, getMetaData } = pagination
 
-        const { all, ownship } = filter
+        const { all, ownship, view } = filter
         const paginateObj = all ? {} : paginationObj
 
         const filterByOwnship: WhereOptions<InferAttributes<Nodes, { omit: never }>> = {
@@ -69,8 +69,12 @@ export class NodesService {
                     : {}
         }
 
+        const attributes = view == 'all'
+            ? { exclude: ['instalationDate', 'description', 'apiKey', 'updatedAt'] }
+            : ['nodeId', 'name', 'isUptodate', 'createdAt']
+
         const { count, rows } = await this.NodesDB.findAndCountAll({
-            attributes: { exclude: ['instalationDate', 'description', 'apiKey', 'updatedAt'] },
+            attributes,
             where: {
                 ...searchObj,
                 ...filterByOwnship
@@ -91,7 +95,7 @@ export class NodesService {
         };
     }
 
-    async getSummary() {
+    async getOverview () {
         const sixHoursAgo = moment().subtract(6, 'hours').toDate();
 
         const all = await this.NodesDB.count()
