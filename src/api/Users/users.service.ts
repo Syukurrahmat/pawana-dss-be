@@ -8,11 +8,11 @@ import { InferAttributes, Op, Sequelize, WhereOptions } from 'sequelize';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { FindUserDto } from './dto/find-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
-import { EmailService } from '../../services/Email/email.service.js';
+import { EmailService } from '../../services/Email.service.js';
 import Nodes from '../../models/nodes.js';
 import Companies from '../../models/companies.js';
 import { PaginationQueryDto } from '../../lib/pagination.dto';
-import { DashboardService } from '../../services/Dashboard/dashboard.service';
+import { DashboardService } from '../../services/Dashboard.service';
 
 @Injectable()
 export class UsersService {

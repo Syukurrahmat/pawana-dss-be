@@ -3,7 +3,7 @@ import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import Reports from '../../models/reports';
-import { ImgbbService } from '../../services/Imbgg/imgbb.service';
+import { ImgbbService } from '../../services/Imgbb.service';
 import { FindReportDto } from './dto/find-report.dto';
 
 @Injectable()

@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import moment from 'moment';
 import Mailjet from 'node-mailjet';
-import { HOST_URL } from '../../constants/server';
+import { HOST_URL } from '../constants/server';
 import path from 'path';
 import { Injectable } from '@nestjs/common';
 
@@ -15,7 +15,7 @@ export class EmailService {
             apiKey: process.env.MJ_APIKEY_PUBLIC,
             apiSecret: process.env.MJ_APIKEY_PRIVATE,
         });
-        console.log(path.resolve('./src/services/email/email.html'))
+        
         this.htmlEmailTemplate = readFileSync(path.resolve('./src/services/email/email.html'), 'utf-8')
     }
 

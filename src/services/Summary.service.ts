@@ -4,19 +4,19 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import moment, { Moment } from 'moment';
 import { Op, col, fn, literal, where } from 'sequelize';
-import { EventlogsService } from '../../Api/Companies/Eventlogs/eventlog.service.js';
-import { MISSING_DATA_TRESHOLD } from '../../constants/server.js';
-import { average } from '../../lib/common.utils.js';
-import Companies from '../../models/companies.js';
-import DataLogs from '../../models/datalogs.js';
-import { eventLogStatus, eventLogType } from '../../models/eventLogs.js';
-import Nodes from '../../models/nodes.js';
-import Reports from '../../models/reports.js';
-import Users from '../../models/users.js';
-import { GRKDetailValue as GRKValue, ISPUDetailValue as ISPUValue } from '../../types/dashboardData.js';
-import { Summary } from '../../types/summaryData.js';
-import { evaluateCH4, evaluateCO2, evaluateISPU } from '../Logic/evaluateByConversionTable.js';
-import { DatalogsLinearImputation } from '../Logic/missingDataCalculation.js';
+import { EventlogsService } from '../Api/Companies/Eventlogs/eventlog.service.js';
+import { MISSING_DATA_TRESHOLD } from '../constants/server.js';
+import { average } from '../lib/common.utils.js';
+import Companies from '../models/companies.js';
+import DataLogs from '../models/datalogs.js';
+import { eventLogStatus, eventLogType } from '../models/eventLogs.js';
+import Nodes from '../models/nodes.js';
+import Reports from '../models/reports.js';
+import Users from '../models/users.js';
+import { GRKDetailValue as GRKValue, ISPUDetailValue as ISPUValue } from '../types/dashboardData.js';
+import { Summary } from '../types/summaryData.js';
+import { categorizeCH4, categorizeCO2, categorizeISPU } from './logic/evaluateByConversionTable.js';
+import { datalogsLinearImputation } from './logic/missingDataHandler.js';
 
 type CombinedTren = {
     datetime: Date;
@@ -280,7 +280,7 @@ export class SummaryService {
                 return datalogsPerDay.push({ datetime, pm25: NaN, pm100: NaN, co2: NaN, ch4: NaN });
             }
 
-            if (missingData) datasInThisDay = DatalogsLinearImputation(datasInThisDay);
+            if (missingData) datasInThisDay = datalogsLinearImputation(datasInThisDay);
 
             datalogsPerDay.push({
                 datetime,
@@ -295,7 +295,7 @@ export class SummaryService {
 
         if (missingData <= MISSING_DATA_TRESHOLD) {
 
-            if (missingData) datalogsPerDay = DatalogsLinearImputation(datalogsPerDay)
+            if (missingData) datalogsPerDay = datalogsLinearImputation(datalogsPerDay)
             datalogsPerDay = datalogsPerDay.filter(e => e.pm25);
 
             const valueOfAverageInThisPeriode = {
@@ -324,9 +324,9 @@ export class SummaryService {
 
         return {
             datetime,
-            ispu: evaluateISPU(pm25, pm100, withRecomendation),
-            ch4: evaluateCH4(ch4, withRecomendation),
-            co2: evaluateCO2(co2, withRecomendation),
+            ispu: categorizeISPU(pm25, pm100, withRecomendation),
+            ch4: categorizeCH4(ch4, withRecomendation),
+            co2: categorizeCO2(co2, withRecomendation),
             pm25: pm25,
             pm100: pm100,
         };

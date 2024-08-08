@@ -3,7 +3,7 @@ import { ReportsService } from './reports.service';
 import { ReportsController } from './reports.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
 import Reports from '../../models/reports';
-import { ImgbbService } from '../../services/Imbgg/imgbb.service';
+import { ImgbbService } from '../../services/Imgbb.service';
 
 @Module({
   imports: [SequelizeModule.forFeature([Reports])],

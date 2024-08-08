@@ -1,6 +1,6 @@
 import { RouterModule } from '@nestjs/core';
 import { Module } from '@nestjs/common';
-import { EmailService } from '../../services/Email/email.service';
+import { EmailService } from '../../services/Email.service';
 import { UsersController } from './users.controller.js';
 import { UsersService } from './users.service.js';
 import { SequelizeModule } from '@nestjs/sequelize';

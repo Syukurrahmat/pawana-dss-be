@@ -1,49 +1,49 @@
 import { Moment } from "moment";
+import Companies from "../models/companies.ts";
 import EventLogs from "../models/eventLogs.ts";
 import Nodes from "../models/nodes.ts";
 import Reports from "../models/reports.ts";
 
 type Timeseries<V = number> = { datetime: Date, value: V }
 
-type ISPUDetailValue = {
+type ISPUValue = [ISPUValueItem, ISPUValueItem] | null
+
+type GRKValue = {
+    value: number;
+    category?: string;
+    recomendation?: Recomendation
+}
+
+type ISPUValueItem = {
     pollutant: 'PM100' | 'PM25';
     ispu: number;
     ispuFloat: number;
     pollutantValue: number;
     category?: string;
-    recomendation?: {
-        info: string;
-        company: string;
-        public: string;
-    }
+    recomendation?: Recomendation
 }
 
-
-type GRKDetailValue = {
-    value: number;
-    category?: string;
-    recomendation?: {
-        info: string;
-        company: string;
-        public: string;
-    }
+type Recomendation = {
+    info: string;
+    company: string;
+    public: string;
 }
 
-// ===========================================================
+// ============================================================================
 
-declare type NodeWithLastestData = Nodes & {
+declare type NodeWithLatestData = Nodes & {
     latestData?: {
         ispu: {
             datetime: Date;
-            value: [ISPUDetailValue, ISPUDetailValue] | null;
+            value: [ISPUValueItem, ISPUValueItem] | null;
         };
         ch4: {
             datetime: Date;
-            value: GRKDetailValue;
+            value: GRKValue;
         };
         co2: {
             datetime: Date;
-            value: GRKDetailValue;
+            value: GRKValue;
         };
         pm25: {
             datetime: Date;
@@ -65,25 +65,21 @@ declare type NodeWithLastestData = Nodes & {
     }
 }
 
+// ============================================================================
 
-
-// ==============================================================
-
-
-type SingleNodeAnalysis = {
+type SingleNodeInsight = {
     node: {
         name: string,
         nodeId: number,
         lastDataSent: Date;
     }
-
-    ispu: SingleNodeAnalysisItem<[ISPUDetailValue, ISPUDetailValue] | null>
-    ch4: SingleNodeAnalysisItem<GRKDetailValue>;
-    co2: SingleNodeAnalysisItem<GRKDetailValue>;
+    ispu: SingleNodeInsightItem<[ISPUValueItem, ISPUValueItem] | null>
+    ch4: SingleNodeInsightItem<GRKValue>;
+    co2: SingleNodeInsightItem<GRKValue>;
 
 }
 
-type SingleNodeAnalysisItem<V> = {
+type SingleNodeInsightItem<V> = {
     latestData: {
         datetime: Date;
         value: V;
@@ -95,12 +91,12 @@ type SingleNodeAnalysisItem<V> = {
 }
 
 
-//  ===============================
+// ============================================================================
 
-type MultiNodeAnalysis = {
-    ispu: NodeStatistic<ISPUDetailValue[]>;
-    ch4: NodeStatistic<GRKDetailValue>;
-    co2: NodeStatistic<GRKDetailValue>;
+type MultiNodeInsight = {
+    ispu: NodeStatistic<ISPUValue>;
+    ch4: NodeStatistic<GRKValue>;
+    co2: NodeStatistic<GRKValue>;
 };
 
 type NodeStatistic<T> = {
@@ -123,7 +119,7 @@ type NodeStatistic<T> = {
 
 // ====================================================================
 
-declare type DashboardDataType = {
+declare type DashboardData = {
     dashboardInfo: {
         name: string;
         type: string;
@@ -136,8 +132,8 @@ declare type DashboardDataType = {
     indoor?: NodesGroup;
     outdoor: NodesGroup;
     nodes: {
-        indoor?: NodeWithLastestData[],
-        outdoor: NodeWithLastestData[]
+        indoor?: NodeWithLatestData[],
+        outdoor: NodeWithLatestData[]
     };
     currentEventLogs: EventLogs[];
     nearReports: Reports[]
@@ -150,5 +146,70 @@ type NodesGroup = {
         all: number;
         active: number;
     };
-    data: SingleNodeAnalysis | MultiNodeAnalysis | null;
+    data: SingleNodeInsight | MultiNodeInsight | null;
+}
+
+// ====================================================================
+// ====================================================================
+
+
+type SimpleDatalogs = {
+    datetime: Date;
+    pm25: number;
+    pm100: number;
+    ch4: number;
+    co2: number;
+};
+
+type NodesAverageInsightWithDate = SummaryAverageInsight & {
+    datetime: Date;
+}
+
+type TrenItem = {
+    datetime: Date;
+    indoor?: SummaryAverageInsight
+    outdoor?: SummaryAverageInsight
+};
+
+type SummaryAverageInsight = {
+    ispu: ISPUValue | null;
+    co2: GRKValue;
+    ch4: GRKValue;
+    pm25: number;
+    pm100: number;
+}
+
+type SummaryData = {
+    meta: {
+        company: Companies,
+        startDate: Date;
+        endDate: Date;
+    },
+    averageData: {
+        indoor?: SummaryAverageInsight;
+        outdoor?: SummaryAverageInsight;
+    };
+    tren: TrenItem[];
+    reports: {
+        average: number;
+        count: number;
+        countPerStar: number[];
+        reports: Reports[];
+    }
+    eventLogs: {
+        count: {
+            all: number;
+            countStatus: {
+                status: string;
+                count: number;
+            }[];
+            countType: {
+                type: string;
+                count: number;
+                days: number
+            }[];
+        };
+        eventIdLongestEvent: number | undefined;
+        eventLogs: EventLogs[];
+    }
 }

@@ -7,9 +7,9 @@ import Users from '../../models/users.js';
 import { CreateCompaniesDto } from './dto/create-companies.dto.js';
 import { FindCompaniesDto } from './dto/find-companies.dto.js';
 import { UpdateCompaniesDto } from './dto/update-companies.dto.js';
-import { DashboardService } from '../../services/Dashboard/dashboard.service.js';
+import { DashboardService } from '../../services/Dashboard.service.js';
 import { SummaryDto } from './dto/get-summary.dto.js';
-import { SummaryService } from '../../services/Summary/summary.service.js';
+import { SummaryService } from '../../services/Summary.service.js';
 
 @Injectable()
 export class CompaniesService {
