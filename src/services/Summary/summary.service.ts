@@ -1,27 +1,23 @@
 import { Injectable } from '@nestjs/common';
 
 
+import { InjectModel } from '@nestjs/sequelize';
 import moment, { Moment } from 'moment';
 import { Op, col, fn, literal, where } from 'sequelize';
-import db from '../../models/index.js';
-import Nodes from '../../models/nodes.js';
-import { evaluateCH4, evaluateCO2, evaluateISPU } from '../Logic/evaluateByConversionTable.js';
-import { GRKCategorize, ISPUValue } from '../../types/dashboardData.js';
-import { ControllerType } from '../../types/index.js';
-import { Summary } from '../../types/summaryData.js';
-import { average } from '../../lib/common.utils.js';
-import { DatalogsLinearImputation } from '../Logic/missingDataCalculation.js';
-import { eventLogStatus, eventLogType } from '../../models/eventLogs.js';
-import { MISSING_DATA_TRESHOLD } from '../../constants/server.js';
-import Companies from '../../models/companies.js';
-import Users from '../../models/users.js';
-import { InjectModel } from '@nestjs/sequelize';
-import DataLogs from '../../models/datalogs.js';
-import Reports from '../../models/reports.js';
 import { EventlogsService } from '../../Api/Companies/Eventlogs/eventlog.service.js';
+import { MISSING_DATA_TRESHOLD } from '../../constants/server.js';
+import { average } from '../../lib/common.utils.js';
+import Companies from '../../models/companies.js';
+import DataLogs from '../../models/datalogs.js';
+import { eventLogStatus, eventLogType } from '../../models/eventLogs.js';
+import Nodes from '../../models/nodes.js';
+import Reports from '../../models/reports.js';
+import Users from '../../models/users.js';
+import { GRKDetailValue as GRKValue, ISPUDetailValue as ISPUValue } from '../../types/dashboardData.js';
+import { Summary } from '../../types/summaryData.js';
+import { evaluateCH4, evaluateCO2, evaluateISPU } from '../Logic/evaluateByConversionTable.js';
+import { DatalogsLinearImputation } from '../Logic/missingDataCalculation.js';
 
-// import { getEventLogsInRange, identifyEventStatus } from './eventLogs.controller.js';
-// import { calculateEventDuration } from './eventLogs.controller.js';
 type CombinedTren = {
     datetime: Date;
     indoor?: Omit<DataLogWithAnalize, 'datetime'>;
@@ -40,19 +36,17 @@ type BasicDataLog = {
 type DataLogWithAnalize = {
     datetime: Date;
     ispu: [ISPUValue, ISPUValue] | null;
-    co2: GRKCategorize;
-    ch4: GRKCategorize;
+    co2: GRKValue;
+    ch4: GRKValue;
     pm25: number;
     pm100: number;
 };
 
-type getSummary = (periode: 'month' | 'week') => ControllerType
 
 const PERIODE_FORMAT = {
     month: 'YYY-MM',
     week: 'YYYY-[W]ww'
 }
-
 
 @Injectable()
 export class SummaryService {

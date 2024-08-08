@@ -5,7 +5,7 @@ import Reports from "../models/reports.ts";
 
 type Timeseries<V = number> = { datetime: Date, value: V }
 
-type ISPUValue = {
+type ISPUDetailValue = {
     pollutant: 'PM100' | 'PM25';
     ispu: number;
     ispuFloat: number;
@@ -19,7 +19,7 @@ type ISPUValue = {
 }
 
 
-type GRKCategorize = {
+type GRKDetailValue = {
     value: number;
     category?: string;
     recomendation?: {
@@ -31,19 +31,19 @@ type GRKCategorize = {
 
 // ===========================================================
 
-declare type NodeWLastestData = Nodes & {
+declare type NodeWithLastestData = Nodes & {
     latestData?: {
         ispu: {
             datetime: Date;
-            value: [ISPUValue, ISPUValue] | null;
+            value: [ISPUDetailValue, ISPUDetailValue] | null;
         };
         ch4: {
             datetime: Date;
-            value: GRKCategorize;
+            value: GRKDetailValue;
         };
         co2: {
             datetime: Date;
-            value: GRKCategorize;
+            value: GRKDetailValue;
         };
         pm25: {
             datetime: Date;
@@ -77,9 +77,9 @@ type SingleNodeAnalysis = {
         lastDataSent: Date;
     }
 
-    ispu: SingleNodeAnalysisItem<[ISPUValue, ISPUValue] | null>
-    ch4: SingleNodeAnalysisItem<GRKCategorize>;
-    co2: SingleNodeAnalysisItem<GRKCategorize>;
+    ispu: SingleNodeAnalysisItem<[ISPUDetailValue, ISPUDetailValue] | null>
+    ch4: SingleNodeAnalysisItem<GRKDetailValue>;
+    co2: SingleNodeAnalysisItem<GRKDetailValue>;
 
 }
 
@@ -97,14 +97,13 @@ type SingleNodeAnalysisItem<V> = {
 
 //  ===============================
 
-
-type ResultOfMultiNodeStats = {
-    ispu: NodeStat<ISPUValue[]>;
-    ch4: NodeStat<GRKCategorize>;
-    co2: NodeStat<GRKCategorize>;
+type MultiNodeAnalysis = {
+    ispu: NodeStatistic<ISPUDetailValue[]>;
+    ch4: NodeStatistic<GRKDetailValue>;
+    co2: NodeStatistic<GRKDetailValue>;
 };
 
-type NodeStat<T> = {
+type NodeStatistic<T> = {
     average: {
         data: Timeseries<T>
     };
@@ -137,8 +136,8 @@ declare type DashboardDataType = {
     indoor?: NodesGroup;
     outdoor: NodesGroup;
     nodes: {
-        indoor?: NodeWLastestData[],
-        outdoor: NodeWLastestData[]
+        indoor?: NodeWithLastestData[],
+        outdoor: NodeWithLastestData[]
     };
     currentEventLogs: EventLogs[];
     nearReports: Reports[]
@@ -151,5 +150,5 @@ type NodesGroup = {
         all: number;
         active: number;
     };
-    data: SingleNodeAnalysis | ResultOfMultiNodeStats | null;
+    data: SingleNodeAnalysis | MultiNodeAnalysis | null;
 }

@@ -4,14 +4,29 @@ import Reports from "../models/reports.ts";
 import { GRKCategorize, ISPUValue } from "./dashboardData.js";
 
 
+type BasicDataLog = {
+    datetime: Date;
+    pm25: number;
+    pm100: number;
+    ch4: number;
+    co2: number;
+};
+
 type DataLogWithAnalize = {
     datetime: Date;
-    ispu: [ISPUValue, ISPUValue] | [];
+    ispu: [ISPUValue, ISPUValue] | null;
     co2: GRKCategorize;
     ch4: GRKCategorize;
     pm25: number;
     pm100: number;
 }
+
+type CombinedTren = {
+    datetime: Date;
+    indoor?: Omit<DataLogWithAnalize, 'datetime'>;
+    outdoor?: Omit<DataLogWithAnalize, 'datetime'>;
+};
+
 
 type SummaryDataAverage = {
     ispu: [ISPUValue, ISPUValue] | null;
