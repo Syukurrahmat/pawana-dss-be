@@ -13,34 +13,9 @@ import { eventLogStatus, eventLogType } from '../models/eventLogs.js';
 import Nodes from '../models/nodes.js';
 import Reports from '../models/reports.js';
 import Users from '../models/users.js';
-import { GRKDetailValue as GRKValue, ISPUDetailValue as ISPUValue } from '../types/dashboardData.js';
-import { Summary } from '../types/summaryData.js';
 import { categorizeCH4, categorizeCO2, categorizeISPU } from './logic/evaluateByConversionTable.js';
 import { datalogsLinearImputation } from './logic/missingDataHandler.js';
-
-type CombinedTren = {
-    datetime: Date;
-    indoor?: Omit<DataLogWithAnalize, 'datetime'>;
-    outdoor?: Omit<DataLogWithAnalize, 'datetime'>;
-};
-
-
-type BasicDataLog = {
-    datetime: Date;
-    pm25: number;
-    pm100: number;
-    ch4: number;
-    co2: number;
-};
-
-type DataLogWithAnalize = {
-    datetime: Date;
-    ispu: [ISPUValue, ISPUValue] | null;
-    co2: GRKValue;
-    ch4: GRKValue;
-    pm25: number;
-    pm100: number;
-};
+import { NodesAverageInsightWithDate, SimpleDatalogs, SummaryData, TrenItem } from '../types/dashboardData.js';
 
 
 const PERIODE_FORMAT = {
@@ -70,7 +45,6 @@ export class SummaryService {
         const startDate = isNotCurrentPeriode
             ? endDate.clone().startOf(summaryType)
             : endDate.clone().subtract(1, summaryType).startOf('d').add(1, 'd')
-
 
         const indoorNodes = await company.getPrivateNodes();
         const outdoorNodes = await company.getSubscribedNodes({ joinTableAttributes: [] });
@@ -175,7 +149,7 @@ export class SummaryService {
         };
 
 
-        const result: Summary = {
+        const result: SummaryData = {
             meta: {
                 company: company.toJSON(),
                 startDate: startDate.toDate(),
@@ -231,12 +205,11 @@ export class SummaryService {
     async getTrenNodes(nodes: Nodes[], startDate: Moment, endDate: Moment) {
         const tz = startDate.tz()!;
         const subtractedStartDate = startDate.clone().subtract(3, 'd');
-
-        let averageInThisPeriode: DataLogWithAnalize | undefined
+        let averageInThisPeriode: NodesAverageInsightWithDate | undefined
 
 
         // ======================= MENGAMBIL DATALOGS DARI DATABASE ======================= 
-        const datalogsFromDB: BasicDataLog[] = await this.getAveragedDatalogs(nodes, {
+        const datalogsFromDB: SimpleDatalogs[] = await this.getAveragedDatalogs(nodes, {
             startDate: subtractedStartDate,
             endDate: endDate,
         });
@@ -255,7 +228,7 @@ export class SummaryService {
 
         // ======================= MENGELOMPOKKAN DATALOGS PER JAM BERDASARKAN HARI ======================= 
 
-        const mapOfDatalogsPerDay = new Map<number, BasicDataLog[]>();
+        const mapOfDatalogsPerDay = new Map<number, SimpleDatalogs[]>();
 
         datalogsPerHours.forEach(item => {
             const copiedItem = { ...item };
@@ -268,7 +241,7 @@ export class SummaryService {
 
         // ======================= MENGHITUNG RATA RATA PERHARI =======================
 
-        let datalogsPerDay: BasicDataLog[] = []
+        let datalogsPerDay: SimpleDatalogs[] = []
 
         mapOfDatalogsPerDay.forEach((datasInThisDay, day) => {
             const datetime = new Date(day)
@@ -319,7 +292,7 @@ export class SummaryService {
         }
     }
 
-    evaluateDatalogs(dt: BasicDataLog, withRecomendation = false): DataLogWithAnalize {
+    evaluateDatalogs(dt: SimpleDatalogs, withRecomendation = false): NodesAverageInsightWithDate {
         const { datetime, pm100, pm25, ch4, co2 } = dt;
 
         return {
@@ -332,9 +305,9 @@ export class SummaryService {
         };
     }
 
-    calculateAverage(datalogs: BasicDataLog[], date: Moment) {
+    calculateAverage(datalogs: SimpleDatalogs[], date: Moment) {
 
-        const averageValue: BasicDataLog = {
+        const averageValue: SimpleDatalogs = {
             datetime: date.toDate(),
             pm100: average(datalogs.map(e => e.pm100)),
             pm25: average(datalogs.map(e => e.pm25)),
@@ -345,8 +318,8 @@ export class SummaryService {
         return this.evaluateDatalogs(averageValue, true);
     }
 
-    combiningTren(indoor: DataLogWithAnalize[] | null, outdoor: DataLogWithAnalize[] | null) {
-        const combinedData: { [key: string]: CombinedTren; } = {};
+    combiningTren(indoor: NodesAverageInsightWithDate[] | null, outdoor: NodesAverageInsightWithDate[] | null) {
+        const combinedData: Record<string, TrenItem> = {};
 
         indoor?.forEach(entry => {
             const { datetime, ...value } = entry;

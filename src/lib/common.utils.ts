@@ -18,6 +18,11 @@ interface IbuildQueryOptions {
     sortOpt?: string[];
 }
 
+export const toFixedNumber = (value: number, decimals = 3) => {
+    const factor = Math.pow(10, decimals);
+    return Math.round(value * factor) / factor;
+}
+
 // export const parseQueries = (req: Request, opt: IbuildQueryOptions = {}) => {
 //     const sortOpt = opt.sortOpt || []
 
@@ -50,7 +55,7 @@ interface IbuildQueryOptions {
 //     };
 // };
 
-export const coordinateGetterSetter : any = {
+export const coordinateGetterSetter: any = {
     get() {
         const coordinate = this.getDataValue('coordinate');
         if (coordinate) {

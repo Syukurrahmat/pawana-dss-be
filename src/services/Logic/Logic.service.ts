@@ -13,10 +13,8 @@ type PMDatalogs = {
     pm25: number;
 }
 
-
 @Injectable()
 export class LogicService {
-
     async getLatestData(node: Nodes, tz: string): Promise<NodeWithLatestData> {
         const { lastDataSent, isUptodate } = node;
         const result: NodeWithLatestData = node

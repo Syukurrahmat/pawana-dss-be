@@ -7,16 +7,17 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class EmailService {
-    private readonly mailjet: Mailjet
+    private readonly htmlEmailTemplatePath = './src/template/email.html'
     private readonly htmlEmailTemplate: string
+    private readonly mailjet: Mailjet
 
     constructor() {
         this.mailjet = new Mailjet({
             apiKey: process.env.MJ_APIKEY_PUBLIC,
             apiSecret: process.env.MJ_APIKEY_PRIVATE,
         });
-        
-        this.htmlEmailTemplate = readFileSync(path.resolve('./src/services/email/email.html'), 'utf-8')
+
+        this.htmlEmailTemplate = readFileSync(path.resolve(this.htmlEmailTemplatePath), 'utf-8')
     }
 
     async sendVerificationEmail(name: string, email: string, token: string) {

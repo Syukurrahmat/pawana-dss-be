@@ -11,8 +11,6 @@ import { AuthModule } from './Auth/auth.module';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { UserSessionMiddleware } from './middleware/userSession.middleware';
 import allDBModels from './models';
-import { DashboardModule } from './services/Dashboard/dashboard.module';
-import { SummaryModule } from './services/Summary/summary.module';
 
 @Module({
     imports: [
@@ -42,10 +40,7 @@ import { SummaryModule } from './services/Summary/summary.module';
         UsersModule,
         CompaniesModule,
         NodesModule,
-        
         AuthModule,
-        SummaryModule,
-        DashboardModule,
     ],
 })
 

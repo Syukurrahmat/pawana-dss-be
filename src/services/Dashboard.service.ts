@@ -80,9 +80,12 @@ export class DashboardService {
     async forRegularUser(user: Users, tz: string) {
         const outdoorNodes = await user.getSubscribedNodes({ attributes: this.nodeAttributes, joinTableAttributes: [] })
 
-        const analyzedOutdoorNodes = await Promise.all(outdoorNodes.map(e => this.LogicService.getLatestData(e, tz)))
+        const analyzedOutdoorNodes = await Promise.all(
+            outdoorNodes.map(e => this.LogicService.getLatestData(e, tz)
+        ))
+        
         const filteredAnalyzedOutdoorNodes = analyzedOutdoorNodes.filter(e => e.latestData) as NodeWithLatestData[]
-        const outdoorAnaliysisType = identifyAnalyzeType(filteredAnalyzedOutdoorNodes)
+        const outdoorAnaliysisType = this.LogicService.identifyAnalyzeType(filteredAnalyzedOutdoorNodes)
 
         const outdoorData = {
             countNodes: {
@@ -90,10 +93,10 @@ export class DashboardService {
                 all: outdoorNodes.length,
             },
             analiysisDataType: outdoorAnaliysisType,
-            data: await chooseAnalyzeData(filteredAnalyzedOutdoorNodes, tz, outdoorAnaliysisType)
+            data: await this.LogicService.chooseAnalyzeData(filteredAnalyzedOutdoorNodes, tz, outdoorAnaliysisType)
         }
 
-        const result: DashboardDataType = {
+        const result: DashboardData = {
             dashboardInfo: {
                 type: 'regular',
                 name: 'Node yang Anda Ikuti',

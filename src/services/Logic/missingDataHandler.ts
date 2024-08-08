@@ -1,6 +1,10 @@
 import { MISSING_DATA_TRESHOLD } from '../../constants/server.js';
 import { SimpleDatalogs } from '../../types/dashboardData.js';
 
+export const calculateMissingData = (data: number[], length?: number) => (
+    data.filter(value => isNaN(value)).length / (length || data.length)
+)
+
 export const fillMissingData = (data: number[], length?: number) => {
     if (calculateMissingData(data, length) > MISSING_DATA_TRESHOLD) return null;
     return linearImputationData(data).filter(e => e);
@@ -26,8 +30,7 @@ export function linearImputationData(data: number[]) {
     return data;
 }
 
-export const calculateMissingData = (data: number[], length?: number) => data.filter(value => isNaN(value)).length / (length || data.length);
- 
+
 export const datalogsLinearImputation = <T extends SimpleDatalogs>(data: T[]): T[] => {
     const interpolatedData = [...data];
 
