@@ -1,4 +1,5 @@
-import { IsEmail, isIn, IsIn, IsInt, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
+import { IsIn, IsInt, IsNumber, IsString, MaxLength } from "class-validator"
+import { } from "sequelize-typescript"
 
 export class CreateCompaniesDto {
     @IsString()
@@ -20,6 +21,6 @@ export class CreateCompaniesDto {
     @IsInt()
     managerId?: number
 
-    @IsInt({ each: true })
+    @IsNumber({}, { each: true })
     coordinate?: number[]
 }

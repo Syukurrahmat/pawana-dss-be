@@ -23,6 +23,7 @@ import allDBModels from './models';
             password: process.env.DB_PASSWORD!,
             database: process.env.DB_DATABASE!,
             models: allDBModels,
+            logging : false,
         }),
         RouterModule.register([{
             path: '/api',
@@ -34,7 +35,6 @@ import allDBModels from './models';
                 NodesModule,
             ].map(e => ({ path: '/', module: e }))
         }]),
-
         ApplicationModule,
         ReportsModule,
         UsersModule,
@@ -51,4 +51,3 @@ export class AppModule implements NestModule {
             .forRoutes('/api/*')
     }
 }
-

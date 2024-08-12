@@ -2,19 +2,17 @@ import moment, { Moment } from 'moment';
 import { Op, col, fn, literal } from 'sequelize';
 import Nodes from '../../models/nodes.js';
 import { arrayOfObjectHours, average, sortByDatetime } from '../../lib/common.utils.js';
-import { fillMissingData } from './missingDataHandler.js';
-import { categorizeCH4, categorizeCO2, categorizeISPU } from './evaluateByConversionTable.js';
+import { fillMissingData } from '../../lib/missingDataHandler.js';
+import { CategorizeValueService } from '../Logic/categorizingValue.service.js';
 import { Injectable } from '@nestjs/common';
-import { GRKValue, ISPUValue, MultiNodeInsight, NodeWithLatestData, SingleNodeInsight, Timeseries } from '../../types/dashboardData.js';
+import { GRKValue, ISPUValue, PMDatalogs, MultiNodeInsight, NodeWithLatestData, SingleNodeInsight, Timeseries } from '../../types/dashboardData.js';
 
-type PMDatalogs = {
-    datetime: Date;
-    pm100: number;
-    pm25: number;
-}
 
-@Injectable()
-export class LogicService {
+export class DashboardLogic {
+    constructor(
+        private categorize: CategorizeValueService
+    ) { }
+
     async getLatestData(node: Nodes, tz: string): Promise<NodeWithLatestData> {
         const { lastDataSent, isUptodate } = node;
         const result: NodeWithLatestData = node
@@ -41,9 +39,9 @@ export class LogicService {
         }
 
         result.latestData = {
-            ispu: { datetime: ispuHour.toDate(), value: calculateISPU(PMData, ispuHour, true, true) },
-            ch4: { datetime, value: categorizeCH4(ch4, true) },
-            co2: { datetime, value: categorizeCO2(co2, true) },
+            ispu: { datetime: ispuHour.toDate(), value: this.calculateISPU(PMData, ispuHour, true, true) },
+            ch4: { datetime, value: this.categorize.CH4(ch4, true) },
+            co2: { datetime, value: this.categorize.CO2(co2, true) },
             pm25: { datetime, value: pm25 },
             pm100: { datetime, value: pm100 },
         }
@@ -98,8 +96,8 @@ export class LogicService {
             order: [['datetime', 'DESC']],
         })
 
-        const ch4Tren = datalogs.map(({ datetime, ch4 }) => ({ datetime, value: categorizeCH4(ch4) }))
-        const co2Tren = datalogs.map(({ datetime, co2 }) => ({ datetime, value: categorizeCO2(co2) }))
+        const ch4Tren = datalogs.map(({ datetime, ch4 }) => ({ datetime, value: this.categorize.CH4(ch4) }))
+        const co2Tren = datalogs.map(({ datetime, co2 }) => ({ datetime, value: this.categorize.CO2(co2) }))
 
         await this.getPMData(node, {
             startDate: ispuHour.clone().subtract(52, 'h'),
@@ -109,7 +107,7 @@ export class LogicService {
         const ispuTren = arrayOfObjectHours(ispuHour)
             .map(({ datetime }) => ({
                 datetime: datetime.toDate(),
-                value: calculateISPU(PMDatalogsTren, datetime)
+                value: this.calculateISPU(PMDatalogsTren, datetime)
             }));
 
         return {
@@ -152,7 +150,7 @@ export class LogicService {
 
         const averageISPU = {
             datetime: ispuOnlyDatalogs[0].data.datetime,
-            value: categorizeISPU(PM25Average, PM100Average, true),
+            value: this.categorize.ISPU(PM25Average, PM100Average, true),
         };
 
         const highestCH4 = CH4OnlyDatalogs.reduce((prev, curr) => prev.data.value.value > curr.data.value.value ? prev : curr);
@@ -161,7 +159,7 @@ export class LogicService {
 
         const averageCH4 = {
             datetime: CH4OnlyDatalogs[0].data.datetime,
-            value: categorizeCH4(averageCH4Value, true)
+            value: this.categorize.CH4(averageCH4Value, true)
         };
 
         const highestCO2 = CO2OnlyDatalogs
@@ -174,7 +172,7 @@ export class LogicService {
 
         const averageCO2 = {
             datetime: CO2OnlyDatalogs[0].data.datetime,
-            value: categorizeCO2(averageCO2Value, true)
+            value: this.categorize.CO2(averageCO2Value, true)
         };
 
         return {
@@ -198,10 +196,8 @@ export class LogicService {
         };
     }
 
-
-    calculateISPU(pmDatalogs: PMDatalogs[], ispuHour: moment.Moment, withRecomendation: boolean = false, c: boolean = false): [ISPUDetailValue, ISPUDetailValue] | null {
+    calculateISPU(pmDatalogs: PMDatalogs[], ispuHour: moment.Moment, withRecomendation: boolean = false, c: boolean = false): ISPUValue {
         const pmDatalogsMap = new Map(pmDatalogs.map(e => [e.datetime.getTime(), e]))
-
 
         const datalogsPerHour = Array
             .from({ length: 24 }, (_, i) => ispuHour.clone().startOf('h').subtract(i, 'h').toDate())
@@ -218,17 +214,17 @@ export class LogicService {
         const PM25Average = average(pm25PerHour.slice(0, 24));
         const PM100Average = average(pm100PerHour.slice(0, 24));
 
-        return categorizeISPU(PM25Average, PM100Average, withRecomendation)
+        return this.categorize.ISPU(PM25Average, PM100Average, withRecomendation)
     }
 
-    identifyAnalyzeType(nodes: NodeWithLatestData[]) {
-        return nodes.length === 1 ? 'single' : nodes.length > 1 ? 'multiple' : 'none'
-    }
-
-    async chooseAnalyzeData(nodes: NodeWithLatestData[], tz: string, type: ReturnType<typeof this.identifyAnalyzeType>) {
+    async analyzeData(nodes: NodeWithLatestData[], tz: string, type: ReturnType<typeof this.identifyAnalyzeType>) {
         return type == 'single'
             ? await this.singleNodeAnalysis(nodes[0], tz)
             : type == 'multiple' ? this.multiNodeStatAnalysis(nodes)
                 : null
+    }
+
+    identifyAnalyzeType(nodes: NodeWithLatestData[]) {
+        return nodes.length === 1 ? 'single' : nodes.length > 1 ? 'multiple' : 'none'
     }
 }

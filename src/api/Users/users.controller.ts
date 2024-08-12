@@ -8,17 +8,19 @@ import { FindUserDto } from './dto/find-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UserGuard } from './user.guard.js';
 import { UsersService } from './users.service.js';
+import { FindCompaniesDto } from './dto/find-companies.dto.js';
 
 @Controller('users')
 @ApiTags('Users')
 @UseGuards(UserGuard)
 export class UsersController {
-    constructor(private readonly usersService: UsersService) { }
+    constructor(private readonly service: UsersService) { }
+
 
     @Post('/')
     create(
         @Body() createUserDto: CreateUserDto) {
-        return this.usersService.create(createUserDto);
+        return this.service.create(createUserDto);
     }
 
     @Get('/')
@@ -26,51 +28,51 @@ export class UsersController {
         @Query() pagination: PaginationQueryDto,
         @Query() filter: FindUserDto,
     ) {
-        return this.usersService.findAll(filter, pagination);
+        return this.service.findAll(filter, pagination);
     }
 
     @Get('/overview')
     getOverview() {
-        return this.usersService.getOverview()
+        return this.service.getOverview()
     }
 
     @Get(':id')
-    @Roles(['admin', 'gov'])
     findOne(@Param('id', ParseIntPipe) id: number) {
-        return this.usersService.findOne(id);
+        return this.service.findOne(id);
     }
 
     @Patch(':id')
     update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
-        return this.usersService.update(id, updateUserDto);
+        return this.service.update(id, updateUserDto);
     }
 
     @Delete(':id')
     remove(@Param('id') id: string) {
-        return this.usersService.remove(+id);
+        return this.service.remove(+id);
     }
 
-    @Get(':id/dashhboard')
-    dashhboard(
+    @Get(':id/dashboard')
+    dashboard(
         @Param('id', ParseIntPipe) id: number,
         @Session() session: SessionData
     ) {
-        return this.usersService.getDashboardData(id, session.tz);
+        return this.service.getDashboardData(id, session.tz);
     }
 
     @Get(':id/companies')
     ownCompanies(
         @Param('id', ParseIntPipe) id: number,
         @Query() pagination: PaginationQueryDto,
+        @Query() filter: FindCompaniesDto,
     ) {
-        return this.usersService.ownCompanies(id, pagination);
+        return this.service.ownCompanies(id, pagination, filter);
     }
 
-    @Get(':id/private-node')
+    @Get(':id/private-nodes')
     ownPrivateNodes(
         @Param('id', ParseIntPipe) id: number,
         @Query() pagination: PaginationQueryDto,
     ) {
-        return this.usersService.ownPrivateNodes(id, pagination);
+        return this.service.ownPrivateNodes(id, pagination);
     }
 }

@@ -62,8 +62,8 @@ export class CompaniesController {
     }
 
 
-    @Get(':id/dashhboard')
-    dashhboard(
+    @Get(':id/dashboard')
+    dashboard(
         @Param('id', ParseIntPipe) id: number,
         @Session() session: SessionData
     ) {

@@ -17,7 +17,7 @@ export class CompanyGuard implements CanActivate {
         const request = context.switchToHttp().getRequest() as Request
         const user = request.user!
 
-        console.log(request.path)
+        console.log(`[${user.role}]`,request.path)
 
         const method = request.method
         const companyId = +request.params.id;
@@ -29,6 +29,7 @@ export class CompanyGuard implements CanActivate {
         if (!alowedRule) return false;
 
         const onlyOwn = alowedRule.split(':')[1]
+        if (!onlyOwn) return true
 
         if (onlyOwn && companyId) {
             const isOwn = await user.getCompanies({ where: { companyId }, attributes: ['companyId'] }).then(e => e.length)
@@ -36,6 +37,8 @@ export class CompanyGuard implements CanActivate {
             return !!isOwn;
         }
 
+        
+    
         return false
     }
 }

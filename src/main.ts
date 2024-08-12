@@ -50,7 +50,7 @@ async function bootstrap() {
 
     
     app.use(async (req:Request, res, next) => {
-        req.user = await Users.findByPk(6) || undefined
+        req.user = await Users.findByPk(94) || undefined
         next()
     })
 
@@ -58,3 +58,4 @@ async function bootstrap() {
 }
 
 bootstrap();
+

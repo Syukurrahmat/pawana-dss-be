@@ -1,5 +1,5 @@
-import { MISSING_DATA_TRESHOLD } from '../../constants/server.js';
-import { SimpleDatalogs } from '../../types/dashboardData.js';
+import { MISSING_DATA_TRESHOLD } from '../constants/server.js';
+import { SimpleDatalogs } from '../types/dashboardData.js';
 
 export const calculateMissingData = (data: number[], length?: number) => (
     data.filter(value => isNaN(value)).length / (length || data.length)

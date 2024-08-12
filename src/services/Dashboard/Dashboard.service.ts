@@ -2,21 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import moment from 'moment';
 import { Op, literal, where } from 'sequelize';
-import Companies from '../models/companies.js';
-import Reports from '../models/reports.js';
-import Users from '../models/users.js';
-import { DashboardData, NodeWithLatestData } from '../types/dashboardData.js';
-import { LogicService } from './logic/Logic.service.js';
+import Companies from '../../models/companies.js';
+import Reports from '../../models/reports.js';
+import Users from '../../models/users.js';
+import { DashboardData, NodeWithLatestData } from '../../types/dashboardData.js';
+import { DashboardLogic } from './dashboard-logic.js';
+import { CategorizeValueService } from '../Logic/categorizingValue.service.js';
 
 @Injectable()
-export class DashboardService {
+export class DashboardService extends DashboardLogic {
     private nodeAttributes = ['nodeId', 'name', 'coordinate', 'companyId', 'lastDataSent', 'isUptodate']
     private eventLogAttributes = ['eventLogId', 'companyId', 'name', 'type', 'isCompleted', 'startDate', 'endDate']
 
     constructor(
         @InjectModel(Reports) private reportsDB: typeof Reports,
-        private LogicService: LogicService,
-    ) { }
+        categorizingService: CategorizeValueService,
+    ) {
+        super(categorizingService)
+    }
 
     async forCompany(company: Companies, tz: string) {
         const companyInformation = company.toJSON()
@@ -29,17 +32,17 @@ export class DashboardService {
 
 
         const indoorNodesWLastestData = await Promise.all<NodeWithLatestData>(
-            indoorNodes.map(e => this.LogicService.getLatestData(e, tz))
+            indoorNodes.map(e => this.getLatestData(e, tz))
         )
         const outdoorNodesWLastestData = await Promise.all<NodeWithLatestData>(
-            outdoorNodes.map(e => this.LogicService.getLatestData(e, tz))
+            outdoorNodes.map(e => this.getLatestData(e, tz))
         )
 
         const activeIndoorNodes = indoorNodesWLastestData.filter(e => e.latestData)
         const activeOutdoorNodes = outdoorNodesWLastestData.filter(e => e.latestData)
 
-        const indoorAnaliysisType = this.LogicService.identifyAnalyzeType(activeIndoorNodes)
-        const outdoorAnaliysisType = this.LogicService.identifyAnalyzeType(activeOutdoorNodes)
+        const indoorAnaliysisType = this.identifyAnalyzeType(activeIndoorNodes)
+        const outdoorAnaliysisType = this.identifyAnalyzeType(activeOutdoorNodes)
 
         const indoorData = {
             countNodes: {
@@ -47,7 +50,7 @@ export class DashboardService {
                 all: indoorNodes.length,
             },
             analiysisDataType: indoorAnaliysisType,
-            data: await this.LogicService.chooseAnalyzeData(activeIndoorNodes, tz, indoorAnaliysisType),
+            data: await this.analyzeData(activeIndoorNodes, tz, indoorAnaliysisType),
         }
 
         const outdoorData = {
@@ -56,7 +59,7 @@ export class DashboardService {
                 all: outdoorNodes.length,
             },
             analiysisDataType: outdoorAnaliysisType,
-            data: await this.LogicService.chooseAnalyzeData(activeOutdoorNodes, tz, outdoorAnaliysisType)
+            data: await this.analyzeData(activeOutdoorNodes, tz, outdoorAnaliysisType)
         }
 
         const result: DashboardData = {
@@ -81,11 +84,11 @@ export class DashboardService {
         const outdoorNodes = await user.getSubscribedNodes({ attributes: this.nodeAttributes, joinTableAttributes: [] })
 
         const analyzedOutdoorNodes = await Promise.all(
-            outdoorNodes.map(e => this.LogicService.getLatestData(e, tz)
-        ))
-        
+            outdoorNodes.map(e => this.getLatestData(e, tz)
+            ))
+
         const filteredAnalyzedOutdoorNodes = analyzedOutdoorNodes.filter(e => e.latestData) as NodeWithLatestData[]
-        const outdoorAnaliysisType = this.LogicService.identifyAnalyzeType(filteredAnalyzedOutdoorNodes)
+        const outdoorAnaliysisType = this.identifyAnalyzeType(filteredAnalyzedOutdoorNodes)
 
         const outdoorData = {
             countNodes: {
@@ -93,7 +96,7 @@ export class DashboardService {
                 all: outdoorNodes.length,
             },
             analiysisDataType: outdoorAnaliysisType,
-            data: await this.LogicService.chooseAnalyzeData(filteredAnalyzedOutdoorNodes, tz, outdoorAnaliysisType)
+            data: await this.analyzeData(filteredAnalyzedOutdoorNodes, tz, outdoorAnaliysisType)
         }
 
         const result: DashboardData = {

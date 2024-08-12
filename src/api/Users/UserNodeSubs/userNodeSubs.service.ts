@@ -50,8 +50,7 @@ export class UserNodeSubsService {
             user.getSubscribedNodes({
                 attributes: [
                     'nodeId', 'name', 'coordinate', 'lastDataSent', 'isUptodate',
-                    [Sequelize.col('UsersSubscriptions.createdAt'), 'joinedAt'],
-                    [Sequelize.col('UsersSubscriptions.usersSubscriptionId'), 'subscriptionId']
+                    [Sequelize.col('UsersSubscriptions.createdAt'), 'joinedAt']
                 ],
                 joinTableAttributes: [],
                 where,

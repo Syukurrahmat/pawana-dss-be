@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, ParseBoolPipe, UseGuards } from '@nestjs/common';
-import { NodesService } from './nodes.service.js';
+import { NodesService, NodeUtilsService } from './nodes.service.js';
 import { PaginationQueryDto } from '../../lib/pagination.dto.js';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from '../../decorator/user.decorator.js';
@@ -13,14 +13,14 @@ import { NodesGuard } from './nodes.guard.js';
 @ApiTags('Nodes')
 @UseGuards(NodesGuard)
 export class NodesController {
-    constructor(private readonly usersService: NodesService) { }
+    constructor(private readonly service: NodesService) { }
 
     @Post('/')
     create(
         @Body() createDto: CreateNodeDto,
         @User() user: Users
     ) {
-        return this.usersService.create(createDto, user);
+        return this.service.create(createDto, user);
     }
 
     @Get('/')
@@ -28,27 +28,27 @@ export class NodesController {
         @Query() pagination: PaginationQueryDto,
         @Query() filter: FindNodesDto,
     ) {
-        return this.usersService.findAll(filter, pagination);
+        return this.service.findAll(filter, pagination);
     }
 
     @Get('/overview')
     getOverview() {
-        return this.usersService.getOverview()
+        return this.service.getOverview()
     }
 
     @Get(':id')
     findOne(@Param('id', ParseIntPipe) id: number) {
-        return this.usersService.findOne(id);
+        return this.service.findOne(id);
     }
 
     @Patch(':id')
     update(@Param('id', ParseIntPipe) id: number, @Body() updateDto: UpdateNodeDto) {
-        return this.usersService.update(id, updateDto);
+        return this.service.update(id, updateDto);
     }
 
     @Delete(':id')
     remove(@Param('id', ParseIntPipe) id: number) {
-        return this.usersService.remove(id);
+        return this.service.remove(id);
     }
 
 
@@ -58,6 +58,30 @@ export class NodesController {
         @Query('start') start: string,
         @Query('end') end: string,
     ) {
-        return this.usersService.getDatalogs(id, start, end)
+        return this.service.getDatalogs(id, start, end)
+    }
+}
+
+
+@Controller('nodes')
+@ApiTags('Nodes Utils')
+export class NodeUtilsController {
+    constructor(private readonly service: NodeUtilsService) { }
+
+    @Get('/subscribeable')
+    getSubscribeableNodes(
+        @Query('search') search?: string,
+        @Query('forCompanySubs', new ParseIntPipe({ optional: true })) forCompanySubs?: number,
+        @Query('forUserSubs', new ParseIntPipe({ optional: true })) forUserSubs?: number,
+    ) {
+        return this.service.getSubscribeableNodes(forCompanySubs, forUserSubs, search)
+    }
+
+    @Get('/downloadable')
+    getDownloadableNodes(
+        @Query() pagination: PaginationQueryDto,
+        @User() User: Users,
+    ) {
+        return this.service.getDownloadableNodes(User, pagination)
     }
 }

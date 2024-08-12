@@ -12,7 +12,8 @@ import { EmailService } from '../../services/Email.service.js';
 import Nodes from '../../models/nodes.js';
 import Companies from '../../models/companies.js';
 import { PaginationQueryDto } from '../../lib/pagination.dto';
-import { DashboardService } from '../../services/Dashboard.service';
+import { DashboardService } from '../../services/Dashboard/Dashboard.service';
+import { FindCompaniesDto } from './dto/find-companies.dto';
 
 @Injectable()
 export class UsersService {
@@ -122,11 +123,11 @@ export class UsersService {
         const user = await this.getUser(id)
         const { password, newPassword, ...data } = updateUserDto;
 
-        await this.validatePasswords(user, password, newPassword)
+        if(password) await this.validatePasswords(user, password, newPassword)
 
         const [updated] = await this.usersDB
             .update(
-                { ...data, password },
+                { ...data, password : newPassword },
                 { where: { userId: user.userId } }
             )
 
@@ -142,16 +143,22 @@ export class UsersService {
         return 'success'
     }
 
-    async ownCompanies(id: number, pagination: PaginationQueryDto) {
+    async ownCompanies(id: number, pagination: PaginationQueryDto, { view }: FindCompaniesDto) {
         const user = await this.getUser(id)
         const { paginationObj, searchObj, getMetaData } = pagination
+
+
+        const attributes = view == 'all'
+            ? ['companyId', 'name', 'type', 'createdAt', 'coordinate']
+            : ['companyId', 'name', 'type']
+
 
         const where = { ...searchObj }
 
         const [count, rows] = await Promise.all([
             user.countCompanies({ where }),
             user.getCompanies({
-                attributes: ['companyId', 'name', 'type', 'createdAt', 'coordinate'],
+                attributes,
                 where,
                 ...paginationObj
             }),
@@ -213,7 +220,7 @@ export class UsersService {
         return user
     }
 
-    private async validatePasswords(user: Users, password?: string, newPassword?: string) {
+    private async validatePasswords(user: Users, password: string, newPassword?: string) {
         if ((password && !newPassword) || (!password && newPassword)) {
             throw new BadRequestException('Password dan Password baru harus diisi bersama-sama');
         }

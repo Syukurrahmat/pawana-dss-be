@@ -1,4 +1,4 @@
-import { IsDateString, IsInt, IsOptional, IsString, MaxLength } from "class-validator"
+import { IsDateString, IsInt, IsNumber, IsOptional, IsString, MaxLength } from "class-validator"
 
 
 export class CreateNodeDto {
@@ -15,14 +15,14 @@ export class CreateNodeDto {
     @IsOptional()
     address?: string
 
-    @IsInt({ each: true })
+    @IsNumber({}, { each: true })
     @IsOptional()
     coordinate?: number[]
 
     @IsDateString()
     @IsOptional()
     instalationDate?: Date
-    
+
     @IsInt()
     @IsOptional()
     companyId?: string

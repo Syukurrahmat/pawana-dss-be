@@ -39,45 +39,45 @@ export class EventlogController {
         return this.usersService.getCurrentEventSummary(companyId, session.tz);
     }
 
-    @Get('/:id')
+    @Get('/:eventId')
     findById(
         @Param('id', ParseIntPipe) companyId: number,
-        @Param('id', ParseIntPipe) eventId: number,
+        @Param('eventId', ParseIntPipe) eventId: number,
         @Session() session: SessionData
     ) {
         return this.usersService.findOne(companyId, eventId, session.tz);
     }
 
-    @Patch('/:id/start-now')
+    @Patch('/:eventId/start-now')
     setStartNow(
         @Param('id', ParseIntPipe) companyId: number,
-        @Param('id', ParseIntPipe) eventId: number,
+        @Param('eventId', ParseIntPipe) eventId: number,
     ) {
         return this.usersService.setEventIsStartNow(companyId, eventId);
     }
 
-    @Patch('/:id')
+    @Patch('/:eventId')
     update(
-        @Param('companyId', ParseIntPipe) companyId: number,
-        @Param('id', ParseIntPipe) eventId: number,
+        @Param('id', ParseIntPipe) companyId: number,
+        @Param('eventId', ParseIntPipe) eventId: number,
         @Body() updateDto: UpdateEventDto
     ) {
         return this.usersService.update(companyId, eventId, updateDto);
     }
 
-    @Patch('/:id/completed')
+    @Patch('/:eventId/completed')
     setCompleted(
-        @Param('companyId', ParseIntPipe) companyId: number,
-        @Param('id', ParseIntPipe) eventId: number,
+        @Param('id', ParseIntPipe) companyId: number,
+        @Param('eventId', ParseIntPipe) eventId: number,
         @Session() session: SessionData
     ) {
         return this.usersService.setEventIsCompleted(companyId, eventId, session.tz);
     }
 
-    @Delete('/:id')
+    @Delete('/:eventId')
     delete(
-        @Param('companyId', ParseIntPipe) companyId: number,
-        @Param('id', ParseIntPipe) eventId: number,
+        @Param('id', ParseIntPipe) companyId: number,
+        @Param('eventId', ParseIntPipe) eventId: number,
     ) {
         return this.usersService.delete(companyId, eventId);
     }

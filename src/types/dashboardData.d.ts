@@ -33,26 +33,11 @@ type Recomendation = {
 
 declare type NodeWithLatestData = Nodes & {
     latestData?: {
-        ispu: {
-            datetime: Date;
-            value: [ISPUValueItem, ISPUValueItem] | null;
-        };
-        ch4: {
-            datetime: Date;
-            value: GRKValue;
-        };
-        co2: {
-            datetime: Date;
-            value: GRKValue;
-        };
-        pm25: {
-            datetime: Date;
-            value: number;
-        };
-        pm100: {
-            datetime: Date;
-            value: number;
-        };
+        ispu: Timeseries<ISPUValue>
+        ch4: Timeseries<GRKValue>
+        co2: Timeseries<GRKValue>
+        pm25: Timeseries<number>
+        pm100: Timeseries<number>
     },
 
     PMDatalogs?: {
@@ -80,16 +65,9 @@ type SingleNodeInsight = {
 }
 
 type SingleNodeInsightItem<V> = {
-    latestData: {
-        datetime: Date;
-        value: V;
-    }
-    tren: {
-        datetime: Date;
-        value: V;
-    }[];
+    latestData: Timeseries<V>
+    tren: Timeseries<V>[];
 }
-
 
 // ============================================================================
 
@@ -124,7 +102,6 @@ declare type DashboardData = {
         name: string;
         type: string;
         countNodes: number
-
         companyId?: number;
         managedBy?: number;
         createdAt?: string;
@@ -161,6 +138,12 @@ type SimpleDatalogs = {
     co2: number;
 };
 
+type PMDatalogs = {
+    datetime: Date;
+    pm100: number;
+    pm25: number;
+}
+
 type NodesAverageInsightWithDate = SummaryAverageInsight & {
     datetime: Date;
 }
@@ -190,26 +173,31 @@ type SummaryData = {
         outdoor?: SummaryAverageInsight;
     };
     tren: TrenItem[];
-    reports: {
-        average: number;
-        count: number;
-        countPerStar: number[];
-        reports: Reports[];
-    }
-    eventLogs: {
-        count: {
-            all: number;
-            countStatus: {
-                status: string;
-                count: number;
-            }[];
-            countType: {
-                type: string;
-                count: number;
-                days: number
-            }[];
-        };
-        eventIdLongestEvent: number | undefined;
-        eventLogs: EventLogs[];
-    }
+    reports: ReportSummary;
+    eventLogs: EventLogsSummary
+}
+
+type ReportSummary = {
+    average: number;
+    count: number;
+    countPerStar: number[];
+    reports: Reports[];
+}
+
+
+type EventLogsSummary = {
+    count: {
+        all: number;
+        countStatus: {
+            status: string;
+            count: number;
+        }[];
+        countType: {
+            type: string;
+            count: number;
+            days: number
+        }[];
+    };
+    eventIdLongestEvent: number | undefined;
+    eventLogs: EventLogs[];
 }

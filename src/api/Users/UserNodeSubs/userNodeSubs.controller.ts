@@ -18,7 +18,6 @@ export class UserNodeSubsController {
         @Param('id', ParseIntPipe) userId: number,
         @Query() pagination: PaginationQueryDto,
     ) {
-        console.log('-----------', userId, '------------')
         return this.services.getSubscribedNodes(userId, pagination)
     }
 

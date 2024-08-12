@@ -6,13 +6,14 @@ import { UsersService } from './users.service.js';
 import { SequelizeModule } from '@nestjs/sequelize';
 import Users from '../../models/users';
 import Nodes from '../../models/nodes';
-import { DashboardModule } from '../../services/Dashboard/dashboard.module';
 import { UserNodeSubsModule } from './UserNodeSubs/userNodeSubs.module';
+import { DashboardService } from '../../services/Dashboard/Dashboard.service';
+import Reports from '../../models/reports';
+import { CategorizeValueService } from '../../services/Logic/categorizingValue.service';
 
 @Module({
     imports: [
-        DashboardModule,
-        SequelizeModule.forFeature([Users, Nodes]),
+        SequelizeModule.forFeature([Users, Nodes, Reports]),
         UserNodeSubsModule,
         RouterModule.register([{
             path: 'api/users/:id/nodes',
@@ -20,7 +21,7 @@ import { UserNodeSubsModule } from './UserNodeSubs/userNodeSubs.module';
         }])
     ],
     controllers: [UsersController],
-    providers: [UsersService, EmailService],
+    providers: [UsersService, EmailService, DashboardService, CategorizeValueService],
     exports: [UsersService],
 })
 

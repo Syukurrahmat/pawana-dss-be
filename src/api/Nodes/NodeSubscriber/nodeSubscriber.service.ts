@@ -71,24 +71,19 @@ export class NodeSubscriberService {
     }
 
 
-    async deleteSubsciberUsers(nodeId: number, subscriptionid: number | undefined) {
-        const affected = await this.userSubscriptionDB
-            .destroy({
-                where: subscriptionid ? { usersSubscriptionId: subscriptionid } : { nodeId }
-            })
-
-        if (!affected) throw new UnprocessableEntityException('Data tidak bisa diproses');
-
+    async deleteSubsciberUsers(nodeId: number, userId: number | undefined) {
+        const node = await this.getNode(nodeId)
+        userId
+            ? await node.removeUserSubscription(userId)
+            : await node.setUserSubscriptions([])
         return 'success'
     }
 
-    async deleteSubsciberCompaies(nodeId: number, companyId: number | undefined) {
-        const affected = await this.companySubscriptionsDB
-            .destroy({
-                where: companyId ? { companySubscriptionId: companyId } : { nodeId }
-            })
-
-        if (!affected) throw new UnprocessableEntityException('Data tidak bisa diproses');
+    async deleteSubsciberCompanies(nodeId: number, companyId: number | undefined) {
+        const node = await this.getNode(nodeId)
+        companyId
+            ? await node.removeCompanySubscription(companyId)
+            : await node.setCompanySubscriptions([])
 
         return 'success'
     }
@@ -96,12 +91,8 @@ export class NodeSubscriberService {
 
 
     private async getNode(id: number) {
-        const company = await this.nodeDB.findOne({
-            where: { nodeId: id },
-        })
-
-        if (!company) throw new NotFoundException()
-        return company
+        const node = await this.nodeDB.findOne({ where: { nodeId: id } })
+        if (!node) throw new NotFoundException()
+        return node
     }
-
 }
