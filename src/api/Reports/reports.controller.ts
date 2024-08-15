@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Session } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Session } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from '../../decorator/user.decorator';
 import { CreateReportDto } from './dto/create-report.dto';
@@ -14,9 +14,9 @@ export class ReportsController {
 
     @Post()
     create(
-        @User() userId : number,
-        @Query() createReportDto: CreateReportDto) {
-        return this.reportsService.create(userId, createReportDto);
+        @User() user : Users,
+        @Body() createReportDto: CreateReportDto) {
+        return this.reportsService.create(user, createReportDto);
     }
 
     @Get()

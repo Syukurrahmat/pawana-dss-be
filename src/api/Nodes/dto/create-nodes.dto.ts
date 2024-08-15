@@ -25,5 +25,5 @@ export class CreateNodeDto {
 
     @IsInt()
     @IsOptional()
-    companyId?: string
+    companyId?: number
 }

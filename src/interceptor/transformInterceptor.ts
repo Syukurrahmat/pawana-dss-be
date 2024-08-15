@@ -32,10 +32,11 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
             })),
 
             catchError(err => {
+                console.log(JSON.stringify(err), err?.response?.message , err?.message   )
                 const statusCode = err instanceof HttpException ? err.getStatus() : 500;
                 const errorResponse = {
                     statusCode,
-                    message: err?.response?.message || err?.message  || 'Internal server error',
+                    message: err?.response?.message || err?.message   || 'Internal server error',
                     error: err?.name || 'Error',
                     data: {},
                 };

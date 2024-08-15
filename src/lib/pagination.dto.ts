@@ -7,7 +7,7 @@
 import { Prisma } from '@prisma/client';
 import { Type } from 'class-transformer';
 import { IsEnum, isInt, IsInt, IsOptional, IsString, Max, Min, min } from 'class-validator';
-import { OrderItem, Sequelize } from 'sequelize';
+import { Op, OrderItem, Sequelize } from 'sequelize';
 
 enum Orderby {
     desc = 'desc',
@@ -45,8 +45,8 @@ export class PaginationQueryDto {
     @IsString()
     search?: string;
 
-    get searchObj() {
-        return this.search ? { name: this.search } : {}
+    get searchObj(): Record<any, any> {
+        return this.search ? { name: { [Op.like]: `%${this.search}%` } } : {}
     }
 
     get skip() {
@@ -60,8 +60,8 @@ export class PaginationQueryDto {
         ] : [];
 
         return {
-            page : this.page,
-            limit : this.limit,
+            page: this.page,
+            limit: this.limit,
             offset: (this.page - 1) * this.limit,
             order: orderItem,
         };

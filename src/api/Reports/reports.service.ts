@@ -15,6 +15,7 @@ import { Op, Sequelize } from 'sequelize';
 @Injectable()
 export class ReportsService {
     private formateDate = 'YYYY-MM-DD'
+
     constructor(
         @InjectModel(Reports)
         private reportDB: typeof Reports,
@@ -23,12 +24,13 @@ export class ReportsService {
         private imgbbService: ImgbbService
     ) { }
 
-    async create(userId: number, createReportDto: CreateReportDto) {
+    async create(user: Users, createReportDto: CreateReportDto) {
         const { images, coordinate, message, rating } = createReportDto
 
         const imageUrl = images ? await this.imgbbService.uploadPhotos(images!) : undefined
+
         const report = await this.reportDB.create({
-            userId,
+            userId : user.userId!,
             message: message!,
             coordinate: coordinate!,
             rating: rating!,
@@ -42,7 +44,6 @@ export class ReportsService {
 
     async findAll(user: Users, findReportDto: FindReportDto, tz: string) {
         const { date, nearCompany, distance = 250 } = findReportDto
-
 
         const momentCurrentDate = moment.tz(tz)
         const currentDate = momentCurrentDate.format(this.formateDate)

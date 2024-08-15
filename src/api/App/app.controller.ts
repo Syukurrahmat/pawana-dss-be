@@ -23,6 +23,8 @@ export class ApplicationController {
         @User() user: Users,
         @Body('companyId', new ParseIntPipe({ optional: true })) companyId? : number
     ) {
+        console.log(11111111,session.viewCompany)
+
         return this.appService.configureUserView(user, session, companyId)
     }
 }

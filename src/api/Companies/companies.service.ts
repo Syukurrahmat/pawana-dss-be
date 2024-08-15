@@ -37,7 +37,7 @@ export class CompaniesService {
 
         if (!newCompany) throw new UnprocessableEntityException('Data tidak bisa diproses');
 
-        return 'success'
+        return {companyId : newCompany.companyId}
     }
 
     async findAll(filter: FindCompaniesDto, pagination: PaginationQueryDto) {
@@ -48,7 +48,7 @@ export class CompaniesService {
 
         const attributes = view == 'all'
             ? { exclude: ['updatedAt', 'description'] }
-            : ['companyId', 'name', 'type']
+            : ['companyId', 'name', 'type', 'coordinate']
 
         const { count, rows } = await this.CompaniesDB.findAndCountAll({
             attributes,
@@ -120,9 +120,10 @@ export class CompaniesService {
         return 'success'
     }
 
-    async getPrivateNodes(id: number, pagination: PaginationQueryDto) {
+    async getPrivateNodes(id: number, filter: FindCompaniesDto, pagination: PaginationQueryDto) {
         const company = await this.getCompany(id)
         const { paginationObj, searchObj, getMetaData } = pagination
+        const { all, view } = filter
 
         const [count, rows] = await Promise.all([
             company.countPrivateNodes({ where: { ...searchObj } }),

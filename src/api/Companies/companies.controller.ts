@@ -57,8 +57,10 @@ export class CompaniesController {
     ownCompanies(
         @Param('id', ParseIntPipe) id: number,
         @Query() pagination: PaginationQueryDto,
+        @Query() filter: FindCompaniesDto,
     ) {
-        return this.service.getPrivateNodes(id, pagination)
+        console.log(222)
+        return this.service.getPrivateNodes(id,filter,  pagination)
     }
 
 

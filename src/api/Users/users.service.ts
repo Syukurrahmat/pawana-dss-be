@@ -31,7 +31,7 @@ export class UsersService {
         const { name, email, phone, description, address, profilePicture, role } = createUserDto;
 
         const emailAlreadyUsed = await this.usersDB.count({ where: { email } })
-        if (emailAlreadyUsed) throw new ConflictException('Email already in use');
+        if (emailAlreadyUsed) throw new BadRequestException({ message: ['email', 'Email telah digunakan pengguna lain'] });
 
         const token = jwt.sign({ email }, process.env.JWT_SECRETKEY!, { expiresIn: '3d' });
         await this.emailService.sendVerificationEmail(name!, email!, token)
@@ -49,7 +49,7 @@ export class UsersService {
 
         if (!newUser) throw new UnprocessableEntityException('Data tidak bisa diproses');
 
-        return 'success'
+        return { userId: newUser.userId }
     }
 
     async findAll(filter: FindUserDto, pagination: PaginationQueryDto) {
@@ -59,7 +59,6 @@ export class UsersService {
         const whereOpt: WhereOptions<InferAttributes<Users>> = searchObj
         if (role) whereOpt.role = role
         if (unverified) whereOpt.isVerified = unverified
-
 
         const attributes = view == 'all'
             ? ['userId', 'name', 'phone', 'profilePicture', 'email', 'role', 'createdAt']
@@ -123,11 +122,11 @@ export class UsersService {
         const user = await this.getUser(id)
         const { password, newPassword, ...data } = updateUserDto;
 
-        if(password) await this.validatePasswords(user, password, newPassword)
+        if (password) await this.validatePasswords(user, password, newPassword)
 
         const [updated] = await this.usersDB
             .update(
-                { ...data, password : newPassword },
+                { ...data, password: newPassword },
                 { where: { userId: user.userId } }
             )
 
@@ -150,7 +149,7 @@ export class UsersService {
 
         const attributes = view == 'all'
             ? ['companyId', 'name', 'type', 'createdAt', 'coordinate']
-            : ['companyId', 'name', 'type']
+            : ['companyId', 'name', 'type', 'coordinate']
 
 
         const where = { ...searchObj }

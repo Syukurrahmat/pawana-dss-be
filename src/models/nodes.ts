@@ -22,7 +22,6 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     @Column(DataType.INTEGER)
     companyId?: number | null;
 
-
     @AllowNull(false)
     @NotEmpty
     @Column(DataType.STRING(30))
@@ -36,7 +35,6 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     @Column(DataType.STRING(255))
     address?: string;
 
- 
     @Column({
         type: DataType.GEOGRAPHY('POINT'),
         ...coordinateGetterSetter

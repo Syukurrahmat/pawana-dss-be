@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Controller, Get, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RouterModule } from '@nestjs/core';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -14,6 +14,12 @@ import allDBModels from './models';
 
 @Module({
     imports: [
+        ApplicationModule,
+        ReportsModule,
+        UsersModule,
+        CompaniesModule,
+        NodesModule,
+        AuthModule,
         ConfigModule.forRoot({ isGlobal: true }),
         SequelizeModule.forRoot({
             dialect: 'mysql',
@@ -23,24 +29,19 @@ import allDBModels from './models';
             password: process.env.DB_PASSWORD!,
             database: process.env.DB_DATABASE!,
             models: allDBModels,
-            logging : false,
+            logging: false,
         }),
-        RouterModule.register([{
-            path: '/api',
-            children: [
-                ApplicationModule,
-                ReportsModule,
-                UsersModule,
-                CompaniesModule,
-                NodesModule,
-            ].map(e => ({ path: '/', module: e }))
-        }]),
-        ApplicationModule,
-        ReportsModule,
-        UsersModule,
-        CompaniesModule,
-        NodesModule,
-        AuthModule,
+        RouterModule.register([
+            {
+                path: '/api',
+                children: [ApplicationModule, ReportsModule, UsersModule, CompaniesModule, NodesModule].map(e => ({ path: '/', module: e }))
+            },
+            {
+                path: '/auth',
+                children: [AuthModule].map(e => ({ path: '/', module: e }))
+            },
+            
+        ]),
     ],
 })
 
@@ -51,3 +52,4 @@ export class AppModule implements NestModule {
             .forRoutes('/api/*')
     }
 }
+

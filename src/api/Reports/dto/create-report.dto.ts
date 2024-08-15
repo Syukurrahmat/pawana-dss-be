@@ -1,5 +1,5 @@
 import { Optional } from "@nestjs/common"
-import { IsInt, IsString, Max, MaxLength } from "class-validator"
+import { IsInt, IsNumber, IsString, Max, MaxLength } from "class-validator"
 import { Min } from "sequelize-typescript"
 
 export class CreateReportDto {
@@ -7,7 +7,7 @@ export class CreateReportDto {
     @Optional()
     images?: string[]
 
-    @IsInt({ each: true })
+    @IsNumber({}, { each: true })
     coordinate?: number[]
 
     @IsString()

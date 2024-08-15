@@ -62,6 +62,8 @@ export class ApplicationService {
             }
         }
 
+
+        console.log(11111111,session.viewCompany)
         return {
             view: {
                 company: session.viewCompany,

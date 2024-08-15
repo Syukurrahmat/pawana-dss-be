@@ -144,9 +144,11 @@ type PMDatalogs = {
     pm25: number;
 }
 
+
 type NodesAverageInsightWithDate = SummaryAverageInsight & {
     datetime: Date;
 }
+// ====================================================================
 
 type TrenItem = {
     datetime: Date;

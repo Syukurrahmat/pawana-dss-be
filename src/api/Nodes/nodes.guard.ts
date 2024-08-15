@@ -15,13 +15,9 @@ export class NodesGuard implements CanActivate {
         regular: ['GET:OWN'],
     };
 
-    private alowedPath = 1
-
     async canActivate(context: ExecutionContext) {
         const request = context.switchToHttp().getRequest() as Request
         const user = request.user!
-        console.log('sjsjskssbjsbsjbsjbsjbsjbsjbbbbbbbbbbbbbbbbbbbbbbbbbb')
-        console.log(request.path)
 
         const method = request.method
         const nodeId = +request.params.id;
@@ -37,18 +33,32 @@ export class NodesGuard implements CanActivate {
 
         if (onlyOwn && nodeId) {
 
-            if (user.role == 'regular') {
-                return !! await user.getSubscribedNodes({ where: { nodeId }, attributes: ['nodeId'] }).then(e => e.length)
-            }
+            if (method == 'GET') {
+                console.log(method, nodeId, user.role)
 
-            if (user.role == 'manager') {
-                const isSubscibedNode = await user.getSubscribedNodes({ where: { nodeId }, attributes: ['nodeId'] }).then(e => e.length)
-                if (isSubscibedNode) return true
+                if (user.role == 'regular') {
+                    if (await user.hasSubscribedNode(nodeId)) return true
+                }
 
-                const companyIds = await user.getCompanies({ attributes: ['companyId'] }).then(e => e.map(f => f.companyId!))
-                return !! await Nodes.count({ where: { companyId: { [Op.in]: companyIds } } })
+                if (user.role == 'manager') {
+                    const companies = await user.getCompanies({ attributes: ['companyId'] })
+
+                    for (let company of companies) {
+                        if (await company.hasPrivateNode(nodeId)) return true
+                    }
+                    for (let company of companies) {
+                        if (await company.hasSubscribedNode(nodeId)) return true
+                    }
+                }
+                return false;
+
+            } else {
+                const companies = await user.getCompanies({ attributes: ['companyId'] })
+
+                for (let company of companies) {
+                    if (await company.hasPrivateNode(nodeId)) return true
+                }
             }
-            return false;
         }
 
         return false

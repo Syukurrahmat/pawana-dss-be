@@ -11,7 +11,7 @@ import Nodes from '../../models/nodes.js';
 import Users from '../../models/users.js';
 import UsersSubscriptions from '../../models/usersSubscriptions.js';
 import { CreateNodeDto } from './dto/create-nodes.dto.js';
-import { FindNodesDto } from './dto/find-nodes.dto.js';
+import { FindDatalogsDto, FindNodesDto } from './dto/find-nodes.dto.js';
 import { UpdateNodeDto } from './dto/update-nodes.dto.js';
 
 @Injectable()
@@ -32,23 +32,27 @@ export class NodesService {
 
     async create(createDto: CreateNodeDto, user: Users) {
         let { name, description, address, coordinate, instalationDate, companyId } = createDto;
-        let company: Companies | null;
-
 
         if (user.role == 'manager') {
             if (!companyId) throw new BadRequestException('companyId is required')
-            company = await this.CompaniesDB.findOne({ where: { managedBy: user.userId, companyId } })
-            if (!company) throw new NotFoundException('company not found')
-        } else {
-            company = companyId ? await this.CompaniesDB.findByPk(companyId) : null
+            if (!await user.hasCompany(companyId)) {
+                throw new NotFoundException('company not found')
+            }
         }
 
-        if (!company && (!address || !coordinate)) {
-            throw new BadRequestException('adress dan coordinate harus diisi')
+        if (companyId) {
+            const company = await this.CompaniesDB.count({ where: { companyId } })
+            if (!company) throw new NotFoundException('company not found')
+            address = undefined
+            coordinate = undefined
+        } else {
+            if (!address || !coordinate) {
+                throw new BadRequestException('adress dan coordinate harus diisi')
+            }
         }
 
         const newNode = await this.NodesDB.create({
-            companyId: company ? company.companyId : undefined,
+            companyId,
             address,
             coordinate,
             name: name!,
@@ -59,7 +63,7 @@ export class NodesService {
 
         if (!newNode) throw new UnprocessableEntityException('Data tidak bisa diproses');
 
-        return 'success'
+        return { nodeId: newNode.nodeId }
     }
 
     async findAll(filter: FindNodesDto, pagination: PaginationQueryDto) {
@@ -68,13 +72,17 @@ export class NodesService {
         const { all, ownship, view } = filter
         const paginateObj = all ? {} : paginationObj
 
-        const filterByOwnship: WhereOptions<InferAttributes<Nodes, { omit: never }>> = {
-            companyId: ownship == 'public'
-                ? { [Op.is]: null }
-                : ownship == 'private'
-                    ? { [Op.not]: null }
-                    : {}
-        }
+        const filterByOwnship = ownship ? {
+            companyId: ownship == 'public' ? { [Op.is]: null } : ownship == 'private' ? { [Op.not]: null } : {}
+        } : {}
+
+
+        console.log({
+            where: {
+                ...searchObj,
+                ...filterByOwnship
+            },
+        })
 
         const attributes = view == 'all'
             ? { exclude: ['instalationDate', 'description', 'apiKey', 'updatedAt'] }
@@ -142,7 +150,7 @@ export class NodesService {
     async findOne(id: number) {
         const node = await this.getNode(id, {
             include: [{
-                model: Companies, as: 'owner', attributes: ['companyId', 'name', 'type']
+                model: Companies, as: 'owner', attributes: ['companyId', 'name', 'type', 'managedBy']
             }],
         })
 
@@ -192,20 +200,15 @@ export class NodesService {
     }
 
 
-    async getDatalogs(nodeId: number, start: string, end: string,) {
-        const startDate = new Date(start)
-        const endDate = new Date(end)
-
-        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-            throw new BadRequestException('tanggal tidak valid')
-        }
+    async getDatalogs(nodeId: number, startEndDate: FindDatalogsDto) {
+        const { startDate, endDate } = startEndDate
 
         const node = await this.getNode(nodeId, {
             attributes: ['nodeId', 'name', 'isUptodate', 'lastDataSent'],
             include: [{
                 model: DataLogs,
                 where: {
-                    datetime: { [Op.between]: [startDate, endDate] }
+                    datetime: { [Op.between]: [new Date(startDate!), new Date(endDate!)] }
                 },
                 required: false
             }],
@@ -281,31 +284,5 @@ export class NodeUtilsService {
         return nodes
     };
 
-    async getDownloadableNodes(user: Users, pagination: PaginationQueryDto) {
-        const { paginationObj, searchObj, getMetaData } = pagination
-        const { role } = user
 
-        const whereOpt = { ...searchObj }
-
-        if (role == 'manager') {
-            const companyIds = (await user.getCompanies({ attributes: ['companyId'] })).map(e => e.companyId!);
-
-            whereOpt[Op.or] = [
-                { companyId: { [Op.in]: companyIds } },
-                { '$companySubscriptions.companyId$': { [Op.in]: companyIds } },
-            ]
-        }
-
-        const { count, rows } = await this.NodesDB.findAndCountAll({
-            attributes: ['nodeId', 'name'],
-            where: whereOpt,
-            ...paginationObj
-        });
-
-
-        return {
-            rows,
-            meta: getMetaData(pagination, count)
-        };
-    }
 }

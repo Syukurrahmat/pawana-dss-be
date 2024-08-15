@@ -5,7 +5,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { User } from '../../decorator/user.decorator.js';
 import Users from '../../models/users.js';
 import { CreateNodeDto } from './dto/create-nodes.dto.js';
-import { FindNodesDto } from './dto/find-nodes.dto.js';
+import { FindDatalogsDto, FindNodesDto } from './dto/find-nodes.dto.js';
 import { UpdateNodeDto } from './dto/update-nodes.dto.js';
 import { NodesGuard } from './nodes.guard.js';
 
@@ -55,10 +55,9 @@ export class NodesController {
     @Get('/:id/datalogs')
     getDataLogs(
         @Param('id', ParseIntPipe) id: number,
-        @Query('start') start: string,
-        @Query('end') end: string,
+        @Query() startEndDate: FindDatalogsDto,
     ) {
-        return this.service.getDatalogs(id, start, end)
+        return this.service.getDatalogs(id, startEndDate)
     }
 }
 
@@ -76,12 +75,5 @@ export class NodeUtilsController {
     ) {
         return this.service.getSubscribeableNodes(forCompanySubs, forUserSubs, search)
     }
-
-    @Get('/downloadable')
-    getDownloadableNodes(
-        @Query() pagination: PaginationQueryDto,
-        @User() User: Users,
-    ) {
-        return this.service.getDownloadableNodes(User, pagination)
-    }
+ 
 }
