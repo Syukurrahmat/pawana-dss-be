@@ -8,6 +8,7 @@ import { CreateNodeDto } from './dto/create-nodes.dto.js';
 import { FindDatalogsDto, FindNodesDto } from './dto/find-nodes.dto.js';
 import { UpdateNodeDto } from './dto/update-nodes.dto.js';
 import { NodesGuard } from './nodes.guard.js';
+import { ParseIntPipeOptional } from '../../pipe/ParseIntPipeOptional.js';
 
 @Controller('nodes')
 @ApiTags('Nodes')
@@ -70,8 +71,8 @@ export class NodeUtilsController {
     @Get('/subscribeable')
     getSubscribeableNodes(
         @Query('search') search?: string,
-        @Query('forCompanySubs', new ParseIntPipe({ optional: true })) forCompanySubs?: number,
-        @Query('forUserSubs', new ParseIntPipe({ optional: true })) forUserSubs?: number,
+        @Query('forCompanySubs', ParseIntPipeOptional) forCompanySubs?: number,
+        @Query('forUserSubs', ParseIntPipeOptional) forUserSubs?: number,
     ) {
         return this.service.getSubscribeableNodes(forCompanySubs, forUserSubs, search)
     }

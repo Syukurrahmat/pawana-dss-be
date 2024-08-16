@@ -3,6 +3,7 @@ import { ApplicationService } from './app.service';
 import { SessionData } from 'express-session';
 import { User } from '../../decorator/user.decorator';
 import Users from '../../models/users';
+import { ParseIntPipeOptional } from '../../pipe/ParseIntPipeOptional';
 
 @Controller('/app')
 export class ApplicationController {
@@ -21,7 +22,7 @@ export class ApplicationController {
     configureUserView(
         @Session() session: SessionData,
         @User() user: Users,
-        @Body('companyId', new ParseIntPipe({ optional: true })) companyId? : number
+        @Body('companyId', ParseIntPipeOptional) companyId? : number
     ) {
         console.log(11111111,session.viewCompany)
 
