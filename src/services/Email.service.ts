@@ -1,15 +1,15 @@
+import { Injectable } from '@nestjs/common';
 import { readFileSync } from 'fs';
 import moment from 'moment';
 import Mailjet from 'node-mailjet';
-import { HOST_URL } from '../constants/server';
 import path from 'path';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class EmailService {
-    private readonly htmlEmailTemplatePath = './src/template/email.html'
-    private readonly htmlEmailTemplate: string
+    private readonly verificationEmailTemplate = readFileSync(path.resolve('./src/template/email-verification.html'), 'utf-8')
+    private readonly successVerificationEmailTemplate = readFileSync(path.resolve('./src/template/email-verification-success.html'), 'utf-8')
     private readonly mailjet: Mailjet
+    private readonly hostUrl = process.env.HOST_URL!
 
     constructor() {
         this.mailjet = new Mailjet({
@@ -17,11 +17,10 @@ export class EmailService {
             apiSecret: process.env.MJ_APIKEY_PRIVATE,
         });
 
-        this.htmlEmailTemplate = readFileSync(path.resolve(this.htmlEmailTemplatePath), 'utf-8')
     }
 
     async sendVerificationEmail(name: string, email: string, token: string) {
-        const verifyUrl = `${HOST_URL}/auth/verify/${token}`;
+        const verifyUrl = `${this.hostUrl}/auth/verify/${token}`;
 
         return new Promise<void>((resolve, rejected) =>
             this.mailjet.post('send', { version: 'v3.1' }).request({
@@ -31,10 +30,34 @@ export class EmailService {
                         To: [{ Email: email, Name: name }],
                         Subject: 'Konfirmasi Akun Anda',
                         HTMLPart:
-                            this.htmlEmailTemplate
+                            this.verificationEmailTemplate
                                 .replace('{{name}}', name)
                                 .replace('{{year}}', moment().format('YYYY'))
                                 .replace('{{verifyurl}}', verifyUrl),
+                    },
+                ],
+            })
+                .then(e => e.response.status == 200 ? resolve() : rejected())
+                .catch(rejected)
+        )
+    }
+    async sendSuccessVerificationEmail(name: string, email: string, password: string, role: string) {
+
+        return new Promise<void>((resolve, rejected) =>
+            this.mailjet.post('send', { version: 'v3.1' }).request({
+                Messages: [
+                    {
+                        From: { Email: process.env.MJ_SENDER_EMAIL, Name: process.env.MJ_SENDER_NAME },
+                        To: [{ Email: email, Name: name }],
+                        Subject: 'Verifikasi Akun berhasil',
+                        HTMLPart:
+                            this.successVerificationEmailTemplate
+                                .replace('{{name}}', name)
+                                .replace('{{email}}', email)
+                                .replace('{{password}}', password)
+                                .replace('{{role}}', role)
+                                .replace('{{year}}', moment().format('YYYY'))
+                                .replace('{{loginUrl}}', this.hostUrl),
                     },
                 ],
             })
