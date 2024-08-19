@@ -10,7 +10,7 @@ export class UserGuard implements CanActivate {
         admin: ['GET', 'POST', 'PATCH', 'DELETE'],
         gov: ['GET', 'PATCH:OWN', 'DELETE:OWN'],
         manager: ['GET:OWN', 'PATCH:OWN', 'DELETE:OWN'],
-        regular: ['GET:OWN', 'PATCH:OWN', 'DELETE:OWN'],
+        regular: ['GET:OWN', 'PATCH:OWN',  'DELETE:OWN'],
     };
 
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {

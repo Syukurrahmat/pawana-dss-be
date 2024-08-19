@@ -1,19 +1,19 @@
-import Users from '../../models/users'
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Randomstring from 'randomstring';
 import { InferAttributes, Op, Sequelize, WhereOptions } from 'sequelize';
+import { PaginationQueryDto } from '../../lib/pagination.dto';
+import Companies from '../../models/companies.js';
+import Nodes from '../../models/nodes.js';
+import Users from '../../models/users';
+import { DashboardService } from '../../services/Dashboard/Dashboard.service';
+import { EmailService } from '../../services/Email.service.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
+import { FindCompaniesDto } from './dto/find-companies.dto';
 import { FindUserDto } from './dto/find-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
-import { EmailService } from '../../services/Email.service.js';
-import Nodes from '../../models/nodes.js';
-import Companies from '../../models/companies.js';
-import { PaginationQueryDto } from '../../lib/pagination.dto';
-import { DashboardService } from '../../services/Dashboard/Dashboard.service';
-import { FindCompaniesDto } from './dto/find-companies.dto';
 
 @Injectable()
 export class UsersService {
@@ -33,7 +33,7 @@ export class UsersService {
         const emailAlreadyUsed = await this.usersDB.count({ where: { email } })
         if (emailAlreadyUsed) throw new BadRequestException({ message: ['email', 'Email telah digunakan pengguna lain'] });
 
-        const token = jwt.sign({ email }, process.env.JWT_SECRETKEY!, { expiresIn: '3d' });
+        const token = jwt.sign({ email }, process.env.JWT_SECRETKEY!, { expiresIn: '3 days' });
         await this.emailService.sendVerificationEmail(name!, email!, token)
 
         const newUser = await this.usersDB.create({
@@ -229,7 +229,7 @@ export class UsersService {
                 .then(e => e!.password)
 
             const passwordIsMatch = bcrypt.compareSync(password, userPassword)
-            if (!passwordIsMatch) throw new UnauthorizedException('Password salah');
+            if (!passwordIsMatch) throw new ForbiddenException('Password salah');
         }
     }
 

@@ -103,6 +103,7 @@ declare type DashboardData = {
         type: string;
         countNodes: number
         companyId?: number;
+        userId?: number;
         managedBy?: number;
         createdAt?: string;
     };

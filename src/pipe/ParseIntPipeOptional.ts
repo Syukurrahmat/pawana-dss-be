@@ -3,7 +3,6 @@ import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 @Injectable()
 export class ParseIntPipeOptional implements PipeTransform {
     transform(value: any): number | undefined {
-        console.log('===============',{value})
         if (value === null || value === undefined || value === '' || isNaN(value)) {
             return undefined
         }

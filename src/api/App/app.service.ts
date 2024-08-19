@@ -1,9 +1,9 @@
-import { BadRequestException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
-import moment from 'moment';
-import Users from '../../models/users';
-import { SessionData } from 'express-session';
+import { BadRequestException, ForbiddenException, Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { SessionData } from 'express-session';
+import moment from 'moment';
 import Companies from '../../models/companies';
+import Users from '../../models/users';
 
 @Injectable()
 export class ApplicationService {
@@ -34,7 +34,7 @@ export class ApplicationService {
     }
 
 
-    async configureUserView(user: Users, session: SessionData, companyId: number | undefined) {
+    async configureUserView(user: Users, session: SessionData, companyId: number | undefined, userId: number | undefined) {
         const { role } = user.toJSON()
 
         if (companyId) {
@@ -42,13 +42,8 @@ export class ApplicationService {
                 attributes: ['companyId', 'coordinate', 'name', 'type', 'managedBy']
             });
 
-            if (!company) {
-                throw new BadRequestException('companies not found')
-            }
-
-            if (role == 'manager' && !user.hasCompany(company)) {
-                throw new UnauthorizedException()
-            }
+            if (!company) throw new BadRequestException('companies not found')
+            if (role == 'manager' && !user.hasCompany(company)) throw new ForbiddenException()
 
             session.viewCompany = company.toJSON();
 
@@ -61,9 +56,16 @@ export class ApplicationService {
                 session.viewUser = managerCompany
             }
         }
+        if (userId) {
+            if (role != 'admin' && role !== 'gov') throw new ForbiddenException()
 
+            const user = await Users.findOne({ where: { role: 'regular', userId }, attributes: ['userId', 'role', 'name'] });
+            if (!user) throw new BadRequestException('companies not found')
 
-        console.log(11111111,session.viewCompany)
+            session.viewUser = user
+        }
+
+        console.log(11111111, session.viewCompany)
         return {
             view: {
                 company: session.viewCompany,

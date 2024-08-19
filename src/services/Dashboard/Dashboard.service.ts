@@ -102,7 +102,8 @@ export class DashboardService extends DashboardLogic {
         const result: DashboardData = {
             dashboardInfo: {
                 type: 'regular',
-                name: 'Node yang Anda Ikuti',
+                name: '',
+                userId : user.userId,
                 countNodes: outdoorNodes.length
             },
             indoor: undefined,

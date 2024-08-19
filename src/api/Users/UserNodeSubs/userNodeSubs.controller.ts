@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseBoolPipe, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseBoolPipe, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CreateSubscriptionDto } from './dto/create-subs.dto.js';
 import { PaginationQueryDto } from '../../../lib/pagination.dto.js';
 import { ApiTags } from '@nestjs/swagger';
@@ -21,11 +21,12 @@ export class UserNodeSubsController {
         return this.services.getSubscribedNodes(userId, pagination)
     }
 
-    @Post('/')
+    @Patch('/')
     createNodeSubscription(
         @Param('id', ParseIntPipe) userId: number,
         @Body() createSubsDto: CreateSubscriptionDto,
     ) {
+        console.log('ssjsjssj')
         return this.services.createNodeSubscription(userId, createSubsDto)
     }
 

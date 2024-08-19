@@ -22,10 +22,11 @@ export class ApplicationController {
     configureUserView(
         @Session() session: SessionData,
         @User() user: Users,
-        @Body('companyId', ParseIntPipeOptional) companyId? : number
+        @Body('companyId', ParseIntPipeOptional) companyId?: number,
+        @Body('userId', ParseIntPipeOptional) userId?: number
     ) {
-        console.log(11111111,session.viewCompany)
+        console.log({ userId, companyId })
 
-        return this.appService.configureUserView(user, session, companyId)
+        return this.appService.configureUserView(user, session, companyId, userId)
     }
 }

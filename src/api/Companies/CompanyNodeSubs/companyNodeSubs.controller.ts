@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CompanyNodeSubsService } from './companyNodeSubs.service.js';
 import { CreateSubscriptionDto } from './dto/create-subs.dto.js';
 import { PaginationQueryDto } from '../../../lib/pagination.dto.js';
@@ -21,7 +21,7 @@ export class CompanyNodeSubsController {
         return this.services.getSubscribedNodes(companyId, pagination)
     }
 
-    @Post('/')
+    @Patch('/')
     createNodeSubscription(
         @Param('id', ParseIntPipe) companyId: number,
         @Body() createSubsDto: CreateSubscriptionDto,
