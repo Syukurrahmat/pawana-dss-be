@@ -11,5 +11,4 @@ import { UserNodeSubsService } from './userNodeSubs.service.js';
     providers: [UserNodeSubsService],
     exports: [UserNodeSubsService],
 })
-
-export class UserNodeSubsModule { }
+export class UserNodeSubsModule {}

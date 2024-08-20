@@ -7,7 +7,6 @@ import Reports from './reports.js';
 import Users from './users.js';
 import UsersSubscription from './usersSubscriptions.js';
 
- 
 const allDBModels = [
     Companies,
     CompanySubscription,
@@ -16,7 +15,7 @@ const allDBModels = [
     Nodes,
     Users,
     Reports,
-    EventLogs
-]
+    EventLogs,
+];
 
 export default allDBModels;

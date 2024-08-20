@@ -12,5 +12,4 @@ import CompanySubscriptions from '../../../models/companySubscriptions.js';
     providers: [NodeSubscriberService],
     exports: [NodeSubscriberService],
 })
-
-export class NodeSubscriberModule { }
+export class NodeSubscriberModule {}

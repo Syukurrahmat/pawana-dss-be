@@ -1,19 +1,19 @@
-import { Optional } from "@nestjs/common"
-import { IsInt, IsNumber, IsString, Max, MaxLength } from "class-validator"
-import { Min } from "sequelize-typescript"
+import { Optional } from '@nestjs/common';
+import { IsInt, IsNumber, IsString, Max, MaxLength } from 'class-validator';
+import { Min } from 'sequelize-typescript';
 
 export class CreateReportDto {
     @IsString({ each: true })
     @Optional()
-    images?: string[]
+    images?: string[];
 
     @IsNumber({}, { each: true })
-    coordinate?: number[]
+    coordinate?: number[];
 
     @IsString()
     @MaxLength(300)
-    message?: string
+    message?: string;
 
     @IsInt()
-    rating?: number
+    rating?: number;
 }

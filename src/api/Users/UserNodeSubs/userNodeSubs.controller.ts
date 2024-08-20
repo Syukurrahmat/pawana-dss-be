@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, Param, ParseBoolPipe, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseBoolPipe,
+    ParseIntPipe,
+    Patch,
+    Post,
+    Query,
+    UseGuards,
+} from '@nestjs/common';
 import { CreateSubscriptionDto } from './dto/create-subs.dto.js';
 import { PaginationQueryDto } from '../../../lib/pagination.dto.js';
 import { ApiTags } from '@nestjs/swagger';
@@ -11,35 +23,35 @@ import { UserGuard } from '../user.guard.js';
 @UseGuards(UserGuard)
 @ApiTags('Users subscription')
 export class UserNodeSubsController {
-    constructor(private readonly services: UserNodeSubsService) { }
+    constructor(private readonly services: UserNodeSubsService) {}
 
     @Get('/')
     getSubscibedPublicNodes(
         @Param('id', ParseIntPipe) userId: number,
-        @Query() pagination: PaginationQueryDto,
+        @Query() pagination: PaginationQueryDto
     ) {
-        return this.services.getSubscribedNodes(userId, pagination)
+        return this.services.getSubscribedNodes(userId, pagination);
     }
 
     @Patch('/')
     createNodeSubscription(
         @Param('id', ParseIntPipe) userId: number,
-        @Body() createSubsDto: CreateSubscriptionDto,
+        @Body() createSubsDto: CreateSubscriptionDto
     ) {
-        console.log('ssjsjssj')
-        return this.services.createNodeSubscription(userId, createSubsDto)
+        console.log('ssjsjssj');
+        return this.services.createNodeSubscription(userId, createSubsDto);
     }
 
     @Delete('/:subscriptionId')
     deleteSubscibedPublicNodes(
         @Param('id', ParseIntPipe) userId: number,
-        @Param('subscriptionId', ParseIntPipe) subscriptionId: number,
+        @Param('subscriptionId', ParseIntPipe) subscriptionId: number
     ) {
-        return this.services.removeNodeSubscription(userId, subscriptionId)
+        return this.services.removeNodeSubscription(userId, subscriptionId);
     }
 
     @Get('/limit')
     getRemainingSubsLimit(@Param('id', ParseIntPipe) userId: number) {
-        return this.services.getRemainingSubsLimit(userId)
+        return this.services.getRemainingSubsLimit(userId);
     }
 }

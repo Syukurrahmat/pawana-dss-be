@@ -1,5 +1,18 @@
 import { BelongsToManyAddAssociationMixin, BelongsToManyAddAssociationsMixin, BelongsToManyCountAssociationsMixin, BelongsToManyCreateAssociationMixin, BelongsToManyGetAssociationsMixin, BelongsToManyHasAssociationMixin, BelongsToManyHasAssociationsMixin, BelongsToManyRemoveAssociationMixin, BelongsToManyRemoveAssociationsMixin, BelongsToManySetAssociationsMixin, HasManyAddAssociationMixin, HasManyAddAssociationsMixin, HasManyCountAssociationsMixin, HasManyCreateAssociationMixin, HasManyGetAssociationsMixin, HasManyHasAssociationMixin, HasManyHasAssociationsMixin, HasManyRemoveAssociationMixin, HasManyRemoveAssociationsMixin, HasManySetAssociationsMixin, InferAttributes, InferCreationAttributes } from 'sequelize'; //prettier-ignore
-import { Model, Table, Column, DataType, HasMany, BelongsToMany, ForeignKey, PrimaryKey, AutoIncrement, AllowNull, NotEmpty, BelongsTo } from 'sequelize-typescript';
+import {
+    Model,
+    Table,
+    Column,
+    DataType,
+    HasMany,
+    BelongsToMany,
+    ForeignKey,
+    PrimaryKey,
+    AutoIncrement,
+    AllowNull,
+    NotEmpty,
+    BelongsTo,
+} from 'sequelize-typescript';
 import Nodes from './nodes.js';
 import Users from './users.js';
 import EventLogs from './eventLogs.js';
@@ -7,8 +20,10 @@ import CompanySubscription from './companySubscriptions.js';
 import { coordinateGetterSetter } from '../lib/common.utils.js';
 
 @Table({ tableName: 'companies' })
-
-export default class Companies extends Model<InferAttributes<Companies>, InferCreationAttributes<Companies>> {
+export default class Companies extends Model<
+    InferAttributes<Companies>,
+    InferCreationAttributes<Companies>
+> {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
@@ -18,7 +33,6 @@ export default class Companies extends Model<InferAttributes<Companies>, InferCr
     @AllowNull(false)
     @Column(DataType.INTEGER)
     managedBy!: number;
-
 
     @AllowNull(false)
     @NotEmpty
@@ -35,36 +49,39 @@ export default class Companies extends Model<InferAttributes<Companies>, InferCr
     @Column(DataType.STRING(255))
     address!: string;
 
-
     @AllowNull(false)
     @NotEmpty
     @Column({
         type: DataType.GEOGRAPHY('POINT'),
-        ...coordinateGetterSetter
+        ...coordinateGetterSetter,
     })
-    coordinate!: number[]
+    coordinate!: number[];
 
     @AllowNull(false)
     @NotEmpty
-    @Column(DataType.ENUM('tofufactory', 'service', 'agriculture', 'retailstore', 'restaurant ', 'other'))
+    @Column(
+        DataType.ENUM(
+            'tofufactory',
+            'service',
+            'agriculture',
+            'retailstore',
+            'restaurant ',
+            'other'
+        )
+    )
     type!: string;
-
 
     @BelongsTo(() => Users)
     manager?: Users;
 
-
-
-
     @HasMany(() => Nodes, 'companyId')
-    privateNodes?: Nodes[]
+    privateNodes?: Nodes[];
 
     @HasMany(() => EventLogs, 'companyId')
-    eventLogs?: EventLogs[]
+    eventLogs?: EventLogs[];
 
     @BelongsToMany(() => Nodes, () => CompanySubscription)
     subscribedNodes?: Array<Nodes & { CompanySubscription: CompanySubscription }>;
-
 
     declare getSubscribedNodes: BelongsToManyGetAssociationsMixin<Nodes>;
     declare addSubscribedNode: BelongsToManyAddAssociationMixin<Nodes, number>;
@@ -99,5 +116,5 @@ export default class Companies extends Model<InferAttributes<Companies>, InferCr
     declare countPrivateNodes: HasManyCountAssociationsMixin;
     declare createPrivateNode: HasManyCreateAssociationMixin<Nodes>;
 
-    count?: number
+    count?: number;
 }

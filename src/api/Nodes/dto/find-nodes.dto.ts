@@ -1,29 +1,27 @@
-import { Transform } from "class-transformer"
-import { IsBoolean, IsDateString, IsIn, IsOptional, IsString } from "class-validator"
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsDateString, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class FindNodesDto {
     @IsBoolean()
     @IsOptional()
     @Transform(({ value }) => value === 'true')
-    all?: boolean
-
+    all?: boolean;
 
     @IsString()
     @IsOptional()
     @IsIn(['private', 'public'])
-    ownship?: string
+    ownship?: string;
 
     @IsString()
     @IsOptional()
     @IsIn(['simple', 'all'])
-    view: 'simple' | 'all' = 'all'
+    view: 'simple' | 'all' = 'all';
 }
 
 export class FindDatalogsDto {
     @IsDateString()
-    startDate?: Date
-  
-    @IsDateString()
-    endDate?: Date
-}
+    startDate?: Date;
 
+    @IsDateString()
+    endDate?: Date;
+}

@@ -7,8 +7,8 @@ import { ImgbbService } from '../../services/Imgbb.service';
 import Companies from '../../models/companies';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Reports, Companies])],
-  controllers: [ReportsController],
-  providers: [ReportsService, ImgbbService],
+    imports: [SequelizeModule.forFeature([Reports, Companies])],
+    controllers: [ReportsController],
+    providers: [ReportsService, ImgbbService],
 })
-export class ReportsModule { }
+export class ReportsModule {}

@@ -12,17 +12,22 @@ import { NodeSubscriberModule } from './NodeSubscriber/nodeSubscriber.module.js'
 @Module({
     imports: [
         NodeSubscriberModule,
-        SequelizeModule.forFeature([Nodes, Companies, CompanySubscriptions, UsersSubscriptions, CompanySubscriptions]),
+        SequelizeModule.forFeature([
+            Nodes,
+            Companies,
+            CompanySubscriptions,
+            UsersSubscriptions,
+            CompanySubscriptions,
+        ]),
         RouterModule.register([
             {
                 path: 'api/nodes/:id/',
-                module: NodeSubscriberModule
-            }
-        ])
+                module: NodeSubscriberModule,
+            },
+        ]),
     ],
     controllers: [NodeUtilsController, NodesController],
     providers: [NodeUtilsService, NodesService],
     exports: [NodesService],
 })
-
-export class NodesModule { }
+export class NodesModule {}

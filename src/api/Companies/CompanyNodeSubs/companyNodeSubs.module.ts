@@ -11,5 +11,4 @@ import { CompanyNodeSubsService } from './companyNodeSubs.service.js';
     providers: [CompanyNodeSubsService],
     exports: [CompanyNodeSubsService],
 })
-
-export class CompanyNodeSubsModule { }
+export class CompanyNodeSubsModule {}

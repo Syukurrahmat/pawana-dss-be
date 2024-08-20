@@ -1,13 +1,12 @@
 import { MISSING_DATA_TRESHOLD } from '../constants/server.js';
 import { SimpleDatalogs } from '../types/dashboardData.js';
 
-export const calculateMissingData = (data: number[], length?: number) => (
-    data.filter(value => isNaN(value)).length / (length || data.length)
-)
+export const calculateMissingData = (data: number[], length?: number) =>
+    data.filter((value) => isNaN(value)).length / (length || data.length);
 
 export const fillMissingData = (data: number[], length?: number) => {
     if (calculateMissingData(data, length) > MISSING_DATA_TRESHOLD) return null;
-    return linearImputationData(data).filter(e => e);
+    return linearImputationData(data).filter((e) => e);
 };
 
 export function linearImputationData(data: number[]) {
@@ -23,13 +22,12 @@ export function linearImputationData(data: number[]) {
             if (!isNaN(data[j])) {
                 prevValue = data[i - 1];
                 nextValue = data[j];
-                data[i] = prevValue + (nextValue - prevValue) / (j - i) * (i - (i - 1));
+                data[i] = prevValue + ((nextValue - prevValue) / (j - i)) * (i - (i - 1));
             }
         }
     }
     return data;
 }
-
 
 export const datalogsLinearImputation = <T extends SimpleDatalogs>(data: T[]): T[] => {
     const interpolatedData = [...data];
@@ -40,17 +38,28 @@ export const datalogsLinearImputation = <T extends SimpleDatalogs>(data: T[]): T
         const currDate = new Date(interpolatedData[index].datetime).getTime();
 
         const ratio = (currDate - prevDate) / (nextDate - prevDate);
-        interpolatedData[index][prop] = (prev[prop] as number) + ratio * ((next[prop] as number) - (prev[prop] as number));
+        interpolatedData[index][prop] =
+            (prev[prop] as number) + ratio * ((next[prop] as number) - (prev[prop] as number));
     };
 
     for (let i = 0; i < interpolatedData.length; i++) {
-        if (isNaN(interpolatedData[i].pm25) || isNaN(interpolatedData[i].pm100) || isNaN(interpolatedData[i].ch4) || isNaN(interpolatedData[i].co2)) {
+        if (
+            isNaN(interpolatedData[i].pm25) ||
+            isNaN(interpolatedData[i].pm100) ||
+            isNaN(interpolatedData[i].ch4) ||
+            isNaN(interpolatedData[i].co2)
+        ) {
             let prev: T | null = null;
             let next: T | null = null;
 
             // Find previous known value
             for (let j = i - 1; j >= 0; j--) {
-                if (!isNaN(interpolatedData[j].pm25) && !isNaN(interpolatedData[j].pm100) && !isNaN(interpolatedData[j].ch4) && !isNaN(interpolatedData[j].co2)) {
+                if (
+                    !isNaN(interpolatedData[j].pm25) &&
+                    !isNaN(interpolatedData[j].pm100) &&
+                    !isNaN(interpolatedData[j].ch4) &&
+                    !isNaN(interpolatedData[j].co2)
+                ) {
                     prev = interpolatedData[j];
                     break;
                 }
@@ -58,7 +67,12 @@ export const datalogsLinearImputation = <T extends SimpleDatalogs>(data: T[]): T
 
             // Find next known value
             for (let j = i + 1; j < interpolatedData.length; j++) {
-                if (!isNaN(interpolatedData[j].pm25) && !isNaN(interpolatedData[j].pm100) && !isNaN(interpolatedData[j].ch4) && !isNaN(interpolatedData[j].co2)) {
+                if (
+                    !isNaN(interpolatedData[j].pm25) &&
+                    !isNaN(interpolatedData[j].pm100) &&
+                    !isNaN(interpolatedData[j].ch4) &&
+                    !isNaN(interpolatedData[j].co2)
+                ) {
                     next = interpolatedData[j];
                     break;
                 }

@@ -1,7 +1,19 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Session, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseIntPipe,
+    Patch,
+    Post,
+    Query,
+    Session,
+    UseGuards,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SessionData } from 'express-session';
-import { Roles } from '../../decorator/role.decorator.js';
+import { Roles } from '../../common/decorator/role.decorator.js';
 import { PaginationQueryDto } from '../../lib/pagination.dto.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { FindUserDto } from './dto/find-user.dto.js';
@@ -14,26 +26,21 @@ import { FindCompaniesDto } from './dto/find-companies.dto.js';
 @ApiTags('Users')
 @UseGuards(UserGuard)
 export class UsersController {
-    constructor(private readonly service: UsersService) { }
-
+    constructor(private readonly service: UsersService) {}
 
     @Post('/')
-    create(
-        @Body() createUserDto: CreateUserDto) {
+    create(@Body() createUserDto: CreateUserDto) {
         return this.service.create(createUserDto);
     }
 
     @Get('/')
-    async findAll(
-        @Query() pagination: PaginationQueryDto,
-        @Query() filter: FindUserDto,
-    ) {
+    async findAll(@Query() pagination: PaginationQueryDto, @Query() filter: FindUserDto) {
         return this.service.findAll(filter, pagination);
     }
 
     @Get('/overview')
     getOverview() {
-        return this.service.getOverview()
+        return this.service.getOverview();
     }
 
     @Get(':id')
@@ -52,10 +59,7 @@ export class UsersController {
     }
 
     @Get(':id/dashboard')
-    dashboard(
-        @Param('id', ParseIntPipe) id: number,
-        @Session() session: SessionData
-    ) {
+    dashboard(@Param('id', ParseIntPipe) id: number, @Session() session: SessionData) {
         return this.service.getDashboardData(id, session.tz);
     }
 
@@ -63,7 +67,7 @@ export class UsersController {
     ownCompanies(
         @Param('id', ParseIntPipe) id: number,
         @Query() pagination: PaginationQueryDto,
-        @Query() filter: FindCompaniesDto,
+        @Query() filter: FindCompaniesDto
     ) {
         return this.service.ownCompanies(id, pagination, filter);
     }
@@ -71,7 +75,7 @@ export class UsersController {
     @Get(':id/private-nodes')
     ownPrivateNodes(
         @Param('id', ParseIntPipe) id: number,
-        @Query() pagination: PaginationQueryDto,
+        @Query() pagination: PaginationQueryDto
     ) {
         return this.service.ownPrivateNodes(id, pagination);
     }

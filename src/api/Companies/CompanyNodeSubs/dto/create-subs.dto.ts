@@ -1,6 +1,6 @@
-import { IsInt } from "class-validator"
+import { IsInt } from 'class-validator';
 
 export class CreateSubscriptionDto {
     @IsInt({ each: true })
-    nodeIds?: number[]
+    nodeIds?: number[];
 }

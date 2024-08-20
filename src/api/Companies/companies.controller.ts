@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Session, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseIntPipe,
+    Patch,
+    Post,
+    Query,
+    Session,
+    UseGuards,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SessionData } from 'express-session';
 import { PaginationQueryDto } from '../../lib/pagination.dto.js';
@@ -7,7 +19,7 @@ import { CreateCompaniesDto } from './dto/create-companies.dto.js';
 import { FindCompaniesDto } from './dto/find-companies.dto.js';
 import { SummaryDto } from './dto/get-summary.dto.js';
 import { UpdateCompaniesDto } from './dto/update-companies.dto.js';
-import { User } from '../../decorator/user.decorator.js';
+import { User } from '../../common/decorator/user.decorator.js';
 import Users from '../../models/users.js';
 import { CompanyGuard } from './companies.guard.js';
 
@@ -15,27 +27,21 @@ import { CompanyGuard } from './companies.guard.js';
 @ApiTags('Companies')
 @UseGuards(CompanyGuard)
 export class CompaniesController {
-    constructor(private readonly service: CompaniesService) { }
+    constructor(private readonly service: CompaniesService) {}
 
     @Post('/')
-    create(
-        @User() user: Users,
-        @Body() createDto: CreateCompaniesDto
-    ) {
+    create(@User() user: Users, @Body() createDto: CreateCompaniesDto) {
         return this.service.create(createDto, user);
     }
 
     @Get('/')
-    async findAll(
-        @Query() pagination: PaginationQueryDto,
-        @Query() filter: FindCompaniesDto,
-    ) {
+    async findAll(@Query() pagination: PaginationQueryDto, @Query() filter: FindCompaniesDto) {
         return this.service.findAll(filter, pagination);
     }
 
     @Get('/overview')
     getOverview() {
-        return this.service.getOverview()
+        return this.service.getOverview();
     }
 
     @Get(':id')
@@ -57,18 +63,14 @@ export class CompaniesController {
     ownCompanies(
         @Param('id', ParseIntPipe) id: number,
         @Query() pagination: PaginationQueryDto,
-        @Query() filter: FindCompaniesDto,
+        @Query() filter: FindCompaniesDto
     ) {
-        console.log(222)
-        return this.service.getPrivateNodes(id,filter,  pagination)
+        console.log(222);
+        return this.service.getPrivateNodes(id, filter, pagination);
     }
 
-
     @Get(':id/dashboard')
-    dashboard(
-        @Param('id', ParseIntPipe) id: number,
-        @Session() session: SessionData
-    ) {
+    dashboard(@Param('id', ParseIntPipe) id: number, @Session() session: SessionData) {
         return this.service.getDashboardData(id, session.tz);
     }
 

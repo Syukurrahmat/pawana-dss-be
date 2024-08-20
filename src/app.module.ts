@@ -1,4 +1,4 @@
-import { Controller, Get, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RouterModule } from '@nestjs/core';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -8,9 +8,11 @@ import { NodesModule } from './Api/Nodes/nodes.module';
 import { ReportsModule } from './Api/Reports/reports.module';
 import { UsersModule } from './Api/Users/users.module';
 import { AuthModule } from './Auth/auth.module';
-import { AuthMiddleware } from './middleware/auth.middleware';
-import { UserSessionMiddleware } from './middleware/userSession.middleware';
+import { AuthMiddleware } from './common/middleware/auth.middleware';
+import { UserSessionMiddleware } from './common/middleware/userSession.middleware';
 import allDBModels from './models';
+import { AppController } from './app.controller';
+
 
 @Module({
     imports: [
@@ -34,22 +36,24 @@ import allDBModels from './models';
         RouterModule.register([
             {
                 path: '/api',
-                children: [ApplicationModule, ReportsModule, UsersModule, CompaniesModule, NodesModule].map(e => ({ path: '/', module: e }))
+                children: [
+                    ApplicationModule,
+                    ReportsModule,
+                    UsersModule,
+                    CompaniesModule,
+                    NodesModule,
+                ].map((e) => ({ path: '/', module: e })),
             },
             {
                 path: '/auth',
-                children: [AuthModule].map(e => ({ path: '/', module: e }))
+                children: [AuthModule].map((e) => ({ path: '/', module: e })),
             },
-            
         ]),
     ],
+    controllers: [AppController],
 })
-
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer
-            .apply(AuthMiddleware, UserSessionMiddleware)
-            .forRoutes('/api/*')
+        consumer.apply(AuthMiddleware, UserSessionMiddleware).forRoutes('/api/*');
     }
 }
-

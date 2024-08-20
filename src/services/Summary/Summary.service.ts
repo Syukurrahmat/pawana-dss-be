@@ -13,11 +13,10 @@ import { EventLogsSummary, ReportSummary, SummaryData } from '../../types/dashbo
 import { CategorizeValueService } from '../Logic/categorizingValue.service.js';
 import { SummaryLogic } from './summary-logic.js';
 
-
 const PERIODE_FORMAT = {
     month: 'YYY-MM',
-    week: 'YYYY-[W]ww'
-}
+    week: 'YYYY-[W]ww',
+};
 
 @Injectable()
 export class SummaryService extends SummaryLogic {
@@ -27,29 +26,43 @@ export class SummaryService extends SummaryLogic {
         private eventLogsService: EventlogsService,
         categorizeValueService: CategorizeValueService
     ) {
-        super(DataLogsDB, categorizeValueService)
+        super(DataLogsDB, categorizeValueService);
     }
 
-    async getSummary(company: Companies, summaryType: 'week' | 'month', periodeQuery: string, tz: string) {
-        const periodeQueryIsValid = moment(periodeQuery as string, PERIODE_FORMAT[summaryType], true).isValid();
+    async getSummary(
+        company: Companies,
+        summaryType: 'week' | 'month',
+        periodeQuery: string,
+        tz: string
+    ) {
+        const periodeQueryIsValid = moment(
+            periodeQuery as string,
+            PERIODE_FORMAT[summaryType],
+            true
+        ).isValid();
 
-        const isNotCurrentPeriode = periodeQueryIsValid && !moment.tz(periodeQuery, tz)
-            .startOf(summaryType)
-            .isSame(moment.tz(tz).startOf(summaryType));
+        const isNotCurrentPeriode =
+            periodeQueryIsValid &&
+            !moment
+                .tz(periodeQuery, tz)
+                .startOf(summaryType)
+                .isSame(moment.tz(tz).startOf(summaryType));
 
         const endDate = isNotCurrentPeriode
             ? moment.tz(periodeQuery, tz).endOf(summaryType)
-            : moment.tz(tz).endOf('d')
+            : moment.tz(tz).endOf('d');
 
         const startDate = isNotCurrentPeriode
             ? endDate.clone().startOf(summaryType)
-            : endDate.clone().subtract(1, summaryType).startOf('d').add(1, 'd')
+            : endDate.clone().subtract(1, summaryType).startOf('d').add(1, 'd');
 
         const indoorNodes = await company.getPrivateNodes();
         const outdoorNodes = await company.getSubscribedNodes({ joinTableAttributes: [] });
 
-        const { tren: indoorTren, averageInThisPeriode: indoorAverage } = await this.getTrenAndAverageNodes(indoorNodes, startDate, endDate);
-        const { tren: outdoorTren, averageInThisPeriode: outdoorAverage } = await this.getTrenAndAverageNodes(outdoorNodes, startDate, endDate);
+        const { tren: indoorTren, averageInThisPeriode: indoorAverage } =
+            await this.getTrenAndAverageNodes(indoorNodes, startDate, endDate);
+        const { tren: outdoorTren, averageInThisPeriode: outdoorAverage } =
+            await this.getTrenAndAverageNodes(outdoorNodes, startDate, endDate);
 
         const result: SummaryData = {
             meta: {
@@ -59,77 +72,92 @@ export class SummaryService extends SummaryLogic {
             },
             averageData: {
                 indoor: indoorAverage,
-                outdoor: outdoorAverage
+                outdoor: outdoorAverage,
             },
             tren: this.combiningTren(indoorTren, outdoorTren),
             reports: await this.getReportsSummary(company, startDate, endDate),
             eventLogs: await this.getEventLogsSummary(company, startDate, endDate, tz),
         };
 
-        return result
-    };
+        return result;
+    }
 
-
-    async getReportsSummary(company: Companies, startDate: Moment, endDate: Moment): Promise<ReportSummary> {
+    async getReportsSummary(
+        company: Companies,
+        startDate: Moment,
+        endDate: Moment
+    ): Promise<ReportSummary> {
         const reports = await this.ReportsDB.findAll({
             where: {
                 [Op.and]: [
                     { createdAt: { [Op.between]: [startDate.toDate(), endDate.toDate()] } },
                     where(
-                        literal(`ST_Distance_Sphere(coordinate, ST_GeomFromText('POINT(${company.coordinate[1]} ${company.coordinate[0]})'))`),
+                        literal(
+                            `ST_Distance_Sphere(coordinate, ST_GeomFromText('POINT(${company.coordinate[1]} ${company.coordinate[0]})'))`
+                        ),
                         { [Op.lte]: 500 }
-                    )
-                ]
+                    ),
+                ],
             },
-            include: [{
-                model: Users,
-                attributes: ['name', 'userId', 'profilePicture']
-            }],
+            include: [
+                {
+                    model: Users,
+                    attributes: ['name', 'userId', 'profilePicture'],
+                },
+            ],
             order: [
                 [
-                    literal(`ST_Distance_Sphere(coordinate, ST_GeomFromText('POINT(${company.coordinate[1]} ${company.coordinate[0]})'))`),
-                    'ASC'
-                ]
-            ]
+                    literal(
+                        `ST_Distance_Sphere(coordinate, ST_GeomFromText('POINT(${company.coordinate[1]} ${company.coordinate[0]})'))`
+                    ),
+                    'ASC',
+                ],
+            ],
         });
 
         return {
-            average: average(reports.map(e => e.rating)),
+            average: average(reports.map((e) => e.rating)),
             count: reports.length,
             countPerStar: Array.from(
                 { length: 5 },
-                (_, i) => reports.filter(e => e.rating == (5 - i)).length),
-            reports: reports
+                (_, i) => reports.filter((e) => e.rating == 5 - i).length
+            ),
+            reports: reports,
         };
-
     }
 
-    async getEventLogsSummary(company: Companies, startDate: Moment, endDate: Moment, tz: string): Promise<EventLogsSummary> {
+    async getEventLogsSummary(
+        company: Companies,
+        startDate: Moment,
+        endDate: Moment,
+        tz: string
+    ): Promise<EventLogsSummary> {
         const eventLogs = await this.eventLogsService
             .getEventLogsInRange(company.companyId!, startDate.toDate(), endDate.toDate())
             .then((e) =>
-                Promise.all(e.map(f => this.eventLogsService.identifyEventStatus(f, tz)))
+                Promise.all(e.map((f) => this.eventLogsService.identifyEventStatus(f, tz)))
             );
 
-        this.eventLogsService.calculateEventDuration(eventLogs, tz, { startDate, endDate: endDate });
+        this.eventLogsService.calculateEventDuration(eventLogs, tz, {
+            startDate,
+            endDate: endDate,
+        });
 
-        const countOfDayPerType = eventLogType.map(e => ({
+        const countOfDayPerType = eventLogType.map((e) => ({
             type: e,
             set: new Set(),
-        }))
+        }));
 
-        eventLogs.forEach(event => {
+        eventLogs.forEach((event) => {
             let eventStartMom = moment.tz(event.startDate, tz);
-            let eventEndMom = event.endDate
-                ? moment.tz(event.endDate, tz)
-                : endDate;
+            let eventEndMom = event.endDate ? moment.tz(event.endDate, tz) : endDate;
 
             if (moment(eventStartMom).isBefore(startDate)) eventStartMom = startDate;
             if (moment(eventEndMom).isAfter(endDate)) eventEndMom = endDate;
 
             const current = eventStartMom.clone();
-            const typeSet = countOfDayPerType.find(e => e.type == event.type)?.set
-            if (!typeSet) return
+            const typeSet = countOfDayPerType.find((e) => e.type == event.type)?.set;
+            if (!typeSet) return;
 
             while (current.isSameOrBefore(eventEndMom)) {
                 typeSet.add(current.format('YYYY-MM-DD'));
@@ -150,17 +178,18 @@ export class SummaryService extends SummaryLogic {
             count: {
                 all: eventLogs.length,
 
-                countStatus: eventLogStatus.filter(e => e !== 'upcoming').map(e => ({
-                    status: e,
-                    count: eventLogs.filter(f => f.status == e).length
-                })),
+                countStatus: eventLogStatus
+                    .filter((e) => e !== 'upcoming')
+                    .map((e) => ({
+                        status: e,
+                        count: eventLogs.filter((f) => f.status == e).length,
+                    })),
 
-                countType: eventLogType.map(e => ({
+                countType: eventLogType.map((e) => ({
                     type: e,
-                    count: eventLogs.filter(f => f.type == e).length,
-                    days: countOfDayPerType.find(f => f.type == e)?.set.size || 0
-                }))
-
+                    count: eventLogs.filter((f) => f.type == e).length,
+                    days: countOfDayPerType.find((f) => f.type == e)?.set.size || 0,
+                })),
             },
             eventIdLongestEvent: eventLogs.at(0)?.eventLogId,
             eventLogs,

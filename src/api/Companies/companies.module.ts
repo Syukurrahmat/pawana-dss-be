@@ -20,17 +20,16 @@ import { CategorizeValueService } from '../../services/Logic/categorizingValue.s
         RouterModule.register([
             {
                 path: 'api/companies/:id/nodes',
-                module: CompanyNodeSubsModule
+                module: CompanyNodeSubsModule,
             },
             {
                 path: 'api/companies/:id/events',
-                module: EventlogsModule
-            }
-        ])
+                module: EventlogsModule,
+            },
+        ]),
     ],
     controllers: [CompaniesController],
     providers: [CompaniesService, SummaryService, DashboardService, CategorizeValueService],
     exports: [CompaniesService],
 })
-
-export class CompaniesModule { }
+export class CompaniesModule {}

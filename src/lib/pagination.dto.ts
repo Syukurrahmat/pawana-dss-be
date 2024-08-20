@@ -21,32 +21,29 @@ export class PaginationQueryDto {
     @IsInt()
     @Min(1)
     @Type(() => Number)
-    page: number = 1
+    page: number = 1;
 
     @IsOptional()
     @IsInt()
     @Min(10)
     @Max(100)
     @Type(() => Number)
-    limit: number = 10
-
+    limit: number = 10;
 
     @IsOptional()
     @IsString()
     sort?: string;
 
-
     @IsOptional()
     @IsEnum(Orderby)
-    order: 'desc' | 'asc' | 'DESC' | "ASC" = 'asc'
-
+    order: 'desc' | 'asc' | 'DESC' | 'ASC' = 'asc';
 
     @IsOptional()
     @IsString()
     search?: string;
 
     get searchObj(): Record<any, any> {
-        return this.search ? { name: { [Op.like]: `%${this.search}%` } } : {}
+        return this.search ? { name: { [Op.like]: `%${this.search}%` } } : {};
     }
 
     get skip() {
@@ -54,10 +51,7 @@ export class PaginationQueryDto {
     }
 
     get paginationObj() {
-        const orderItem: OrderItem[] = this.sort ? [
-            Sequelize.col(this.sort),
-            this.order
-        ] : [];
+        const orderItem: OrderItem[] = this.sort ? [Sequelize.col(this.sort), this.order] : [];
 
         return {
             page: this.page,
@@ -65,13 +59,12 @@ export class PaginationQueryDto {
             offset: (this.page - 1) * this.limit,
             order: orderItem,
         };
-
     }
 
     getMetaData(pagination: PaginationQueryDto, total: number) {
-        const { limit, page, search, } = pagination
+        const { limit, page, search } = pagination;
 
-        const totalPage = Math.ceil(total / limit)
+        const totalPage = Math.ceil(total / limit);
 
         return {
             total,
@@ -81,6 +74,6 @@ export class PaginationQueryDto {
             limit: limit,
             prev: page > 1 ? page - 1 : null,
             next: page < totalPage ? page + 1 : null,
-        }
+        };
     }
 }

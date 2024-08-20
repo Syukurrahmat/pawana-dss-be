@@ -11,5 +11,4 @@ import Companies from '../../../models/companies';
     providers: [EventlogsService],
     exports: [EventlogsService],
 })
-
-export class EventlogsModule { }
+export class EventlogsModule {}

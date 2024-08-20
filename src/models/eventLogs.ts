@@ -1,13 +1,33 @@
-import { Model, Table, Column, DataType, ForeignKey, PrimaryKey, AutoIncrement, AllowNull, NotEmpty, Default } from "sequelize-typescript";
-import { InferAttributes, InferCreationAttributes } from "sequelize";
-import Companies from "./companies.js";
+import {
+    Model,
+    Table,
+    Column,
+    DataType,
+    ForeignKey,
+    PrimaryKey,
+    AutoIncrement,
+    AllowNull,
+    NotEmpty,
+    Default,
+} from 'sequelize-typescript';
+import { InferAttributes, InferCreationAttributes } from 'sequelize';
+import Companies from './companies.js';
 
-export const eventLogType = ['production', 'maintenance', 'training', 'administrative', 'repair', 'other']
-export const eventLogStatus = ['inProgress' , 'completed' , 'upcoming']
+export const eventLogType = [
+    'production',
+    'maintenance',
+    'training',
+    'administrative',
+    'repair',
+    'other',
+];
+export const eventLogStatus = ['inProgress', 'completed', 'upcoming'];
 
-@Table({ tableName: "eventlogs" })
-
-export default class EventLogs extends Model<InferAttributes<EventLogs>, InferCreationAttributes<EventLogs>> {
+@Table({ tableName: 'eventlogs' })
+export default class EventLogs extends Model<
+    InferAttributes<EventLogs>,
+    InferCreationAttributes<EventLogs>
+> {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
@@ -50,11 +70,8 @@ export default class EventLogs extends Model<InferAttributes<EventLogs>, InferCr
     endDate?: Date;
 
     @Column(DataType.VIRTUAL)
-    status?: 'inProgress' | 'completed' | 'upcoming'
+    status?: 'inProgress' | 'completed' | 'upcoming';
 
     @Column(DataType.VIRTUAL)
-    duration?: number
+    duration?: number;
 }
-
-
-

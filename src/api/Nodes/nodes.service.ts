@@ -1,7 +1,19 @@
-import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+    UnprocessableEntityException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import moment from 'moment';
-import { FindOptions, InferAttributes, Op, ProjectionAlias, Sequelize, WhereOptions } from 'sequelize';
+import {
+    FindOptions,
+    InferAttributes,
+    Op,
+    ProjectionAlias,
+    Sequelize,
+    WhereOptions,
+} from 'sequelize';
 import { v4 as uuidV4 } from 'uuid';
 import { PaginationQueryDto } from '../../lib/pagination.dto.js';
 import Companies from '../../models/companies.js';
@@ -27,28 +39,41 @@ export class NodesService {
         private UsersSubscriptionsDB: typeof UsersSubscriptions,
 
         @InjectModel(CompanySubscriptions)
-        private CompanySubscriptionsDB: typeof CompanySubscriptions,
-    ) { }
+        private CompanySubscriptionsDB: typeof CompanySubscriptions
+    ) {}
+
+    private async checkNodeName(name: string, companyId?: number | null) {
+        const ada = await this.NodesDB.count({ where: { companyId: companyId || null, name } });
+        if (ada)
+            throw new BadRequestException({
+                message: [
+                    'name',
+                    'Nama node telah digunakan, Ganti dengan nama yang belum digunakan',
+                ],
+            });
+    }
 
     async create(createDto: CreateNodeDto, user: Users) {
         let { name, description, address, coordinate, instalationDate, companyId } = createDto;
 
         if (user.role == 'manager') {
-            if (!companyId) throw new BadRequestException('companyId is required')
-            if (!await user.hasCompany(companyId)) {
-                throw new NotFoundException('company not found')
+            if (!companyId) throw new BadRequestException('companyId is required');
+            if (!(await user.hasCompany(companyId))) {
+                throw new NotFoundException('company not found');
             }
         }
 
         if (companyId) {
-            const company = await this.CompaniesDB.count({ where: { companyId } })
-            if (!company) throw new NotFoundException('company not found')
-            address = undefined
-            coordinate = undefined
+            const company = await this.CompaniesDB.count({ where: { companyId } });
+            if (!company) throw new NotFoundException('company not found');
+            address = undefined;
+            coordinate = undefined;
+            await this.checkNodeName(name!, companyId);
         } else {
             if (!address || !coordinate) {
-                throw new BadRequestException('adress dan coordinate harus diisi')
+                throw new BadRequestException('adress dan coordinate harus diisi');
             }
+            await this.checkNodeName(name!);
         }
 
         const newNode = await this.NodesDB.create({
@@ -59,210 +84,234 @@ export class NodesService {
             description: description!,
             instalationDate,
             apiKey: uuidV4(),
-        })
+        });
 
         if (!newNode) throw new UnprocessableEntityException('Data tidak bisa diproses');
 
-        return { nodeId: newNode.nodeId }
+        return { nodeId: newNode.nodeId };
     }
 
     async findAll(filter: FindNodesDto, pagination: PaginationQueryDto) {
-        const { paginationObj, searchObj, getMetaData } = pagination
+        const { paginationObj, searchObj, getMetaData } = pagination;
 
-        const { all, ownship, view } = filter
-        const paginateObj = all ? {} : paginationObj
+        const { all, ownship, view } = filter;
+        const paginateObj = all ? {} : paginationObj;
 
-        const filterByOwnship = ownship ? {
-            companyId: ownship == 'public' ? { [Op.is]: null } : ownship == 'private' ? { [Op.not]: null } : {}
-        } : {}
-
+        const filterByOwnship = ownship
+            ? {
+                  companyId:
+                      ownship == 'public'
+                          ? { [Op.is]: null }
+                          : ownship == 'private'
+                            ? { [Op.not]: null }
+                            : {},
+              }
+            : {};
 
         console.log({
             where: {
                 ...searchObj,
-                ...filterByOwnship
+                ...filterByOwnship,
             },
-        })
+        });
 
-        const attributes = view == 'all'
-            ? { exclude: ['instalationDate', 'description', 'apiKey', 'updatedAt'] }
-            : ['nodeId', 'name', 'isUptodate', 'createdAt']
+        const attributes =
+            view == 'all'
+                ? { exclude: ['instalationDate', 'description', 'apiKey', 'updatedAt'] }
+                : ['nodeId', 'name', 'isUptodate', 'createdAt'];
 
         const { count, rows } = await this.NodesDB.findAndCountAll({
             attributes,
             where: {
                 ...searchObj,
-                ...filterByOwnship
+                ...filterByOwnship,
             },
             include: {
                 model: Companies,
                 as: 'owner',
-                attributes: ['name', 'companyId', 'type']
+                attributes: ['name', 'companyId', 'type'],
             },
             ...paginateObj,
-            order: [[{ model: Companies, as: 'owner' }, 'name', 'ASC']]
-        })
-
+            order: [[{ model: Companies, as: 'owner' }, 'name', 'ASC']],
+        });
 
         return {
             rows,
-            meta: getMetaData(pagination, count)
+            meta: getMetaData(pagination, count),
         };
     }
 
     async getOverview() {
         const sixHoursAgo = moment().subtract(6, 'hours').toDate();
 
-        const all = await this.NodesDB.count()
+        const all = await this.NodesDB.count();
         const publicNodes = await this.NodesDB.count({
-            where: { companyId: { [Op.is]: null } }
+            where: { companyId: { [Op.is]: null } },
         });
 
         const privateNodes = await this.NodesDB.count({
-            where: { companyId: { [Op.not]: null } }
+            where: { companyId: { [Op.not]: null } },
         });
 
         const activeNodes = await this.NodesDB.count({
-            where: { lastDataSent: { [Op.gte]: sixHoursAgo } }
-        })
+            where: { lastDataSent: { [Op.gte]: sixHoursAgo } },
+        });
         const nonActiveNodes = await this.NodesDB.count({
-            where: { lastDataSent: { [Op.lt]: new Date() } }
-        })
+            where: { lastDataSent: { [Op.lt]: new Date() } },
+        });
 
         const ownership = [
             { value: 'public', count: publicNodes },
-            { value: 'private', count: privateNodes }
-        ]
+            { value: 'private', count: privateNodes },
+        ];
 
         const status = [
             { value: 'active', count: activeNodes },
-            { value: 'nonactive', count: nonActiveNodes }
-        ]
+            { value: 'nonactive', count: nonActiveNodes },
+        ];
 
         return {
             all,
             ownership,
-            status
-        }
+            status,
+        };
     }
-
 
     async findOne(id: number) {
         const node = await this.getNode(id, {
-            include: [{
-                model: Companies, as: 'owner', attributes: ['companyId', 'name', 'type', 'managedBy']
-            }],
-        })
+            include: [
+                {
+                    model: Companies,
+                    as: 'owner',
+                    attributes: ['companyId', 'name', 'type', 'managedBy'],
+                },
+            ],
+        });
 
         node.dataValues.dataLogs = node.lastDataSent
             ? await node.getDataLogs({
-                where: {
-                    datetime: {
-                        [Op.between]: [
-                            moment(node.lastDataSent).subtract(1, 'days').toDate(),
-                            node.lastDataSent
-                        ]
-                    }
-                }
-            })
-            : []
+                  where: {
+                      datetime: {
+                          [Op.between]: [
+                              moment(node.lastDataSent).subtract(1, 'days').toDate(),
+                              node.lastDataSent,
+                          ],
+                      },
+                  },
+              })
+            : [];
 
-        const countUserSubscription = await this.UsersSubscriptionsDB.count({ where: { nodeId: id } })
-        const countCompanySubscribtion = await this.CompanySubscriptionsDB.count({ where: { nodeId: id } })
+        const countUserSubscription = await this.UsersSubscriptionsDB.count({
+            where: { nodeId: id },
+        });
+        const countCompanySubscribtion = await this.CompanySubscriptionsDB.count({
+            where: { nodeId: id },
+        });
 
         return {
             ...node.toJSON(),
             countUserSubscription,
-            countCompanySubscribtion
-        }
+            countCompanySubscribtion,
+        };
     }
 
     async update(id: number, updateDto: UpdateNodeDto) {
-        const node = await this.getNode(id)
+        const node = await this.getNode(id);
+
+        if (updateDto.name) await this.checkNodeName(updateDto.name, node.companyId);
 
         if (node.companyId) {
-            updateDto.address = undefined
-            updateDto.coordinate = undefined
+            updateDto.address = undefined;
+            updateDto.coordinate = undefined;
         }
 
-        const [affected] = await this.NodesDB.update({ ...updateDto }, { where: { nodeId: id } })
+        const [affected] = await this.NodesDB.update({ ...updateDto }, { where: { nodeId: id } });
 
         if (!affected) throw new UnprocessableEntityException('Data tidak bisa diproses');
 
-        return 'success'
+        return 'success';
     }
 
     async remove(id: number) {
-        const node = await this.getNode(id)
-        await node.destroy()
+        const node = await this.getNode(id);
+        await node.destroy();
 
-        return 'success'
+        return 'success';
     }
 
-
     async getDatalogs(nodeId: number, startEndDate: FindDatalogsDto) {
-        const { startDate, endDate } = startEndDate
+        const { startDate, endDate } = startEndDate;
 
         const node = await this.getNode(nodeId, {
             attributes: ['nodeId', 'name', 'isUptodate', 'lastDataSent'],
-            include: [{
-                model: DataLogs,
-                where: {
-                    datetime: { [Op.between]: [new Date(startDate!), new Date(endDate!)] }
+            include: [
+                {
+                    model: DataLogs,
+                    where: {
+                        datetime: { [Op.between]: [new Date(startDate!), new Date(endDate!)] },
+                    },
+                    required: false,
                 },
-                required: false
-            }],
-        })
+            ],
+        });
 
         return {
             startDate,
             endDate,
-            result: node
-        }
+            result: node,
+        };
     }
 
     private async getNode(id: number, opt?: FindOptions<InferAttributes<Nodes, { omit: never }>>) {
         const node = await this.NodesDB.findOne({
             where: { nodeId: id },
-            ...opt
-        })
+            ...opt,
+        });
 
-        if (!node) throw new NotFoundException()
-        return node
+        if (!node) throw new NotFoundException();
+        return node;
     }
 }
-
 
 @Injectable()
 export class NodeUtilsService {
     constructor(
         @InjectModel(Nodes)
-        private NodesDB: typeof Nodes,
-    ) { }
+        private NodesDB: typeof Nodes
+    ) {}
 
-    async getSubscribeableNodes(companyId: number | undefined, userId: number | undefined, search: string | undefined) {
-
+    async getSubscribeableNodes(
+        companyId: number | undefined,
+        userId: number | undefined,
+        search: string | undefined
+    ) {
         let isSubscribedQuery: ProjectionAlias[] = [];
 
-        if (companyId) isSubscribedQuery = [[
-            Sequelize.literal(`(
+        if (companyId)
+            isSubscribedQuery = [
+                [
+                    Sequelize.literal(`(
                 SELECT COUNT(*) FROM companysubscriptions
                 WHERE companysubscriptions.nodeId = Nodes.nodeId
                 AND companysubscriptions.companyId = ${companyId || 'null'}
             )`),
-            'isSubscribed',
-        ]];
+                    'isSubscribed',
+                ],
+            ];
 
-        if (userId) isSubscribedQuery = [[
-            Sequelize.literal(`(
+        if (userId)
+            isSubscribedQuery = [
+                [
+                    Sequelize.literal(`(
                 SELECT COUNT(*) FROM userssubscriptions
                 WHERE userssubscriptions.nodeId = Nodes.nodeId
                 AND userssubscriptions.userId = ${userId || 'null'}
             )`),
-            'isSubscribed',
-        ]];
+                    'isSubscribed',
+                ],
+            ];
 
-        const searchObj = search ? { name: { [Op.like]: search } } : {}
+        const searchObj = search ? { name: { [Op.like]: search } } : {};
 
         const nodes = await this.NodesDB.findAll({
             attributes: [
@@ -273,16 +322,14 @@ export class NodeUtilsService {
                 'lastDataSent',
                 'createdAt',
                 'companyId',
-                ...isSubscribedQuery
+                ...isSubscribedQuery,
             ],
             where: {
                 ...searchObj,
-                companyId: { [Op.is]: undefined }
-            }
-        })
+                companyId: { [Op.is]: undefined },
+            },
+        });
 
-        return nodes
-    };
-
-
+        return nodes;
+    }
 }

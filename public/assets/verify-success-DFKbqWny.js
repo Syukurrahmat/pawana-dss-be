@@ -1,0 +1,1 @@
+import{O as e,j as r,R as o,Q as t}from"./createReactComponent-BjMSnX4u.js";import{V as s}from"./verify-7Sm201lS.js";import"./icon-CgCgY_AD.js";e.createRoot(document.getElementById("root")).render(r.jsx(o.StrictMode,{children:r.jsx(t,{cssVarsRoot:void 0,children:r.jsx(s,{})})}));

@@ -9,13 +9,11 @@ import { coordinateGetterSetter } from '../lib/common.utils.js';
 import moment from 'moment';
 
 @Table({ tableName: 'nodes' })
-
 export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAttributes<Nodes>> {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
     nodeId?: number;
-
 
     @ForeignKey(() => Companies)
     @AllowNull(true)
@@ -37,17 +35,15 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
 
     @Column({
         type: DataType.GEOGRAPHY('POINT'),
-        ...coordinateGetterSetter
+        ...coordinateGetterSetter,
     })
-    coordinate?: number[]
-
+    coordinate?: number[];
 
     @AllowNull(false)
     @Default('neversentdata')
     @NotEmpty
     @Column(DataType.ENUM('active', 'nonactive', 'idle', 'neversentdata'))
     status?: string;
-
 
     @Column(DataType.DATEONLY)
     instalationDate?: Date;
@@ -59,17 +55,16 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
 
     @Column(DataType.DATE)
     lastDataSent?: Date;
- 
 
     @Column({
         type: DataType.VIRTUAL,
         get(this: Nodes) {
-            if (!this.lastDataSent) return false
-            return moment().diff(moment(this.lastDataSent), 'hour') <= 6
+            if (!this.lastDataSent) return false;
+            return moment().diff(moment(this.lastDataSent), 'hour') <= 6;
         },
-        set() { },
+        set() {},
     })
-    isUptodate?: boolean
+    isUptodate?: boolean;
 
     // RELATIONSHIP WITH OTHER TABLES
 
@@ -82,7 +77,7 @@ export default class Nodes extends Model<InferAttributes<Nodes>, InferCreationAt
     // ------
 
     @HasMany(() => DataLogs, 'nodeId')
-    dataLogs?: DataLogs[]
+    dataLogs?: DataLogs[];
 
     @BelongsToMany(() => Companies, () => CompanySubscriptions)
     companySubscriptions?: Array<Companies & { CompanySubscriptions: CompanySubscriptions }>;

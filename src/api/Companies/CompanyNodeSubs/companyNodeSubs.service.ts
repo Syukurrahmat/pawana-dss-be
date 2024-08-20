@@ -13,17 +13,17 @@ export class CompanyNodeSubsService {
         @InjectModel(Companies)
         private companyeDB: typeof Companies,
         @InjectModel(Nodes)
-        private nodeDB: typeof Nodes,
-    ) { }
+        private nodeDB: typeof Nodes
+    ) {}
 
     async createNodeSubscription(companyId: number, createDto: CreateSubscriptionDto) {
-        const company = await this.getCompany(companyId)
-        const nodeIds = createDto.nodeIds!
+        const company = await this.getCompany(companyId);
+        const nodeIds = createDto.nodeIds!;
 
-        const countSubscribed = await company.countSubscribedNodes()
+        const countSubscribed = await company.countSubscribedNodes();
 
         if (countSubscribed >= SUBS_LIMIT || nodeIds.length + countSubscribed > SUBS_LIMIT) {
-            throw new ForbiddenException('Melebih batas yang diizinkan')
+            throw new ForbiddenException('Melebih batas yang diizinkan');
         }
 
         const nodes = await this.nodeDB.findAll({
@@ -31,59 +31,60 @@ export class CompanyNodeSubsService {
             attributes: ['nodeId'],
         });
 
-        if (nodes.length == 0) throw new NotFoundException('node tidak ditemukan')
-        await company.addSubscribedNodes(nodes)
+        if (nodes.length == 0) throw new NotFoundException('node tidak ditemukan');
+        await company.addSubscribedNodes(nodes);
 
-        return 'success'
-    };
-
+        return 'success';
+    }
 
     async getSubscribedNodes(companyId: number, pagination: PaginationQueryDto) {
-        const { paginationObj, searchObj, getMetaData } = pagination
-        const company = await this.getCompany(companyId)
+        const { paginationObj, searchObj, getMetaData } = pagination;
+        const company = await this.getCompany(companyId);
 
-        const where = { ...searchObj }
+        const where = { ...searchObj };
 
         const [count, rows] = await Promise.all([
             company.countSubscribedNodes({ where }),
             company.getSubscribedNodes({
                 attributes: [
-                    'nodeId', 'name', 'coordinate', 'lastDataSent', 'isUptodate',
-                    [Sequelize.col('CompanySubscriptions.createdAt'), 'joinedAt']
+                    'nodeId',
+                    'name',
+                    'coordinate',
+                    'lastDataSent',
+                    'isUptodate',
+                    [Sequelize.col('CompanySubscriptions.createdAt'), 'joinedAt'],
                 ],
                 joinTableAttributes: [],
                 where,
                 ...paginationObj,
                 order: [[Sequelize.col('joinedAt'), 'DESC']],
-            })
-        ])
+            }),
+        ]);
 
         return {
             rows,
-            meta: getMetaData(pagination, count)
+            meta: getMetaData(pagination, count),
         };
-    };
-
+    }
 
     async removeNodeSubscription(companyId: number, subscriptionId: number) {
-        const company = await this.getCompany(companyId)
-        await company.removeSubscribedNode(subscriptionId)
-        return 'success'
-    };
-
+        const company = await this.getCompany(companyId);
+        await company.removeSubscribedNode(subscriptionId);
+        return 'success';
+    }
 
     async getRemainingSubsLimit(companyId: number) {
-        const company = await this.getCompany(companyId)
-        return SUBS_LIMIT - await company.countSubscribedNodes()
+        const company = await this.getCompany(companyId);
+        return SUBS_LIMIT - (await company.countSubscribedNodes());
     }
 
     private async getCompany(id: number) {
         const company = await this.companyeDB.findOne({
             where: { companyId: id },
             attributes: { exclude: ['createdAt', 'updatedAt'] },
-        })
+        });
 
-        if (!company) throw new NotFoundException()
-        return company
+        if (!company) throw new NotFoundException();
+        return company;
     }
 }

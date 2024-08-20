@@ -5,9 +5,9 @@ import { IsOptional, IsString } from 'class-validator';
 export class UpdateUserDto extends PartialType(OmitType(CreateUserDto, ['role', 'email'])) {
     @IsOptional()
     @IsString()
-    password ?:string
+    password?: string;
 
     @IsOptional()
     @IsString()
-    newPassword ?:string
+    newPassword?: string;
 }

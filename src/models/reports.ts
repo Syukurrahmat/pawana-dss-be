@@ -1,11 +1,24 @@
-import { Model, Table, Column, DataType, ForeignKey, PrimaryKey, AutoIncrement, AllowNull, NotEmpty, BelongsTo } from "sequelize-typescript";
-import { InferAttributes, InferCreationAttributes } from "sequelize";
-import Users from "./users.js";
+import {
+    Model,
+    Table,
+    Column,
+    DataType,
+    ForeignKey,
+    PrimaryKey,
+    AutoIncrement,
+    AllowNull,
+    NotEmpty,
+    BelongsTo,
+} from 'sequelize-typescript';
+import { InferAttributes, InferCreationAttributes } from 'sequelize';
+import Users from './users.js';
 import { coordinateGetterSetter } from '../lib/common.utils.js';
 
-@Table({ tableName: "reports" })
-
-export default class Reports extends Model<InferAttributes<Reports>, InferCreationAttributes<Reports>> {
+@Table({ tableName: 'reports' })
+export default class Reports extends Model<
+    InferAttributes<Reports>,
+    InferCreationAttributes<Reports>
+> {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.INTEGER)
@@ -30,10 +43,9 @@ export default class Reports extends Model<InferAttributes<Reports>, InferCreati
     @NotEmpty
     @Column({
         type: DataType.GEOGRAPHY('POINT'),
-        ...coordinateGetterSetter
+        ...coordinateGetterSetter,
     })
-    coordinate!: number[]
-
+    coordinate!: number[];
 
     @Column({
         type: DataType.STRING(255),
@@ -42,12 +54,11 @@ export default class Reports extends Model<InferAttributes<Reports>, InferCreati
             return this.setDataValue('images', value);
         },
         get() {
-            const value = this.getDataValue('images')
-            return value ? value.split('\n') : []
-        }
+            const value = this.getDataValue('images');
+            return value ? value.split('\n') : [];
+        },
     })
     images?: string[];
-
 
     @BelongsTo(() => Users)
     creator?: Users;

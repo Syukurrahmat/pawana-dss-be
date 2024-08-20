@@ -1,1 +1,0 @@
-import{j as s,H as o,T as x}from"./createReactComponent-m2GCamtz.js";import{A as c}from"./chunk-V7PAE35Z-BuEgg6Tf.js";function j({name:r,profilePicture:t,size:a,spacing:i,...e}){return s.jsxs(o,{spacing:i||"4",...e,children:[s.jsx(c,{name:r,src:t,size:a||"sm"}),s.jsxs(x,{children:[r," "]})]})}export{j as N};

@@ -1,32 +1,31 @@
-import { IsEmail, IsIn, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
+import { IsEmail, IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateUserDto {
     @IsString()
     @MaxLength(30)
     @MinLength(3)
-    name?: string
+    name?: string;
 
     @IsEmail()
-    email?: string
+    email?: string;
 
     @IsString()
-    phone?: string
+    phone?: string;
 
     @IsString()
     @IsOptional()
     @MaxLength(300)
-    description?: string
+    description?: string;
 
     @IsString()
     @MaxLength(300)
-    address?: string
+    address?: string;
 
     @IsString()
     @IsOptional()
-    profilePicture?: string
-
+    profilePicture?: string;
 
     @IsString()
     @IsIn(['admin', 'gov', 'regular', 'manager'])
-    role?: 'admin' | 'gov' | 'regular' | 'manager'
+    role?: 'admin' | 'gov' | 'regular' | 'manager';
 }

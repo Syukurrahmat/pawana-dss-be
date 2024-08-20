@@ -2,10 +2,8 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { AccessControl } from '../../types/accessControle';
 
-
 @Injectable()
 export class CompanyGuard implements CanActivate {
-
     private accessControl: AccessControl = {
         admin: ['GET', 'POST', 'PATCH', 'DELETE'],
         gov: ['GET'],
@@ -14,31 +12,31 @@ export class CompanyGuard implements CanActivate {
     };
 
     async canActivate(context: ExecutionContext) {
-        const request = context.switchToHttp().getRequest() as Request
-        const user = request.user!
+        const request = context.switchToHttp().getRequest() as Request;
+        const user = request.user!;
 
-        console.log(`[${user.role}]`,request.path)
+        console.log(`[${user.role}]`, request.path);
 
-        const method = request.method
+        const method = request.method;
         const companyId = +request.params.id;
 
         const accessRules = this.accessControl[user.role];
-        if (!accessRules) return false
+        if (!accessRules) return false;
 
-        const alowedRule = accessRules.find(rule => rule.startsWith(method));
+        const alowedRule = accessRules.find((rule) => rule.startsWith(method));
         if (!alowedRule) return false;
 
-        const onlyOwn = alowedRule.split(':')[1]
-        if (!onlyOwn) return true
+        const onlyOwn = alowedRule.split(':')[1];
+        if (!onlyOwn) return true;
 
         if (onlyOwn && companyId) {
-            const isOwn = await user.getCompanies({ where: { companyId }, attributes: ['companyId'] }).then(e => e.length)
+            const isOwn = await user
+                .getCompanies({ where: { companyId }, attributes: ['companyId'] })
+                .then((e) => e.length);
 
             return !!isOwn;
         }
 
-        
-    
-        return false
+        return false;
     }
 }

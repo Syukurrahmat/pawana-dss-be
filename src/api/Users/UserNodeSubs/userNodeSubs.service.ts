@@ -1,4 +1,10 @@
-import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    ForbiddenException,
+    Inject,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 // import { PaginationQueryDto } from '@/dto/pagination.dto.js';
 import { Op, Sequelize } from 'sequelize';
 import { SUBS_LIMIT } from '../../../constants/server.js';
@@ -14,81 +20,80 @@ export class UserNodeSubsService {
         @InjectModel(Users)
         private userDB: typeof Users,
         @InjectModel(Nodes)
-        private nodeDB: typeof Nodes,
-    ) { }
+        private nodeDB: typeof Nodes
+    ) {}
 
     async createNodeSubscription(userId: number, createDto: CreateSubscriptionDto) {
-        const user = await this.getUser(userId)
-        const nodeIds = createDto.nodeIds!
+        const user = await this.getUser(userId);
+        const nodeIds = createDto.nodeIds!;
 
-        const countSubscribed = await user.countSubscribedNodes()
+        const countSubscribed = await user.countSubscribedNodes();
 
-        console.log(countSubscribed)
-        
+        console.log(countSubscribed);
+
         if (countSubscribed >= SUBS_LIMIT || nodeIds.length + countSubscribed > SUBS_LIMIT) {
-            throw new ForbiddenException('Melebih batas yang diizinkan')
+            throw new ForbiddenException('Melebih batas yang diizinkan');
         }
 
         const nodes = await this.nodeDB.findAll({
-            where: { nodeId: { [Op.in]: nodeIds.filter((e) => e) }, companyId : null },
+            where: { nodeId: { [Op.in]: nodeIds.filter((e) => e) }, companyId: null },
             attributes: ['nodeId'],
         });
 
-        if (nodes.length == 0) throw new NotFoundException('node tidak ditemukan')
-        await user.addSubscribedNodes(nodes)
+        if (nodes.length == 0) throw new NotFoundException('node tidak ditemukan');
+        await user.addSubscribedNodes(nodes);
 
-        return 'success'
-    };
-
+        return 'success';
+    }
 
     async getSubscribedNodes(userId: number, pagination: PaginationQueryDto) {
-        const { paginationObj, searchObj, getMetaData } = pagination
-        const user = await this.getUser(userId)
+        const { paginationObj, searchObj, getMetaData } = pagination;
+        const user = await this.getUser(userId);
 
-        const where = { ...searchObj }
+        const where = { ...searchObj };
 
         const [count, rows] = await Promise.all([
             user.countSubscribedNodes({ where }),
             user.getSubscribedNodes({
                 attributes: [
-                    'nodeId', 'name', 'coordinate', 'lastDataSent', 'isUptodate',
-                    [Sequelize.col('UsersSubscriptions.createdAt'), 'joinedAt']
+                    'nodeId',
+                    'name',
+                    'coordinate',
+                    'lastDataSent',
+                    'isUptodate',
+                    [Sequelize.col('UsersSubscriptions.createdAt'), 'joinedAt'],
                 ],
                 joinTableAttributes: [],
                 where,
                 ...paginationObj,
                 order: [[Sequelize.col('joinedAt'), 'DESC']],
-            })
-        ])
+            }),
+        ]);
 
         return {
             rows,
-            meta: getMetaData(pagination, count)
+            meta: getMetaData(pagination, count),
         };
-    };
-
+    }
 
     async removeNodeSubscription(userId: number, subscriptionId: number) {
-        const user = await this.getUser(userId)
-        await user.removeSubscribedNode(subscriptionId)
-        return 'success'
-    };
+        const user = await this.getUser(userId);
+        await user.removeSubscribedNode(subscriptionId);
+        return 'success';
+    }
 
-
-    
-    async getRemainingSubsLimit(userId : number){
-        const user = await this.getUser(userId)
-        return SUBS_LIMIT - await user.countSubscribedNodes()
+    async getRemainingSubsLimit(userId: number) {
+        const user = await this.getUser(userId);
+        return SUBS_LIMIT - (await user.countSubscribedNodes());
     }
 
     private async getUser(id: number) {
         const user = await this.userDB.findOne({
             where: { userId: id, isVerified: true },
             attributes: { exclude: ['createdAt', 'updatedAt', 'password'] },
-        })
+        });
 
-        if (!user) throw new NotFoundException()
-        return user
+        if (!user) throw new NotFoundException();
+        return user;
     }
-
 }

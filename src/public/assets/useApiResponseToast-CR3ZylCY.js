@@ -1,1 +1,0 @@
-import{U as c}from"./createReactComponent-m2GCamtz.js";function r(){const o=c();return{toast:o,apiResponseToast:(t,s)=>{const e=s==null?void 0:s.onSuccess,i=s==null?void 0:s.onFailure;t.success?(o({title:"Sukses",description:t.message,status:"success"}),e&&e()):(o({title:"Gagal",description:t.message,status:"error"}),i&&i())}}}export{r as u};
