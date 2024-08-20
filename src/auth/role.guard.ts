@@ -10,7 +10,6 @@ export class RoleGuard implements CanActivate {
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
         const roles = this.reflector.get(Roles, context.getHandler());
 
-        console.log(roles);
         if (roles == undefined) return true;
 
         const userRole = context.switchToHttp().getRequest().user.role;

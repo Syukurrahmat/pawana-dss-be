@@ -42,10 +42,10 @@ async function bootstrap() {
     
     configureSwagger(app)
     
-    app.use(async (req: Request, res, next) => {
-        req.user = (await Users.findByPk(53)) || undefined;
-        next();
-    });
+    // app.use(async (req: Request, res, next) => {
+    //     req.user = (await Users.findByPk(53)) || undefined;
+    //     next();
+    // });
 
     // await updatedatetimeDatalogs(6)
 

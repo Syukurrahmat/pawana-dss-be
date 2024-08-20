@@ -5,8 +5,8 @@ import Users from '../models/users.js';
 import { EmailService } from '../services/Email/Email.service.js';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
-import { LocalStrategy } from './local.strategy.js';
-import SessionSerializer from './session.serializer.js';
+import { LocalStrategy } from './passport/local.strategy.js';
+import SessionSerializer from './passport/session.serializer.js';
 
 @Module({
     controllers: [AuthController],

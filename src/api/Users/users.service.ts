@@ -42,7 +42,7 @@ export class UsersService {
                 message: ['email', 'Email telah digunakan pengguna lain'],
             });
 
-        const token = jwt.sign({ email }, process.env.JWT_SECRETKEY!, { expiresIn: '3 days' });
+        const token = jwt.sign({ email }, process.env.JWT_SECRETKEY!, { expiresIn: '7 days' });
         await this.emailService.sendVerificationEmail(name!, email!, token);
 
         const newUser = await this.usersDB.create({

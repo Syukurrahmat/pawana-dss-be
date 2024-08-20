@@ -54,6 +54,10 @@ import { AppController } from './app.controller';
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(AuthMiddleware, UserSessionMiddleware).forRoutes('/api/*');
+        consumer
+            .apply(AuthMiddleware, UserSessionMiddleware)
+            .exclude('/login', '/verify', '/auth/(.*)')
+            .forRoutes('*')
+            
     }
 }

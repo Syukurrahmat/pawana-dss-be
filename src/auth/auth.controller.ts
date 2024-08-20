@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { User } from '../common/decorator/user.decorator.js';
@@ -11,22 +11,17 @@ import LocalAuthenticationGuard from './local.guard.js';
 export class AuthController {
     constructor(private service: AuthService) { }
 
-    @UseGuards(LocalAuthenticationGuard)
     @Post('/login')
+    @UseGuards(LocalAuthenticationGuard)
     async login(@User() user: Users) {
         const { password, ...result } = user.toJSON();
         return result;
     }
 
-    @Get('/verify/:token')
-    async verify(
-        @Param('token') token: string
-    ) {
-        return this.service.verifyUser(token).then(e => {
-
-        }).catch(e => {
-            console.log('eheheheh',e )
-        })
+    @Post('/verify')
+    @HttpCode(200)
+    async verify(@Body('token') token: string) {
+        return this.service.verifyUser(token)
     }
 
     @Delete('/logout')

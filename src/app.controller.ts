@@ -14,4 +14,9 @@ export class AppController {
     login(@Res() res: Response) {
         return res.sendFile(publicDir('index.login.html'));
     }
+   
+    @Get('/verify')
+    verify(@Res() res: Response) {
+        return res.sendFile(publicDir('index.verify.html'));
+    }
 }
