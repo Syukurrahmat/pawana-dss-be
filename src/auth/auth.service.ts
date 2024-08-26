@@ -1,4 +1,10 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    NotFoundException,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import * as bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -12,31 +18,30 @@ export class AuthService {
         @InjectModel(Users)
         private usersDB: typeof Users,
         private emailService: EmailService
-    ) { }
+    ) {}
 
     async verifyUser(token: string) {
         const payload = await new Promise<any>((res, rej) =>
-            jwt.verify(
-                token,
-                process.env.JWT_SECRETKEY!,
-                (err, decoded) => err ? rej(err) : res(decoded)
+            jwt.verify(token, process.env.JWT_SECRETKEY!, (err, decoded) =>
+                err ? rej(err) : res(decoded)
             )
         ).catch((e) => {
-            if (e.name === 'TokenExpiredError') throw new UnauthorizedException('Expired token')
+            if (e.name === 'TokenExpiredError') throw new UnauthorizedException('Expired token');
             else throw new BadRequestException('Token tidak valid');
-        })
+        });
 
         const email = payload.email;
         const user = await this.usersDB.findOne({ where: { email } });
-        
+
         if (!user) throw new NotFoundException('Data pengguna tidak ditemukan');
         if (user.isVerified) throw new ConflictException('Pengguna telah diverifikasi');
 
-        const userRole = user.role == 'admin'
-            ? 'Administrator'
-            : user.role == 'gov'
-                ? 'Pemerintah'
-                : user.role == 'manager'
+        const userRole =
+            user.role == 'admin'
+                ? 'Administrator'
+                : user.role == 'gov'
+                  ? 'Pemerintah'
+                  : user.role == 'manager'
                     ? 'Pemilik Usaha'
                     : 'Pengguna Publik';
 

@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
-import { AccessControl } from '../../types/accessControle';
+import { AccessControl } from '../../types/accessControl';
 
 @Injectable()
 export class CompanyGuard implements CanActivate {
@@ -14,8 +14,6 @@ export class CompanyGuard implements CanActivate {
     async canActivate(context: ExecutionContext) {
         const request = context.switchToHttp().getRequest() as Request;
         const user = request.user!;
-
-        console.log(`[${user.role}]`, request.path);
 
         const method = request.method;
         const companyId = +request.params.id;

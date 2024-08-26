@@ -108,12 +108,6 @@ export class NodesService {
               }
             : {};
 
-        console.log({
-            where: {
-                ...searchObj,
-                ...filterByOwnship,
-            },
-        });
 
         const attributes =
             view == 'all'

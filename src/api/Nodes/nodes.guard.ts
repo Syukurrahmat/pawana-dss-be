@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { Op } from 'sequelize';
 import Nodes from '../../models/nodes';
-import { AccessControl } from '../../types/accessControle';
+import { AccessControl } from '../../types/accessControl';
 
 @Injectable()
 export class NodesGuard implements CanActivate {
@@ -31,7 +31,6 @@ export class NodesGuard implements CanActivate {
 
         if (onlyOwn && nodeId) {
             if (method == 'GET') {
-                console.log(method, nodeId, user.role);
 
                 if (user.role == 'regular') {
                     if (await user.hasSubscribedNode(nodeId)) return true;

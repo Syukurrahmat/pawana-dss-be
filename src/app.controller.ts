@@ -9,12 +9,12 @@ export class AppController {
     root(@Res() res: Response) {
         return res.sendFile(publicDir('index.app.html'));
     }
-    
+
     @Get('/login')
     login(@Res() res: Response) {
         return res.sendFile(publicDir('index.login.html'));
     }
-   
+
     @Get('/verify')
     verify(@Res() res: Response) {
         return res.sendFile(publicDir('index.verify.html'));

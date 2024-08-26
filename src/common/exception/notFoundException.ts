@@ -1,8 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, NotFoundException } from '@nestjs/common';
-import { Request, Response } from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { Response } from 'express';
 import { publicDir } from '../../lib/common.utils';
-
 
 @Catch(NotFoundException)
 export class NotFoundExceptionFilter implements ExceptionFilter {

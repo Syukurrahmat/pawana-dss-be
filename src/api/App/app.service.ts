@@ -15,7 +15,7 @@ export class ApplicationService {
     constructor(
         @InjectModel(Companies) private companiesDb: typeof Companies,
         @InjectModel(Users) private usersDb: typeof Users
-    ) {}
+    ) { }
 
     getUserInformation(user: Users, session: SessionData, timezoneQuery: string | undefined) {
         const { password, address, description, ...rest } = user.toJSON();
@@ -63,6 +63,7 @@ export class ApplicationService {
                 session.viewUser = managerCompany;
             }
         }
+
         if (userId) {
             if (role != 'admin' && role !== 'gov') throw new ForbiddenException();
 
@@ -75,7 +76,6 @@ export class ApplicationService {
             session.viewUser = user;
         }
 
-        console.log(11111111, session.viewCompany);
         return {
             view: {
                 company: session.viewCompany,

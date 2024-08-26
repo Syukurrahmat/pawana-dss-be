@@ -29,8 +29,6 @@ export class UserNodeSubsService {
 
         const countSubscribed = await user.countSubscribedNodes();
 
-        console.log(countSubscribed);
-
         if (countSubscribed >= SUBS_LIMIT || nodeIds.length + countSubscribed > SUBS_LIMIT) {
             throw new ForbiddenException('Melebih batas yang diizinkan');
         }

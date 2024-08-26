@@ -6,15 +6,14 @@ import {
     Param,
     ParseIntPipe,
     Patch,
-    Post,
     Query,
-    UseGuards,
+    UseGuards
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { PaginationQueryDto } from '../../../lib/pagination.dto.js';
+import { CompanyGuard } from '../companies.guard.js';
 import { CompanyNodeSubsService } from './companyNodeSubs.service.js';
 import { CreateSubscriptionDto } from './dto/create-subs.dto.js';
-import { PaginationQueryDto } from '../../../lib/pagination.dto.js';
-import { ApiTags } from '@nestjs/swagger';
-import { CompanyGuard } from '../companies.guard.js';
 
 // ==================== api/companies/:id/nodes/ ==================
 

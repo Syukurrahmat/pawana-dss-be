@@ -18,7 +18,6 @@ export interface Response<T> {
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
     intercept(context: ExecutionContext, next: CallHandler): Observable<Response<T>> {
-        const request = context.switchToHttp().getRequest();
         const response = context.switchToHttp().getResponse();
         const statusCode = response.statusCode;
 
@@ -31,7 +30,6 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
             })),
 
             catchError((err) => {
-                console.log(JSON.stringify(err), err?.response?.message, err?.message);
                 const statusCode = err instanceof HttpException ? err.getStatus() : 500;
                 const errorResponse = {
                     statusCode,

@@ -26,22 +26,22 @@ async function bootstrap() {
             cookie: { maxAge: 3600000 },
         })
     );
-    
+
     app.enableCors();
     app.use(json({ limit: '50mb' }));
     app.use(urlencoded({ extended: true, limit: '50mb' }));
-    
+
     app.use(passport.initialize());
     app.use(passport.session());
-    
+
     app.enableCors();
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     app.useGlobalFilters(new NotFoundExceptionFilter());
     app.useGlobalInterceptors(new ResponseInterceptor());
     app.useStaticAssets(publicDir());
-    
-    configureSwagger(app)
-    
+
+    configureSwagger(app);
+
     // app.use(async (req: Request, res, next) => {
     //     req.user = (await Users.findByPk(53)) || undefined;
     //     next();
@@ -139,5 +139,3 @@ const updatedatetimeDatalogs = async (USERACTIVE_DEV: number, nodeIds?: number[]
     }
     console.log('selesai dalam ' + moment().diff(startTime, 'seconds') + ' detik');
 };
-
-

@@ -9,7 +9,6 @@ export default class SessionSerializer extends PassportSerializer {
     }
 
     serializeUser(user: any, done: Function) {
-        console.log('seria', user);
         done(null, user);
     }
     async deserializeUser(payload: any, done: Function) {

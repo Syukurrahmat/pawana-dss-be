@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
-import { AccessControl } from '../../types/accessControle';
+import { AccessControl } from '../../types/accessControl';
 
 @Injectable()
 export class UserGuard implements CanActivate {

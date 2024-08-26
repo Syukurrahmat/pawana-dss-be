@@ -65,7 +65,6 @@ export class CompaniesController {
         @Query() pagination: PaginationQueryDto,
         @Query() filter: FindCompaniesDto
     ) {
-        console.log(222);
         return this.service.getPrivateNodes(id, filter, pagination);
     }
 

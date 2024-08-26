@@ -1,6 +1,6 @@
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-export const configureSwagger = (app : any) => {
+export const configureSwagger = (app: any) => {
     const config = new DocumentBuilder()
         .setTitle('Cats example')
         .setDescription('The cats API description')
@@ -20,5 +20,4 @@ export const configureSwagger = (app : any) => {
     SwaggerModule.setup('api', app, document, {
         jsonDocumentUrl: 'swagger/json',
     });
-
-}
+};

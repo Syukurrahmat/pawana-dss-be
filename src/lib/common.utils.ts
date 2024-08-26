@@ -14,15 +14,11 @@ export const arrayOfObjectHours = <T = any>(startHour: Moment = moment(), length
 
 export const average = (arr: number[]) => arr.reduce((acc, curr) => acc + curr, 0) / arr.length;
 
-interface IbuildQueryOptions {
-    sortOpt?: string[];
-}
-
+ 
 export const toFixedNumber = (value: number, decimals = 3) => {
     const factor = Math.pow(10, decimals);
     return Math.round(value * factor) / factor;
 };
-
 
 export const coordinateGetterSetter: any = {
     get() {
@@ -47,5 +43,4 @@ export function sortByDatetime<T extends { datetime: Date | Moment }>(a: T, b: T
     return moment(b.datetime).valueOf() - moment(a.datetime).valueOf();
 }
 
-export const publicDir = (...args: string[]) => join(__dirname, '..', '..', PUBLIC_DIR, ...args)
-
+export const publicDir = (...args: string[]) => join(__dirname, '..', '..', PUBLIC_DIR, ...args);

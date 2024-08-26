@@ -13,7 +13,6 @@ import { UserSessionMiddleware } from './common/middleware/userSession.middlewar
 import allDBModels from './models';
 import { AppController } from './app.controller';
 
-
 @Module({
     imports: [
         ApplicationModule,
@@ -36,28 +35,24 @@ import { AppController } from './app.controller';
         RouterModule.register([
             {
                 path: '/api',
-                children: [
-                    ApplicationModule,
-                    ReportsModule,
-                    UsersModule,
-                    CompaniesModule,
-                    NodesModule,
-                ].map((e) => ({ path: '/', module: e })),
+                children: [ApplicationModule, ReportsModule, UsersModule, CompaniesModule, NodesModule]
+                    .map((e) => ({ path: '/', module: e })),
             },
             {
                 path: '/auth',
-                children: [AuthModule].map((e) => ({ path: '/', module: e })),
+                children: [AuthModule]
+                    .map((e) => ({ path: '/', module: e })),
             },
         ]),
     ],
     controllers: [AppController],
 })
+
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer
             .apply(AuthMiddleware, UserSessionMiddleware)
             .exclude('/login', '/verify', '/auth/(.*)')
-            .forRoutes('*')
-            
+            .forRoutes('*');
     }
 }

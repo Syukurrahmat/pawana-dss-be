@@ -38,7 +38,6 @@ export class UserNodeSubsController {
         @Param('id', ParseIntPipe) userId: number,
         @Body() createSubsDto: CreateSubscriptionDto
     ) {
-        console.log('ssjsjssj');
         return this.services.createNodeSubscription(userId, createSubsDto);
     }
 
