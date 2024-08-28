@@ -1,6 +1,8 @@
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export const configureSwagger = (app: any) => {
+    if (process.env.NODE_ENV == 'production') return
+
     const config = new DocumentBuilder()
         .setTitle('Cats example')
         .setDescription('The cats API description')

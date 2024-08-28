@@ -1,12 +1,5 @@
-// page,
-// limit,
-// offset: (page - 1) * limit,
-// search: searchObj,
-// order: [orderItem],
-
-import { Prisma } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsEnum, isInt, IsInt, IsOptional, IsString, Max, Min, min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Op, OrderItem, Sequelize } from 'sequelize';
 
 enum Orderby {

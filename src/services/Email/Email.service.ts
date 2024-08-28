@@ -25,7 +25,7 @@ export class EmailService {
     }
 
     async sendVerificationEmail(name: string, email: string, token: string) {
-        const verifyUrl = `${this.hostUrl}/auth/verify/${token}`;
+        const verifyUrl = `${this.hostUrl}/verify?token=${token}`;
 
         return new Promise<void>((resolve, rejected) =>
             this.mailjet

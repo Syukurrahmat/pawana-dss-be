@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SessionData } from 'express-session';
-import { Roles } from '../../common/decorator/role.decorator.js';
 import { PaginationQueryDto } from '../../lib/pagination.dto.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { FindUserDto } from './dto/find-user.dto.js';

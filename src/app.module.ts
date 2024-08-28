@@ -21,7 +21,10 @@ import { AppController } from './app.controller';
         CompaniesModule,
         NodesModule,
         AuthModule,
-        ConfigModule.forRoot({ isGlobal: true }),
+        ConfigModule.forRoot({
+            isGlobal: true,
+            envFilePath: process.env.NODE_ENV === 'production' ? '.env.production' : '.env'
+        }),
         SequelizeModule.forRoot({
             dialect: 'mysql',
             host: process.env.DB_HOSTNAME!,
