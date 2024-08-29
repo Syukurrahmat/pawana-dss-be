@@ -1,31 +1,32 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { json, Request, urlencoded } from 'express';
+import { json, urlencoded } from 'express';
 import session from 'express-session';
 import moment from 'moment';
 import passport from 'passport';
-import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { AppModule } from './app.module';
 import { NotFoundExceptionFilter } from './common/exception/notFoundException';
 import { ResponseInterceptor } from './common/interceptor/transformInterceptor';
 import { publicDir } from './lib/common.utils';
+import { getSequelizeStore } from './lib/sequelizeStore';
 import { configureSwagger } from './lib/swagger';
 import DataLogs from './models/datalogs';
 import Nodes from './models/nodes';
+import { Op } from 'sequelize';
 import Users from './models/users';
-
- 
-
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    const sequelize = app.get(Sequelize)
+    // app.set('trust proxy', 1) // trust first proxy
 
-    app.set('trust proxy', 1) // trust first proxy
+    const store = await getSequelizeStore(sequelize)
 
     app.use(
         session({
+            store: store,
             secret: process.env.SESSION_SECRETKEY as string,
             resave: false,
             saveUninitialized: false,
@@ -48,19 +49,9 @@ async function bootstrap() {
 
     configureSwagger(app);
 
-    await app.get(Sequelize)
-        .authenticate()
-        .then(() => {
-            console.log('=========== DATABASE BERHASIL TERKONEKSI =========== ')
-        })
-
-    // app.use(async (req: Request, res, next) => {
-    //     const user = await Users.findByPk(6)
-    //     req.user = user!
-    //     next()
-    // })
     // await updatedatetimeDatalogs(6)
-    await app.listen(process.env.PORT || 8080);
+
+    await app.listen(process.env.PORT || 3000 || 8080)
 }
 
 bootstrap();
@@ -70,66 +61,66 @@ bootstrap();
 const updatedatetimeDatalogs = async (USERACTIVE_DEV: number, nodeIds?: number[]) => {
     let startTime = moment();
 
-    // if (!nodeIds?.length) {
-    //     const user = await Users.findByPk(USERACTIVE_DEV);
-    //     const gg = (await user!.getSubscribedNodes()).map((e) => e.nodeId);
-    //     //@ts-ignore
-    //     const companies = await user.getCompanies();
+    if (!nodeIds?.length) {
+        const user = await Users.findByPk(USERACTIVE_DEV);
+        const gg = (await user!.getSubscribedNodes()).map((e) => e.nodeId);
+        //@ts-ignore
+        const companies = await user.getCompanies();
 
-    //     const subsNodes = (await Promise.all(companies.map((e) => e.getSubscribedNodes())))
-    //         .flatMap((e) => e)
-    //         .map((e) => e.nodeId);
-    //     const ownNodes = (await Promise.all(companies.map((e) => e.getPrivateNodes())))
-    //         .flatMap((e) => e)
-    //         .map((e) => e.nodeId);
+        const subsNodes = (await Promise.all(companies.map((e) => e.getSubscribedNodes())))
+            .flatMap((e) => e)
+            .map((e) => e.nodeId);
+        const ownNodes = (await Promise.all(companies.map((e) => e.getPrivateNodes())))
+            .flatMap((e) => e)
+            .map((e) => e.nodeId);
 
-    //     nodeIds = [...new Set([...subsNodes, ...ownNodes, ...gg])] as number[];
-    // }
+        nodeIds = [...new Set([...subsNodes, ...ownNodes, ...gg])] as number[];
+    }
 
-    // console.log(nodeIds);
+    console.log(nodeIds);
 
-    // // return
+    // return
 
-    // const nodes = await Nodes.findAll({
-    //     where: {
-    //         nodeId: {
-    //             [Op.and]: [{ [Op.in]: nodeIds! }, { [Op.ne]: 74 }],
-    //         },
-    //     },
-    // });
+    const nodes = await Nodes.findAll({
+        where: {
+            nodeId: {
+                [Op.and]: [{ [Op.in]: nodeIds! }, { [Op.ne]: 74 }],
+            },
+        },
+    });
 
-    // for (let i = 0; i < nodes.length; i++) {
-    //     const node = nodes[i];
+    for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
 
-    //     const datalogs = await node.getDataLogs({ order: [['datetime', 'DESC']] });
+        const datalogs = await node.getDataLogs({ order: [['datetime', 'DESC']] });
 
-    //     let lastDate = datalogs[0]?.datetime;
+        let lastDate = datalogs[0]?.datetime;
 
-    //     if (!lastDate) continue;
+        if (!lastDate) continue;
 
-    //     let diff = moment().diff(lastDate, 'millisecond');
+        let diff = moment().diff(lastDate, 'millisecond');
 
-    //     for (let j = 0; j < datalogs.length; j++) {
-    //         const dt = datalogs[j];
+        for (let j = 0; j < datalogs.length; j++) {
+            const dt = datalogs[j];
 
-    //         dt.datetime = moment(dt.datetime).add(diff, 'milliseconds').toDate();
+            dt.datetime = moment(dt.datetime).add(diff, 'milliseconds').toDate();
 
-    //         await dt.save();
+            await dt.save();
 
-    //         if (j % 200 == 0)
-    //             console.log(
-    //                 'node ke ',
-    //                 i + 1,
-    //                 'dari',
-    //                 nodes.length,
-    //                 '=>',
-    //                 (j / datalogs.length) * 100,
-    //                 '%'
-    //             );
-    //     }
-    // }
+            if (j % 200 == 0)
+                console.log(
+                    'node ke ',
+                    i + 1,
+                    'dari',
+                    nodes.length,
+                    '=>',
+                    (j / datalogs.length) * 100,
+                    '%'
+                );
+        }
+    }
 
-    // console.log('selesai');
+    console.log('selesai');
 
     let allNodes = await Nodes.findAll();
 
