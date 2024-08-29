@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RouterModule } from '@nestjs/core';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -12,6 +12,7 @@ import { AuthMiddleware } from './common/middleware/auth.middleware';
 import { UserSessionMiddleware } from './common/middleware/userSession.middleware';
 import allDBModels from './models';
 import { AppController } from './app.controller';
+import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
     imports: [
@@ -56,6 +57,10 @@ export class AppModule implements NestModule {
         consumer
             .apply(AuthMiddleware, UserSessionMiddleware)
             .exclude('/login', '/verify', '/auth/(.*)')
-            .forRoutes('*');
+            .forRoutes('*')
+            .apply(LoggerMiddleware)
+            .forRoutes('*')
     }
 }
+
+
