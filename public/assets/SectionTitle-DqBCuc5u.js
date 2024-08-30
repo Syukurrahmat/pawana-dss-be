@@ -1,1 +1,0 @@
-import{j as o,N as s,M as e}from"./createReactComponent-WPW12zrK.js";import{H as i}from"./icon-BvDSS9q3.js";function n({IconEl:t,...r}){return o.jsxs(i,{mt:"8",pb:"2",mb:"2",borderBottom:"1px solid",borderColor:"gray.300",children:[t&&o.jsx(s,{as:t,boxSize:"20px"}),o.jsx(e,{fontSize:"xl",fontWeight:"600",...r})]})}export{n as S};
