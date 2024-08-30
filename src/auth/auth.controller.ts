@@ -9,6 +9,7 @@ import {
     Post,
     Req,
     Res,
+    UnprocessableEntityException,
     UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -21,7 +22,7 @@ import LocalAuthenticationGuard from './local.guard.js';
 @Controller('')
 @ApiTags('auth')
 export class AuthController {
-    constructor(private service: AuthService) {}
+    constructor(private service: AuthService) { }
 
     @Post('/login')
     @UseGuards(LocalAuthenticationGuard)
@@ -38,9 +39,13 @@ export class AuthController {
 
     @Delete('/logout')
     logout(@Req() req: Request, @Res() res: Response) {
-        req.logout(() => {
-            res.clearCookie('connect.sid');
-            res.status(200).send('Logout successful');
+        res.clearCookie('connect.sid');
+        req.logout(function (err) {
+            if (err) throw new UnprocessableEntityException(err)
+            req.session.destroy(function (err) {
+                if (err) throw new UnprocessableEntityException(err)
+                res.sendStatus(200);
+            });
         });
     }
 }

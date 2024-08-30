@@ -17,37 +17,51 @@ import Nodes from './models/nodes';
 import { Op } from 'sequelize';
 import Users from './models/users';
 
+
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
     const sequelize = app.get(Sequelize)
-    // app.set('trust proxy', 1) // trust first proxy
 
+    app.set('trust proxy', 1)
     const store = await getSequelizeStore(sequelize)
 
+    console.log(process.env.NODE_ENV)
+    app.enableCors({ origin: '*' });
     app.use(
         session({
             store: store,
             secret: process.env.SESSION_SECRETKEY as string,
             resave: false,
-            saveUninitialized: false,
-            cookie: { maxAge: 3600000 },
+            saveUninitialized: true,
+            cookie: {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                secure: process.env.NODE_ENV == 'production',
+                httpOnly: true,
+            },
         })
     );
 
-    app.enableCors();
     app.use(json({ limit: '50mb' }));
     app.use(urlencoded({ extended: true, limit: '50mb' }));
 
     app.use(passport.initialize());
     app.use(passport.session());
 
-    app.enableCors();
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     app.useGlobalFilters(new NotFoundExceptionFilter());
     app.useGlobalInterceptors(new ResponseInterceptor());
     app.useStaticAssets(publicDir());
-
+    app.use((req, res, next) => {
+        console.log(req.user)
+        next()
+    })
     configureSwagger(app);
+
+
+    // app.use(async (req, res, next) => {
+    //     req.user = await Users.findByPk(6)
+    //     next()
+    // })
 
     // await updatedatetimeDatalogs(6)
 
