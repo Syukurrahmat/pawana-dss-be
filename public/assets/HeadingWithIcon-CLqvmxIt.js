@@ -1,1 +1,0 @@
-import{j as n,M as o}from"./createReactComponent-FtTA4e6D.js";import{H as r,C as s}from"./icon-YHQJKk2E.js";function x({Icon:e,text:i}){return n.jsxs(r,{spacing:"3",children:[n.jsx(s,{boxSize:"30px",boxShadow:"xs",bg:"gray.100",rounded:"md",p:"1",children:e}),n.jsx(o,{fontSize:"xl",fontWeight:"600",children:i})]})}export{x as H};

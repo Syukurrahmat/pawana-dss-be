@@ -1,1 +1,0 @@
-import{j as n,M as s,G as o,O as r}from"./createReactComponent-CTa0ICdI.js";function a({Icon:e,text:i}){return n.jsxs(s,{spacing:"3",children:[n.jsx(o,{boxSize:"30px",boxShadow:"xs",bg:"gray.100",rounded:"md",p:"1",children:e}),n.jsx(r,{fontSize:"xl",fontWeight:"600",children:i})]})}export{a as H};
