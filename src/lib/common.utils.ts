@@ -2,6 +2,7 @@ import fs from 'fs';
 import moment, { Moment } from 'moment';
 import { join } from 'path';
 import { PUBLIC_DIR } from '../constants/server';
+import { UserRole } from '../types';
 
 export const printJSON = (data: any) =>
     fs.writeFileSync('print.json', JSON.stringify(data, null, 2));
@@ -14,7 +15,7 @@ export const arrayOfObjectHours = <T = any>(startHour: Moment = moment(), length
 
 export const average = (arr: number[]) => arr.reduce((acc, curr) => acc + curr, 0) / arr.length;
 
- 
+
 export const toFixedNumber = (value: number, decimals = 3) => {
     const factor = Math.pow(10, decimals);
     return Math.round(value * factor) / factor;
@@ -44,4 +45,16 @@ export function sortByDatetime<T extends { datetime: Date | Moment }>(a: T, b: T
 }
 
 export const publicDir = (...args: string[]) => join(__dirname, '..', '..', PUBLIC_DIR, ...args);
+
+export const getUserRoleName = (role: UserRole) => {
+    const roleMap: Record<UserRole, string> = {
+        admin: 'Administrator',
+        gov: 'Pemerintah',
+        manager: 'Pemilik Usaha',
+        regular: 'Masyarakat Umum',
+    };
+    
+    return roleMap[role]
+}
+
 
