@@ -11,6 +11,7 @@ import jwt from 'jsonwebtoken';
 import Users from '../models/users';
 import randomstring from 'randomstring';
 import { EmailService } from '../services/Email/Email.service';
+import { getUserRoleName } from '../lib/common.utils';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,7 @@ export class AuthService {
         @InjectModel(Users)
         private usersDB: typeof Users,
         private emailService: EmailService
-    ) {}
+    ) { }
 
     async verifyUser(token: string) {
         const payload = await new Promise<any>((res, rej) =>
@@ -36,15 +37,7 @@ export class AuthService {
         if (!user) throw new NotFoundException('Data pengguna tidak ditemukan');
         if (user.isVerified) throw new ConflictException('Pengguna telah diverifikasi');
 
-        const userRole =
-            user.role == 'admin'
-                ? 'Administrator'
-                : user.role == 'gov'
-                  ? 'Pemerintah'
-                  : user.role == 'manager'
-                    ? 'Pemilik Usaha'
-                    : 'Pengguna Publik';
-
+        const userRole = getUserRoleName(user.role)
         const password = randomstring.generate(12);
         user.isVerified = true;
         user.password = password;
