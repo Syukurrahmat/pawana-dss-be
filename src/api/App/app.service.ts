@@ -2,6 +2,7 @@ import {
     BadRequestException,
     ForbiddenException,
     Injectable,
+    NotFoundException,
     UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -12,6 +13,9 @@ import Users from '../../models/users';
 
 @Injectable()
 export class ApplicationService {
+    private companyAttr = ['companyId', 'coordinate', 'name', 'type', 'managedBy']
+    private userAttr = ['userId', 'role', 'name']
+
     constructor(
         @InjectModel(Companies) private companiesDb: typeof Companies,
         @InjectModel(Users) private usersDb: typeof Users
@@ -43,37 +47,41 @@ export class ApplicationService {
     ) {
         const { role } = user.toJSON();
 
+        if (role === 'regular') throw new ForbiddenException('Tidak diizinkan')
+        if (!companyId && !userId) throw new BadRequestException('companyId atau userId harus Ada')
+
         if (companyId) {
             const company = await this.companiesDb.findByPk(companyId, {
-                attributes: ['companyId', 'coordinate', 'name', 'type', 'managedBy'],
+                attributes: this.companyAttr,
             });
 
-            if (!company) throw new BadRequestException('companies not found');
+            if (!company) throw new NotFoundException('companies not found');
             if (role == 'manager' && !user.hasCompany(company)) throw new ForbiddenException();
-
             session.viewCompany = company.toJSON();
 
             if (role == 'admin' || role == 'gov') {
                 const managerCompany = await this.usersDb.findByPk(company.managedBy, {
-                    attributes: ['userId', 'role', 'name'],
+                    attributes: this.userAttr,
                 });
 
-                if (!managerCompany)
+                if (!managerCompany) {
                     throw new UnprocessableEntityException('Data tidak bisa diproses');
-                session.viewUser = managerCompany;
+                }
+                session.viewUser = managerCompany.toJSON();
             }
         }
 
         if (userId) {
-            if (role != 'admin' && role !== 'gov') throw new ForbiddenException();
+            if (role == 'manager') throw new ForbiddenException('Tidak diizinkan')
 
             const user = await Users.findOne({
                 where: { role: 'regular', userId },
-                attributes: ['userId', 'role', 'name'],
+                attributes: this.userAttr,
             });
-            if (!user) throw new BadRequestException('companies not found');
-
-            session.viewUser = user;
+            if (!user) throw new BadRequestException('users not found');
+            
+            session.viewUser = user.toJSON();
+            session.viewCompany = null
         }
 
         return {
