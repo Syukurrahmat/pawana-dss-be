@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsBoolean, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class FindUserDto {
@@ -7,6 +8,7 @@ export class FindUserDto {
 
     @IsBoolean()
     @IsOptional()
+    @Transform(({ value }) => value === 'true')
     unverified?: boolean;
 
     @IsString()

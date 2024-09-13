@@ -67,8 +67,8 @@ export class UsersService {
 
         const whereOpt: WhereOptions<InferAttributes<Users>> = searchObj;
         if (role) whereOpt.role = role;
-        if (unverified) whereOpt.isVerified = unverified;
-
+        if (unverified) whereOpt.isVerified = !unverified;
+        
         const attributes =
             view == 'all'
                 ? ['userId', 'name', 'phone', 'profilePicture', 'email', 'role', 'createdAt']
