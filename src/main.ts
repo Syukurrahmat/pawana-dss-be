@@ -1,9 +1,10 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { json, urlencoded } from 'express';
+import { json, Request, urlencoded } from 'express';
 import session from 'express-session';
 import moment from 'moment';
+import cors from 'cors';
 import passport from 'passport';
 import { Sequelize } from 'sequelize-typescript';
 import { AppModule } from './app.module';
@@ -17,22 +18,30 @@ import Nodes from './models/nodes';
 import { Op } from 'sequelize';
 import Users from './models/users';
 
-
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
     const sequelize = app.get(Sequelize)
 
+    configureSwagger(app);
     app.set('trust proxy', 1)
+
     const store = await getSequelizeStore(sequelize)
 
-    console.log(process.env.NODE_ENV)
-    app.enableCors({ origin: '*' });
+    if (process.env.NODE_ENV !== 'production') {
+        app.use(cors({
+            origin: ['http://localhost:5173', 'http://192.168.18.199:5173', 'http://10.72.17.116:5173', 'http://192.168.8.100:5173'],
+            methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+            credentials: true,
+            // allowedHeaders : 
+        }));
+    }
+
     app.use(
         session({
             store: store,
             secret: process.env.SESSION_SECRETKEY as string,
             resave: false,
-            saveUninitialized: true,
+            saveUninitialized: false,
             cookie: {
                 maxAge: 30 * 24 * 60 * 60 * 1000,
                 secure: process.env.NODE_ENV == 'production',
@@ -51,21 +60,22 @@ async function bootstrap() {
     app.useGlobalFilters(new NotFoundExceptionFilter());
     app.useGlobalInterceptors(new ResponseInterceptor());
     app.useStaticAssets(publicDir());
-    app.use((req, res, next) => {
-        console.log(req.user)
-        next()
-    })
-    configureSwagger(app);
 
 
-    // app.use(async (req, res, next) => {
-    //     req.user = await Users.findByPk(6)
-    //     next()
-    // })
+    if (process.env.NODE_ENV !== 'production') {
+        app.use(async (req, res, next) => {
+            req.user = (await Users.findByPk(2))!
+            next()
+        })
+    }
 
     // await updatedatetimeDatalogs(6)
 
-    await app.listen(process.env.PORT || 3000 || 8080)
+    await app
+        .listen(process.env.PORT || 8080)
+        .then(() => app.getUrl())
+        .then(console.log)
+
 }
 
 bootstrap();
