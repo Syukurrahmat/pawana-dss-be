@@ -1,0 +1,1 @@
+import{j as a}from"./font-CsN-AIjb.js";import{T as s,ah as o,aa as i}from"./app-Dr_tcMC0.js";function c({icon:r,...e}){return a.jsxs(s,{size:"md",variant:"subtle",colorScheme:"green",...e,children:[a.jsx(o,{boxSize:"16px",as:r}),a.jsx(i,{children:e.children})]})}export{c as T};
