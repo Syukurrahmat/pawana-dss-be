@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
-import { Op, OrderItem, Sequelize } from 'sequelize';
+import { Op, Order, OrderItem, Sequelize } from 'sequelize';
 
 enum Orderby {
     desc = 'desc',
@@ -44,13 +44,11 @@ export class PaginationQueryDto {
     }
 
     get paginationObj() {
-        const orderItem: OrderItem[] = this.sort ? [Sequelize.col(this.sort), this.order] : [];
-
         return {
             page: this.page,
             limit: this.limit,
             offset: (this.page - 1) * this.limit,
-            order: orderItem,
+            order: this.sort ? [[this.sort, String(this.order)]] as Order : undefined,
         };
     }
 
