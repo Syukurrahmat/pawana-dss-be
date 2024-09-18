@@ -30,8 +30,9 @@ export class UsersService {
         private nodesDB: typeof Nodes,
 
         private dashboardService: DashboardService,
-        private emailService: EmailService
-    ) {}
+        private emailService: EmailService,
+        // private sequelize: Sequelize,
+    ) { }
 
     async create(createUserDto: CreateUserDto) {
         const { name, email, phone, description, address, profilePicture, role } = createUserDto;
@@ -68,17 +69,19 @@ export class UsersService {
         const whereOpt: WhereOptions<InferAttributes<Users>> = searchObj;
         if (role) whereOpt.role = role;
         if (unverified) whereOpt.isVerified = !unverified;
-        
+
         const attributes =
             view == 'all'
                 ? ['userId', 'name', 'phone', 'profilePicture', 'email', 'role', 'createdAt']
                 : ['userId', 'profilePicture', 'name'];
 
-        const { count, rows } = await this.usersDB.findAndCountAll({
-            attributes,
-            where: whereOpt,
-            ...paginationObj,
-        });
+        const { count, rows } = await this.usersDB
+            .findAndCountAll({
+                attributes,
+                where: whereOpt,
+                ...paginationObj,
+            })
+            .catch(() => { throw new BadRequestException() })
 
         return {
             rows,
@@ -140,6 +143,24 @@ export class UsersService {
 
     async remove(id: number) {
         const user = await this.getUser(id);
+
+        // const t = await this.sequelize.transaction();
+
+        // try {
+        //     // Hapus data yang terkait terlebih dahulu
+        //     await Nodes.destroy({ where: { companyId }, transaction: t });
+
+        //     // Hapus data utama
+        //     await Company.destroy({ where: { companyId }, transaction: t });
+
+        //     // Komit transaksi
+        //     await t.commit();
+        // } catch (error) {
+        //     // Rollback jika terjadi error
+        //     await t.rollback();
+        //     throw error;
+        // }
+
         await user.destroy();
 
         return 'success';
