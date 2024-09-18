@@ -48,7 +48,7 @@ export class AuthService {
     }
 
     async validateUser(email: string, pass: string) {
-        const user = await this.usersDB.findOne({ where: { email } });
+        const user = await this.usersDB.findOne({ where: { email , isVerified : true} });
         if (user && bcrypt.compareSync(pass, user.password)) {
             return user;
         }
