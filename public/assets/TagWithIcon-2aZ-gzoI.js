@@ -1,0 +1,1 @@
+import{j as a}from"./font-Qhbu9OiB.js";import{T as s,ag as o,a9 as i}from"./app-28G9vqgm.js";function c({icon:r,...e}){return a.jsxs(s,{size:"md",variant:"subtle",colorScheme:"green",...e,children:[a.jsx(o,{boxSize:"16px",as:r}),a.jsx(i,{children:e.children})]})}export{c as T};

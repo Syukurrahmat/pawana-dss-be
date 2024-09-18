@@ -1,1 +1,0 @@
-import{j as r,a0 as i,Y as a}from"./font-CsN-AIjb.js";import{c as t}from"./app-ZJ9y3HmT.js";function p({value:o,children:e,...s}){return r.jsx(i,{border:"1px solid",borderColor:"gray.200",px:"2",py:"1",rounded:"full",as:"label",cursor:"pointer",bg:"white",...s,children:r.jsx(t,{size:"lg",value:o,children:r.jsx(a,{pr:"2",pl:"1",fontSize:"md",children:e})})})}export{p as M};
