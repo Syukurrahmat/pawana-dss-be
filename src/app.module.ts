@@ -1,4 +1,4 @@
-import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RouterModule } from '@nestjs/core';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -7,12 +7,12 @@ import { CompaniesModule } from './Api/Companies/companies.module';
 import { NodesModule } from './Api/Nodes/nodes.module';
 import { ReportsModule } from './Api/Reports/reports.module';
 import { UsersModule } from './Api/Users/users.module';
+import { AppController } from './app.controller';
 import { AuthModule } from './Auth/auth.module';
 import { AuthMiddleware } from './common/middleware/auth.middleware';
+import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { UserSessionMiddleware } from './common/middleware/userSession.middleware';
 import allDBModels from './models';
-import { AppController } from './app.controller';
-import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
     imports: [
@@ -24,7 +24,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
         AuthModule,
         ConfigModule.forRoot({
             isGlobal: true,
-            envFilePath: process.env.NODE_ENV === 'production' ? '.env.production' : '.env'
+            envFilePath: process.env.NODE_ENV?.trim() === 'production' ? '.env.production' : '.env'
         }),
         SequelizeModule.forRoot({
             dialect: 'mysql',
