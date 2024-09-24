@@ -1,1 +1,0 @@
-import{j as n,U as o,G as r,W as t}from"./font-Qhbu9OiB.js";function x({Icon:e,text:i,...s}){return n.jsxs(o,{spacing:"3",...s,children:[n.jsx(r,{boxSize:"30px",boxShadow:"xs",bg:"gray.100",rounded:"md",p:"1",children:e}),n.jsx(t,{fontSize:"xl",fontWeight:"600",children:i})]})}export{x as H};

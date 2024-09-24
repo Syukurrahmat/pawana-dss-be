@@ -1,1 +1,0 @@
-import{j as r,Y as e}from"./font-Qhbu9OiB.js";function i(){return r.jsx(e,{as:"span",role:"presentation","aria-hidden":"true",className:"chakra-form__required-indicator",children:"*",color:"red.500"})}export{i as R};
