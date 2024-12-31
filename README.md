@@ -4,14 +4,14 @@
 
 # Pawana App
 
-![built-for-thesis](https://github.com/user-attachments/assets/e7294106-39df-4d73-b7e0-71f622f9131b)
-![repo-for-backend](https://github.com/user-attachments/assets/a24bbff4-03ed-4d29-a7a8-6bdc3f55f4bf)
+![image](https://github.com/user-attachments/assets/906a0918-cc8b-4cc4-9e48-40506973b7ff)
+![image](https://github.com/user-attachments/assets/e506f166-ec00-4ca1-8512-b9ad3036c7ce)
 ![forthebadge](https://forthebadge.com/images/badges/made-with-typescript.svg)
 
 
 </div>
  
-**Pawana** adalah aplikasi berbasis web untuk memantau dan mengelola kualitas udara. Proyek ini merupakan bagian dari skripsi untuk menyelesaikan studi S1 Teknik Pertanian UGM.
+**Pawana** adalah sistem pendukung keputusan atau _decision support system_ (DSS) berbasis web untuk memantau dan mengelola kualitas udara. Proyek ini merupakan bagian dari skripsi untuk menyelesaikan studi S1 Teknik Pertanian UGM.
 
 Aplikasi ini memanfaatkan data yang diperoleh dari sensor yang terpasang di lokasi studi, yang kemudian dianalisis berdasarkan regulasi yang berlaku, seperti Indeks Standar Pencemar Udara (ISPU), serta standar acuan dari World Health Organization (WHO) dan National Institute for Occupational Safety and Health (NIOSH).
 
@@ -19,6 +19,20 @@ Nama "Pawana" diambil dari bahasa Sanskerta yang berarti "angin," mencerminkan f
 
 ## ⭐ Fitur Utama
 
+- **Dasbor** : 
+    Menampilkan analisis secara visual terkait kualitas udara dengan parameter PM2.5, PM10, CO2, dan CH4, untuk memudahkan pengguna dalam memantau kondisi udara secara real-time.
+
+- **Aduan** : 
+    Memfasilitasi aduan masyarakat terkait kondisi kualitas udara yang mereka rasakan ke dalam sistem untuk ditindaklanjuti pihak berwenang.
+
+- **Pencatatan** : 
+    Memfasitasi aktivitas kegiatan industri di lokasi studi untuk membantu mengidentifikasi sumber pencemar udara dan menghubungkannya dengan data kualitas udara yang tercatat.
+
+- **Laporan** : 
+    Menyediakan ringkasan kualitas udara dalam rentang waktu tertentu (mingguan, dan bulanan) untuk membantu pengguna memahami pola polusi dan dampaknya pada lingkungan sekitar.
+
+- **Download Data** : 
+    Memfasilitasi pengguna untuk mengunduh data kualitas udara yang diambil dari sensor untuk analisis lebih mendalam secara mandiri.
 
 ## 👩🏾‍💻 Teknologi
 
@@ -42,3 +56,11 @@ Sedangkan dari sisi front-end teknologi yang digunakan di antaranya sebagai beri
 ![Static Badge](https://img.shields.io/badge/React%20Leaflet-%2361ba9e?style=for-the-badge&logo=leaflet)
 
 </div>
+
+## 📱 Sisi Front-end
+Kode Program untuk sisi Frontend dari aplikasi ini berada di repositori terpisah. Klik tautan dibawah untuk mengaksesnya.
+
+https://github.com/Syukurrahmat/pawana-dss-fe
+
+
+
